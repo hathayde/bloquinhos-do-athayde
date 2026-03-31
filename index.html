@@ -1,0 +1,462 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Block Blast-like</title>
+  <style>
+    :root { --bg:#0b1020; --panel:#141b34; --text:#e9eefc; --muted:#a9b3d6; --accent:#7c5cff; --grid:#1f2a52; --grid2:#1a2452; }
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg),#060819);color:var(--text);font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif;}
+    .wrap{max-width:520px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:12px;}
+    header{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+    h1{font-size:14px;margin:0;font-weight:700;letter-spacing:.25px;color:var(--text);}
+    .btn{border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:var(--text);border-radius:10px;padding:8px 12px;font-weight:700;font-size:13px;cursor:pointer;}
+    .btn:hover{background:rgba(255,255,255,.09);} 
+    .meta{display:flex;gap:10px;align-items:center;}
+    .card{background:linear-gradient(180deg,var(--panel),#0e142b);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:12px 12px;box-shadow:0 18px 60px rgba(0,0,0,.40);}
+    .row{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+    .label{font-size:12px;color:var(--muted);}
+    .value{font-size:18px;font-weight:900;}
+    canvas{width:100%;border-radius:14px;display:block;background:radial-gradient(120% 90% at 0% 0%, rgba(124,92,255,.22), transparent 55%),linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.12);}
+    .hint{font-size:12px;color:var(--muted);margin:8px 0 0;line-height:1.35;}
+    .foot{font-size:11px;color:var(--muted);text-align:center;margin-top:4px;}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Block Blast-like</h1>
+      <div class="meta">
+        <button class="btn" id="restart">Reiniciar</button>
+      </div>
+    </header>
+
+    <div class="card">
+      <div class="row">
+        <div>
+          <div class="label">Pontuação</div>
+          <div class="value" id="score">0</div>
+        </div>
+        <div>
+          <div class="label">Recorde</div>
+          <div class="value" id="best">0</div>
+        </div>
+      </div>
+      <p class="hint">Toque (ou clique) para selecionar/soltar. Arraste para encaixar. Limpe linhas/colunas e faça combos. Se nenhuma peça couber, game over.</p>
+    </div>
+
+    <canvas id="game" width="480" height="560"></canvas>
+    <div class="foot">Pronto pra Vercel & mobile • by you</div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+    let W, H;
+    const GRID = 9;
+    const state = {
+      grid: Array.from({ length: GRID }, () => Array(GRID).fill(null)),
+      score: 0,
+      best: Number(localStorage.getItem('block_blast_best') || 0),
+      bag: [],
+      pieces: [],
+      selected: null,
+      dragging: null,
+      mouse: { x: 0, y: 0 },
+      over: false,
+    };
+
+    const COLORS = {
+      block: ['#7C5CFF', '#00E5FF', '#00E676', '#FFEA00', '#FF9100', '#FF3D00', '#FF00E6'],
+      grid1: '#1f2a52',
+      grid2: '#18224a',
+      emptyGlow: 'rgba(255,255,255,.10)',
+    };
+
+    function piecesLibrary() {
+      // a handful of Block-Blast-ish pieces
+      const p = [];
+      const add = (cells) => p.push(cells);
+      add([[0,0]]);
+      add([[0,0],[1,0]]);
+      add([[0,0],[0,1]]);
+      add([[0,0],[1,0],[2,0]]);
+      add([[0,0],[0,1],[0,2]]);
+      add([[0,0],[1,0],[0,1],[1,1]]);
+      add([[0,0],[1,0],[2,0],[0,1]]);
+      add([[0,0],[1,0],[2,0],[2,1]]);
+      add([[0,0],[0,1],[1,1],[1,2]]);
+      add([[0,0],[1,0],[1,1]]);
+      add([[0,0],[0,1],[1,0]]);
+      add([[0,0],[1,0],[1,1],[1,2]]);
+      add([[0,0],[0,1],[0,2],[1,2]]);
+      add([[0,0],[1,0],[2,0],[3,0]]);
+      add([[0,0],[0,1],[0,2],[0,3]]);
+      return p;
+    }
+
+    const LIB = piecesLibrary();
+
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = (Math.random() * (i + 1)) | 0;
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function refillBag() {
+      state.bag = shuffle([...LIB]);
+    }
+
+    function popPiece() {
+      if (!state.bag.length) refillBag();
+      return JSON.parse(JSON.stringify(state.bag.pop()));
+    }
+
+    function generatePieces() {
+      state.pieces = [0,1,2].map(() => {
+        const cells = popPiece();
+        const color = COLORS.block[(Math.random()*COLORS.block.length)|0];
+        return { id: crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(16), cells, color };
+      });
+    }
+
+    function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+
+    function layout() {
+      // 80% of canvas height grid
+      const base = Math.min(canvas.width, canvas.height - 120);
+      const gridSize = Math.floor(base);
+      const cell = Math.floor(gridSize / GRID);
+      const gridX = Math.floor((canvas.width - cell*GRID) / 2);
+      const gridY = 12;
+      const piecesY = gridY + cell*GRID + 20;
+      const piecesW = canvas.width - 20;
+      return { cell, gridSize, gridX, gridY, piecesY, piecesW };
+    }
+
+    function gridRect() { return layout(); }
+
+    function getPieceBounds(piece) {
+      const xs = piece.cells.map(c=>c[0]);
+      const ys = piece.cells.map(c=>c[1]);
+      return { w: Math.max(...xs)+1, h: Math.max(...ys)+1 };
+    }
+
+    function pointInRect(px,py, x,y,w,h) {
+      return px>=x && px<=x+w && py>=y && py<=y+h;
+    }
+
+    function fits(piece,gx,gy) {
+      for (const [dx,dy] of piece.cells) {
+        const x = gx+dx;
+        const y = gy+dy;
+        if (x<0||y<0||x>=GRID||y>=GRID) return false;
+        if (state.grid[y][x]) return false;
+      }
+      return true;
+    }
+
+    function place(piece,gx,gy) {
+      for (const [dx,dy] of piece.cells) {
+        state.grid[gy+dy][gx+dx] = piece.color;
+      }
+    }
+
+    function linesCleared() {
+      const fullRow = Array(GRID).fill(true);
+      const rows = state.grid.map(r=>r.every(Boolean));
+      const cols = Array.from({length:GRID},(_,x)=>state.grid.every(r=>r[x]));
+      const cleared = [];
+      rows.forEach((v,i)=>{if(v) cleared.push({type:'row',i});});
+      cols.forEach((v,i)=>{if(v) cleared.push({type:'col',i});});
+      if (!cleared.length) return 0;
+      // clear
+      rows.forEach((v,y)=>{if(v) state.grid[y]=Array(GRID).fill(null);});
+      cols.forEach((v,x)=>{if(v) for(let y=0;y<GRID;y++) state.grid[y][x]=null;});
+      return cleared.length;
+    }
+
+    function anyMovePossible() {
+      for (const piece of state.pieces) {
+        for (let y=0;y<GRID;y++) for (let x=0;x<GRID;x++) {
+          if (fits(piece,x,y)) return true;
+        }
+      }
+      return false;
+    }
+
+    function scoreAdd(base, combo) {
+      const gain = base + Math.floor(base * combo * 0.25);
+      state.score += gain;
+      if (state.score > state.best) {
+        state.best = state.score;
+        localStorage.setItem('block_blast_best', state.best);
+      }
+    }
+
+    function reset() {
+      state.grid = Array.from({ length: GRID }, () => Array(GRID).fill(null));
+      state.score = 0;
+      refillBag();
+      generatePieces();
+      state.selected = null;
+      state.dragging = null;
+      state.over = false;
+      render();
+      syncScore();
+    }
+
+    function syncScore() {
+      document.getElementById('score').textContent = state.score;
+      document.getElementById('best').textContent = state.best;
+    }
+
+    function pieceSlots() {
+      const { piecesW, piecesY } = layout();
+      const pad = 12;
+      const slotW = Math.floor((piecesW - pad*2)/3);
+      const slots = [];
+      for (let i=0;i<3;i++) {
+        const x = 10 + pad/2 + i*slotW;
+        const y = piecesY;
+        slots.push({x,y,w:slotW-pad/2,h:canvas.height-y-10});
+      }
+      return slots;
+    }
+
+    function drawRoundedRect(x,y,w,h,r) {
+      r = Math.min(r, w/2, h/2);
+      ctx.beginPath();
+      ctx.moveTo(x+r,y);
+      ctx.arcTo(x+w,y,x+w,y+h,r);
+      ctx.arcTo(x+w,y+h,x,y+h,r);
+      ctx.arcTo(x,y+h,x,y,r);
+      ctx.arcTo(x,y,x+w,y,r);
+      ctx.closePath();
+    }
+
+    function draw() {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      const {cell,gridX,gridY} = layout();
+      // grid background
+      drawRoundedRect(gridX,gridY,cell*GRID,cell*GRID,14);
+      ctx.fillStyle = 'rgba(255,255,255,.03)';
+      ctx.fill();
+
+      // grid cells
+      for (let y=0;y<GRID;y++){
+        for (let x=0;x<GRID;x++){
+          const cx = gridX + x*cell;
+          const cy = gridY + y*cell;
+          const v = state.grid[y][x];
+          ctx.fillStyle = v ? v : ((x+y)%2 ? COLORS.grid2 : COLORS.grid1);
+          ctx.fillRect(cx+1, cy+1, cell-2, cell-2);
+          if (!v) {
+            ctx.strokeStyle = 'rgba(255,255,255,.03)';
+            ctx.strokeRect(cx+1, cy+1, cell-2, cell-2);
+          }
+        }
+      }
+
+      // possible hint for selected piece
+      if (state.selected && !state.dragging) {
+        const hint = state.selected;
+        // find closest fit to mouse? highlight all fits by moderate transparency
+        for (let y=0;y<GRID;y++) for (let x=0;x<GRID;x++) {
+          if (!fits(hint,x,y)) continue;
+          ctx.fillStyle = 'rgba(255,255,255,.06)';
+          ctx.beginPath();
+          ctx.rect(gridX+x*cell+1, gridY+y*cell+1, cell-2, cell-2);
+          ctx.fill();
+        }
+      }
+
+      // pieces
+      const slots = pieceSlots();
+      state.pieces.forEach((p,i)=>{
+        if (!p) return;
+        const slot = slots[i];
+        // highlight slot
+        drawRoundedRect(slot.x, slot.y, slot.w, slot.h, 12);
+        ctx.fillStyle = 'rgba(255,255,255,.02)';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,.10)';
+        ctx.stroke();
+
+        const bounds = getPieceBounds(p);
+        const size = Math.min((slot.w-30)/bounds.w, (slot.h-30)/bounds.h);
+        const px0 = slot.x + (slot.w - bounds.w*size)/2;
+        const py0 = slot.y + (slot.h - bounds.h*size)/2;
+
+        p._draw = {x:px0,y:py0,size};
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        for (const [dx,dy] of p.cells) {
+          const x = px0 + dx*size;
+          const y = py0 + dy*size;
+          ctx.rect(x+2,y+2,size-4,size-4);
+        }
+        ctx.fill();
+
+        // subtle glow
+        ctx.strokeStyle = 'rgba(255,255,255,.12)';
+        ctx.stroke();
+
+        if (state.selected === p && !state.dragging) {
+          ctx.strokeStyle = 'rgba(124,92,255,.65)';
+          ctx.lineWidth = 3;
+          ctx.stroke();
+          ctx.lineWidth = 1;
+        }
+      });
+
+      // dragging piece overlay
+      if (state.dragging) {
+        const p = state.dragging.p;
+        const bounds = getPieceBounds(p);
+        const size = Math.floor(layout().cell*0.9);
+        const px0 = state.mouse.x - size*bounds.w/2;
+        const py0 = state.mouse.y - size*bounds.h/2;
+        ctx.globalAlpha = 0.9;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        for (const [dx,dy] of p.cells) {
+          ctx.rect(px0 + dx*size +2, py0 + dy*size +2, size-4, size-4);
+        }
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+
+      if (state.over) {
+        ctx.fillStyle = 'rgba(0,0,0,.55)';
+        drawRoundedRect(24, canvas.height/2-60, canvas.width-48, 120, 16);
+        ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,.95)';
+        ctx.font = '900 22px system-ui,Segoe UI,Roboto,Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('Game Over', canvas.width/2, canvas.height/2+2);
+        ctx.font = '600 14px system-ui,Segoe UI,Roboto,Arial';
+        ctx.fillStyle = 'rgba(233,238,252,.85)';
+        ctx.fillText('Toque em Reiniciar para jogar novamente', canvas.width/2, canvas.height/2+28);
+        ctx.textAlign = 'start';
+      }
+    }
+
+    function render() {
+      syncScore();
+      draw();
+    }
+
+    function screenToGrid(px,py) {
+      const { cell, gridX, gridY } = layout();
+      const gx = Math.floor((px - gridX) / cell);
+      const gy = Math.floor((py - gridY) / cell);
+      return {gx,gy};
+    }
+
+    function selectPieceAt(px,py) {
+      const slots = pieceSlots();
+      for (let i=0;i<slots.length;i++) {
+        const p = state.pieces[i];
+        if (!p) continue;
+        const slot = slots[i];
+        if (!pointInRect(px,py,slot.x,slot.y,slot.w,slot.h)) continue;
+        const b = getPieceBounds(p);
+        const size = p._draw.size;
+        const px0 = p._draw.x;
+        const py0 = p._draw.y;
+        for (const [dx,dy] of p.cells) {
+          const x = px0 + dx*size;
+          const y = py0 + dy*size;
+          if (pointInRect(px,py,x,y,size,size)) return p;
+        }
+      }
+      return null;
+    }
+
+    function pieceIndex(p) {
+      return state.pieces.findIndex(x=>x===p);
+    }
+
+    function dropOnGrid(px,py,p) {
+      const {gx,gy} = screenToGrid(px,py);
+      if (!fits(p,gx,gy)) return false;
+      place(p,gx,gy);
+      const idx = pieceIndex(p);
+      if (idx>=0) state.pieces[idx] = null;
+      const cleared = linesCleared();
+      const base = p.cells.length;
+      scoreAdd(base, cleared);
+
+      // refill pieces once three used
+      if (state.pieces.every(x=>!x)) generatePieces();
+
+      if (!anyMovePossible()) state.over = true;
+      return true;
+    }
+
+    function handlePointerDown(e) {
+      if (state.over) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      state.mouse = {x,y};
+      const p = selectPieceAt(x,y);
+      if (!p) {
+        state.selected = null;
+        render();
+        return;
+      }
+      state.selected = p;
+      state.dragging = {p};
+      render();
+      e.preventDefault();
+    }
+
+    function handlePointerMove(e) {
+      const rect = canvas.getBoundingClientRect();
+      state.mouse = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      if (state.dragging) render();
+    }
+
+    function handlePointerUp(e) {
+      if (!state.dragging) return;
+      const p = state.dragging.p;
+      state.dragging = null;
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const ok = dropOnGrid(x,y,p);
+      if (!ok) {
+        // keep selected so user can try again
+        state.selected = p;
+      } else {
+        state.selected = null;
+      }
+      render();
+    }
+
+    function resize() {
+      const scale = window.devicePixelRatio || 1;
+      const width = canvas.clientWidth;
+      const height = Math.max(520, Math.min(650, width*1.2));
+      canvas.height = height*scale;
+      canvas.width = width*scale;
+      ctx.setTransform(scale,0,0,scale,0,0);
+      render();
+    }
+
+    window.addEventListener('resize', resize, {passive:true});
+    canvas.addEventListener('pointerdown', handlePointerDown);
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', handlePointerUp);
+
+    document.getElementById('restart').addEventListener('click', reset);
+
+    resize();
+    reset();
+  </script>
+</body>
+</html>
