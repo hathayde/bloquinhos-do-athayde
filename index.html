@@ -61,6 +61,7 @@
       display: flex;
       justify-content: center;
       overflow: hidden;
+      position: relative;
     }
 
     .shell {
@@ -166,14 +167,17 @@
       color: #d8ddff;
       letter-spacing: 0.01em;
       text-align: center;
+      transition: transform 180ms ease, opacity 180ms ease;
     }
 
+    .message.pop { transform: translateY(-1px) scale(1.02); }
     .message.warn { color: #ffd0dc; }
 
     .board-wrap {
       display: grid;
       place-items: center;
       min-height: 0;
+      position: relative;
     }
 
     .board-shell {
@@ -181,6 +185,7 @@
       display: grid;
       justify-items: center;
       gap: 8px;
+      position: relative;
     }
 
     .board {
@@ -202,6 +207,16 @@
       touch-action: none;
       user-select: none;
       overflow: hidden;
+      transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+    }
+
+    .board.combo-glow {
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.08),
+        0 22px 48px rgba(0, 0, 0, 0.28),
+        0 0 0 1px rgba(255,255,255,.05),
+        0 0 32px rgba(109, 91, 255, 0.24);
+      filter: saturate(1.06);
     }
 
     .board::after {
@@ -225,7 +240,7 @@
       box-shadow:
         inset 0 1px 0 rgba(255,255,255,.03),
         inset 0 -1px 0 rgba(0,0,0,.12);
-      transition: transform 120ms ease, filter 120ms ease, background 120ms ease, opacity 120ms ease, box-shadow 120ms ease;
+      transition: transform 140ms ease, filter 140ms ease, background 140ms ease, opacity 140ms ease, box-shadow 140ms ease;
     }
 
     .cell.filled {
@@ -233,6 +248,16 @@
         inset 0 1px 0 rgba(255,255,255,.20),
         inset 0 -2px 0 rgba(0,0,0,.14),
         0 8px 16px rgba(0,0,0,.16);
+    }
+
+    .cell.clearing {
+      animation: clearPulse 260ms ease forwards;
+    }
+
+    @keyframes clearPulse {
+      0% { transform: scale(1); filter: brightness(1); opacity: 1; }
+      50% { transform: scale(0.88); filter: brightness(1.35); opacity: 0.82; }
+      100% { transform: scale(0.4); filter: brightness(1.8); opacity: 0; }
     }
 
     .cell.preview-valid {
@@ -263,6 +288,13 @@
       font-weight: 900;
       color: #ecf1ff;
       box-shadow: var(--shadow-soft);
+      transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    }
+
+    .combo-chip.hot {
+      transform: translateY(-1px) scale(1.03);
+      box-shadow: var(--shadow-soft), 0 0 24px rgba(109, 91, 255, 0.2);
+      background: linear-gradient(180deg, rgba(131,108,255,.22), rgba(255,255,255,.06));
     }
 
     .tray {
@@ -325,6 +357,16 @@
         inset 0 1px 0 rgba(255,255,255,.08);
     }
 
+    .piece-card.placed {
+      animation: piecePop 220ms ease;
+    }
+
+    @keyframes piecePop {
+      0% { transform: scale(1); }
+      50% { transform: scale(0.92); }
+      100% { transform: scale(1); }
+    }
+
     .piece-card.unplayable { opacity: 0.42; filter: grayscale(0.24); }
     .piece-card.used { opacity: 0.14; pointer-events: none; }
 
@@ -336,6 +378,7 @@
       border-radius: 6px;
       background: transparent;
       opacity: 0;
+      transition: transform 120ms ease;
     }
 
     .piece-mini.on {
@@ -344,6 +387,10 @@
         inset 0 1px 0 rgba(255,255,255,.22),
         inset 0 -1px 0 rgba(0,0,0,.10),
         0 4px 10px rgba(0,0,0,.10);
+    }
+
+    .piece-card.active .piece-mini.on {
+      transform: translateY(-1px);
     }
 
     .piece-tag {
@@ -390,6 +437,12 @@
       display: grid;
       gap: 14px;
       text-align: center;
+      animation: gameOverIn 240ms ease;
+    }
+
+    @keyframes gameOverIn {
+      0% { transform: translateY(8px) scale(0.96); opacity: 0; }
+      100% { transform: translateY(0) scale(1); opacity: 1; }
     }
 
     .dialog h2 { margin: 0; font-size: 28px; letter-spacing: -0.04em; }
@@ -426,6 +479,48 @@
     }
 
     .ghost-cell.on { opacity: 1; }
+
+    .floating-score {
+      position: absolute;
+      right: 12px;
+      top: 8px;
+      z-index: 8;
+      font-size: 18px;
+      font-weight: 900;
+      color: #ffe38a;
+      text-shadow: 0 4px 14px rgba(0,0,0,.25);
+      pointer-events: none;
+      animation: floatUp 900ms ease forwards;
+    }
+
+    @keyframes floatUp {
+      0% { transform: translateY(8px) scale(0.92); opacity: 0; }
+      15% { transform: translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateY(-28px) scale(1.04); opacity: 0; }
+    }
+
+    .particles {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 7;
+    }
+
+    .particle {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      opacity: 0;
+      animation: particleBurst 520ms ease forwards;
+      box-shadow: 0 0 12px currentColor;
+    }
+
+    @keyframes particleBurst {
+      0% { transform: translate(0, 0) scale(0.3); opacity: 1; }
+      100% { transform: translate(var(--dx), var(--dy)) scale(1); opacity: 0; }
+    }
 
     @media (max-width: 420px) {
       .app {
@@ -474,6 +569,7 @@
       <section class="board-wrap" id="boardWrap">
         <div class="board-shell">
           <div class="board" id="board" aria-label="Tabuleiro do jogo"></div>
+          <div class="particles" id="particles"></div>
           <div class="combo-chip" id="comboChip">Sem combo</div>
         </div>
       </section>
@@ -534,6 +630,8 @@
       const FINAL_BEST = document.getElementById("finalBest");
       const RESTART_BUTTON = document.getElementById("restartButton");
       const RESTART_OVERLAY_BUTTON = document.getElementById("restartOverlayButton");
+      const PARTICLES = document.getElementById("particles");
+      const BOARD_WRAP = document.querySelector(".board-shell");
 
       const COLORS = [
         "linear-gradient(180deg, #b59cff, #7e63ff)",
@@ -565,7 +663,12 @@
         preview: null,
         previewValid: false,
         dragging: null,
-        messageTimer: null
+        messageTimer: null,
+        messagePopTimer: null,
+        clearingCells: new Set(),
+        placedPieceId: null,
+        placedPieceTimer: null,
+        comboFxTimer: null,
       };
 
       function loadBest() {
@@ -576,6 +679,13 @@
       function saveBest() {
         try { localStorage.setItem(BEST_KEY, String(state.best)); }
         catch {}
+      }
+
+      function haptic(pattern = "light") {
+        if (!navigator.vibrate) return;
+        if (pattern === "success") navigator.vibrate([10, 18, 12]);
+        else if (pattern === "warn") navigator.vibrate(18);
+        else navigator.vibrate(10);
       }
 
       function makeEmptyBoard() {
@@ -675,6 +785,14 @@
           if (full) colsToClear.push(col);
         }
 
+        const cells = new Set();
+        rowsToClear.forEach((row) => {
+          for (let col = 0; col < GRID_SIZE; col += 1) cells.add(`${row}-${col}`);
+        });
+        colsToClear.forEach((col) => {
+          for (let row = 0; row < GRID_SIZE; row += 1) cells.add(`${row}-${col}`);
+        });
+
         const next = cloneBoard(board);
         rowsToClear.forEach((row) => {
           for (let col = 0; col < GRID_SIZE; col += 1) next[row][col] = null;
@@ -683,7 +801,7 @@
           for (let row = 0; row < GRID_SIZE; row += 1) next[row][col] = null;
         });
 
-        return { board: next, lineCount: rowsToClear.length + colsToClear.length };
+        return { board: next, lineCount: rowsToClear.length + colsToClear.length, cells };
       }
 
       function hasAnyMove(board, pieces) {
@@ -724,12 +842,51 @@
 
       function setMessage(text, kind = "info") {
         clearTimeout(state.messageTimer);
+        clearTimeout(state.messagePopTimer);
         MESSAGE_TEXT.textContent = text;
-        MESSAGE_TEXT.className = `message ${kind === "warn" ? "warn" : ""}`.trim();
+        MESSAGE_TEXT.className = `message pop ${kind === "warn" ? "warn" : ""}`.trim();
+        state.messagePopTimer = setTimeout(() => {
+          MESSAGE_TEXT.className = `message ${kind === "warn" ? "warn" : ""}`.trim();
+        }, 180);
         state.messageTimer = setTimeout(() => {
           MESSAGE_TEXT.textContent = "";
           MESSAGE_TEXT.className = "message";
         }, 1200);
+      }
+
+      function spawnFloatingScore(value) {
+        const node = document.createElement("div");
+        node.className = "floating-score";
+        node.textContent = `+${value}`;
+        BOARD_WRAP.appendChild(node);
+        setTimeout(() => node.remove(), 900);
+      }
+
+      function spawnParticles(color = "#ffffff") {
+        PARTICLES.innerHTML = "";
+        const count = 10;
+        for (let i = 0; i < count; i += 1) {
+          const p = document.createElement("div");
+          p.className = "particle";
+          p.style.left = `${46 + (Math.random() * 8 - 4)}%`;
+          p.style.top = `${46 + (Math.random() * 8 - 4)}%`;
+          p.style.color = color;
+          p.style.background = color;
+          p.style.setProperty("--dx", `${(Math.random() * 100 - 50)}px`);
+          p.style.setProperty("--dy", `${(Math.random() * 100 - 60)}px`);
+          PARTICLES.appendChild(p);
+        }
+        setTimeout(() => { PARTICLES.innerHTML = ""; }, 560);
+      }
+
+      function triggerComboFx(hot = false) {
+        clearTimeout(state.comboFxTimer);
+        BOARD.classList.add("combo-glow");
+        COMBO_CHIP.classList.add("hot");
+        state.comboFxTimer = setTimeout(() => {
+          if (!hot) BOARD.classList.remove("combo-glow");
+          COMBO_CHIP.classList.remove("hot");
+        }, 320);
       }
 
       function updateLayout() {
@@ -764,17 +921,22 @@
             cell.type = "button";
             cell.className = "cell";
             const value = state.board[row][col];
+            const key = `${row}-${col}`;
 
             if (value) {
               cell.classList.add("filled");
               cell.style.background = value.color;
             }
 
-            if (activePiece && activeAnchors.has(`${row}-${col}`) && !value) {
+            if (state.clearingCells.has(key)) {
+              cell.classList.add("clearing");
+            }
+
+            if (activePiece && activeAnchors.has(key) && !value) {
               cell.classList.add("anchor");
             }
 
-            if (preview && preview.cells.has(`${row}-${col}`)) {
+            if (preview && preview.cells.has(key)) {
               cell.classList.add(preview.valid ? "preview-valid" : "preview-invalid");
               if (preview.valid) cell.style.background = activePiece?.color || value?.color;
             }
@@ -814,6 +976,7 @@
           card.className = "piece-card";
           if (piece.id === state.selectedPieceId) card.classList.add("active");
           if (piece.used) card.classList.add("used");
+          if (piece.id === state.placedPieceId) card.classList.add("placed");
           const playable = !piece.used && hasAnyMove(state.board, [piece]);
           if (!playable && !piece.used) card.classList.add("unplayable");
 
@@ -854,6 +1017,7 @@
         COMBO_VALUE.textContent = String(state.combo);
         BEST_VALUE.textContent = String(state.best);
         COMBO_CHIP.textContent = state.combo > 1 ? `Combo x${state.combo}` : state.combo === 1 ? "Combo iniciado" : "Sem combo";
+        if (state.combo <= 1) BOARD.classList.remove("combo-glow");
       }
 
       function renderGameOver() {
@@ -881,6 +1045,7 @@
         if (!piece || piece.used) return;
         if (!hasAnyMove(state.board, [piece])) {
           setMessage("Essa peça não cabe agora.", "warn");
+          haptic("warn");
           return;
         }
         state.selectedPieceId = state.selectedPieceId === pieceId ? null : pieceId;
@@ -895,6 +1060,7 @@
         if (!piece) return;
         if (!canPlace(state.board, piece, row, col)) {
           setMessage("Esse encaixe não cabe aqui.", "warn");
+          haptic("warn");
           return;
         }
         commitPlacement(piece, row, col);
@@ -902,9 +1068,17 @@
 
       function commitPlacement(piece, row, col) {
         state.board = placePiece(state.board, piece, row, col);
+        state.placedPieceId = piece.id;
+        clearTimeout(state.placedPieceTimer);
+        state.placedPieceTimer = setTimeout(() => {
+          state.placedPieceId = null;
+          render();
+        }, 220);
+
         piece.used = true;
         const cleared = clearFullLines(state.board);
         state.board = cleared.board;
+        state.clearingCells = cleared.cells;
 
         const basePoints = countPieceCells(piece) * 5;
         const comboNow = cleared.lineCount > 0 ? state.combo + 1 : 0;
@@ -920,6 +1094,11 @@
           saveBest();
         }
 
+        spawnFloatingScore(gained);
+        haptic(cleared.lineCount > 0 ? "success" : "light");
+        triggerComboFx(comboNow > 1);
+        if (cleared.lineCount > 0) spawnParticles(piece.flatColor);
+
         if (cleared.lineCount > 0) setMessage(comboNow > 1 ? `Boa! Combo x${comboNow}` : "Linha limpa.");
         else setMessage(`+${gained} pontos`);
 
@@ -932,6 +1111,13 @@
         }
 
         render();
+
+        if (state.clearingCells.size) {
+          setTimeout(() => {
+            state.clearingCells = new Set();
+            render();
+          }, 260);
+        }
       }
 
       function getBoardMetrics() {
@@ -971,6 +1157,7 @@
         if (!piece || piece.used) return;
         if (!hasAnyMove(state.board, [piece])) {
           setMessage("Essa peça não cabe agora.", "warn");
+          haptic("warn");
           return;
         }
 
@@ -1004,6 +1191,7 @@
         if (piece && state.preview && state.previewValid) commitPlacement(piece, state.preview.row, state.preview.col);
         else {
           setMessage("Solte em uma posição válida.", "warn");
+          haptic("warn");
           state.preview = null;
           state.previewValid = false;
           render();
@@ -1022,6 +1210,11 @@
         state.preview = null;
         state.previewValid = false;
         state.dragging = null;
+        state.clearingCells = new Set();
+        state.placedPieceId = null;
+        BOARD.classList.remove("combo-glow");
+        COMBO_CHIP.classList.remove("hot");
+        PARTICLES.innerHTML = "";
         render();
       }
 
