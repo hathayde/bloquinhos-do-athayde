@@ -16,7 +16,6 @@
       --bg-2: #040916;
       --bg-3: #10193a;
       --panel: rgba(19, 31, 67, 0.72);
-      --panel-strong: rgba(17, 28, 60, 0.9);
       --panel-border: rgba(176, 193, 255, 0.14);
       --text: #f3f6ff;
       --muted: #aebce8;
@@ -34,7 +33,6 @@
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
     html, body {
       margin: 0;
       min-height: 100%;
@@ -47,17 +45,12 @@
         radial-gradient(620px 340px at 85% 18%, rgba(255, 122, 162, 0.08), transparent 55%),
         linear-gradient(180deg, var(--bg-1), var(--bg-2));
     }
-
     body { min-height: 100dvh; }
     button { font: inherit; color: inherit; }
 
     .app {
       min-height: 100dvh;
-      padding:
-        calc(var(--safe-top) + 8px)
-        calc(var(--safe-right) + 12px)
-        calc(var(--safe-bottom) + 16px)
-        calc(var(--safe-left) + 12px);
+      padding: calc(var(--safe-top) + 8px) calc(var(--safe-right) + 12px) calc(var(--safe-bottom) + 16px) calc(var(--safe-left) + 12px);
       display: flex;
       justify-content: center;
       overflow: hidden;
@@ -75,9 +68,9 @@
 
     .topbar {
       display: grid;
-      grid-template-columns: 1fr auto;
+      grid-template-columns: 1fr auto auto;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       padding: 0 2px;
     }
 
@@ -89,26 +82,34 @@
       font-weight: 900;
       text-shadow: 0 4px 18px rgba(109, 91, 255, 0.22);
     }
-
     .subtitle { display: none; }
 
-    .button {
+    .button, .icon-button {
       border: 1px solid rgba(255, 255, 255, 0.1);
       background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
-      border-radius: 14px;
-      padding: 8px 12px;
-      min-height: 38px;
-      font-weight: 800;
-      box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.12),
-        0 8px 18px rgba(0, 0, 0, 0.16);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 8px 18px rgba(0, 0, 0, 0.16);
       cursor: pointer;
       user-select: none;
       transition: transform 120ms ease, filter 120ms ease, background 120ms ease;
     }
-
-    .button:active { transform: scale(0.98); }
-    .button:hover { filter: brightness(1.05); }
+    .button {
+      border-radius: 14px;
+      padding: 8px 12px;
+      min-height: 38px;
+      font-weight: 800;
+    }
+    .icon-button {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      font-size: 16px;
+      padding: 0;
+    }
+    .button:active, .icon-button:active { transform: scale(0.98); }
+    .button:hover, .icon-button:hover { filter: brightness(1.05); }
+    .icon-button.off { opacity: 0.65; }
 
     .panel {
       background: linear-gradient(180deg, rgba(18, 31, 68, 0.82), rgba(9, 18, 42, 0.88));
@@ -122,17 +123,13 @@
       padding: 8px;
       display: grid;
       gap: 6px;
-      background:
-        linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)),
-        linear-gradient(180deg, rgba(18, 31, 68, 0.82), rgba(9, 18, 42, 0.88));
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)), linear-gradient(180deg, rgba(18, 31, 68, 0.82), rgba(9, 18, 42, 0.88));
     }
-
     .stat-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 6px;
     }
-
     .stat-card {
       min-height: 54px;
       border-radius: 18px;
@@ -143,8 +140,12 @@
       align-content: start;
       gap: 2px;
       box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+      transition: transform 180ms ease, box-shadow 180ms ease;
     }
-
+    .stat-card.best-hit {
+      transform: translateY(-1px) scale(1.03);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 0 26px rgba(255, 196, 87, 0.22);
+    }
     .stat-label {
       font-size: 10px;
       color: var(--muted-2);
@@ -152,14 +153,12 @@
       text-transform: uppercase;
       font-weight: 800;
     }
-
     .stat-value {
       font-size: clamp(20px, 4vw, 24px);
       line-height: 1;
       font-weight: 900;
       letter-spacing: -0.04em;
     }
-
     .message {
       min-height: 14px;
       font-size: 11px;
@@ -169,7 +168,6 @@
       text-align: center;
       transition: transform 180ms ease, opacity 180ms ease;
     }
-
     .message.pop { transform: translateY(-1px) scale(1.02); }
     .message.warn { color: #ffd0dc; }
 
@@ -179,7 +177,6 @@
       min-height: 0;
       position: relative;
     }
-
     .board-shell {
       width: var(--board-size);
       display: grid;
@@ -187,7 +184,6 @@
       gap: 8px;
       position: relative;
     }
-
     .board {
       position: relative;
       width: var(--board-size);
@@ -197,28 +193,22 @@
       gap: var(--cell-gap);
       padding: 6px;
       border-radius: 30px;
-      background:
-        radial-gradient(140% 100% at 0% 0%, rgba(109, 91, 255, 0.20), transparent 50%),
-        linear-gradient(180deg, rgba(31, 48, 98, 0.96), rgba(11, 20, 45, 0.98));
+      background: radial-gradient(140% 100% at 0% 0%, rgba(109, 91, 255, 0.20), transparent 50%), linear-gradient(180deg, rgba(31, 48, 98, 0.96), rgba(11, 20, 45, 0.98));
       border: 1px solid rgba(176, 193, 255, 0.16);
-      box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.08),
-        0 22px 48px rgba(0, 0, 0, 0.28);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 22px 48px rgba(0, 0, 0, 0.28);
       touch-action: none;
       user-select: none;
       overflow: hidden;
       transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
     }
-
     .board.combo-glow {
-      box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.08),
-        0 22px 48px rgba(0, 0, 0, 0.28),
-        0 0 0 1px rgba(255,255,255,.05),
-        0 0 32px rgba(109, 91, 255, 0.24);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 22px 48px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(255,255,255,.05), 0 0 32px rgba(109, 91, 255, 0.24);
       filter: saturate(1.06);
     }
-
+    .board.record-glow {
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 22px 48px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(255,255,255,.05), 0 0 48px rgba(255, 196, 87, 0.32);
+      filter: saturate(1.14) brightness(1.03);
+    }
     .board::after {
       content: "";
       position: absolute;
@@ -235,46 +225,29 @@
       width: 100%;
       aspect-ratio: 1 / 1;
       border-radius: 11px;
-      background:
-        linear-gradient(180deg, rgba(39, 55, 110, 1), rgba(25, 37, 82, 1));
-      box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.03),
-        inset 0 -1px 0 rgba(0,0,0,.12);
+      background: linear-gradient(180deg, rgba(39, 55, 110, 1), rgba(25, 37, 82, 1));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.03), inset 0 -1px 0 rgba(0,0,0,.12);
       transition: transform 140ms ease, filter 140ms ease, background 140ms ease, opacity 140ms ease, box-shadow 140ms ease;
     }
-
     .cell.filled {
-      box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.20),
-        inset 0 -2px 0 rgba(0,0,0,.14),
-        0 8px 16px rgba(0,0,0,.16);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.20), inset 0 -2px 0 rgba(0,0,0,.14), 0 8px 16px rgba(0,0,0,.16);
     }
-
-    .cell.clearing {
-      animation: clearPulse 260ms ease forwards;
-    }
-
+    .cell.clearing { animation: clearPulse 260ms ease forwards; }
     @keyframes clearPulse {
       0% { transform: scale(1); filter: brightness(1); opacity: 1; }
       50% { transform: scale(0.88); filter: brightness(1.35); opacity: 0.82; }
       100% { transform: scale(0.4); filter: brightness(1.8); opacity: 0; }
     }
-
     .cell.preview-valid {
       filter: brightness(1.12) saturate(1.08);
       opacity: 0.86;
       transform: scale(0.94);
     }
-
     .cell.preview-invalid {
       background: linear-gradient(180deg, rgba(255, 108, 145, 0.48), rgba(205, 56, 96, 0.34));
       transform: scale(0.94);
     }
-
-    .cell.anchor {
-      outline: 1px solid rgba(255,255,255,.06);
-      outline-offset: -1px;
-    }
+    .cell.anchor { outline: 1px solid rgba(255,255,255,.06); outline-offset: -1px; }
 
     .combo-chip {
       min-height: 24px;
@@ -290,7 +263,6 @@
       box-shadow: var(--shadow-soft);
       transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
     }
-
     .combo-chip.hot {
       transform: translateY(-1px) scale(1.03);
       box-shadow: var(--shadow-soft), 0 0 24px rgba(109, 91, 255, 0.2);
@@ -301,11 +273,8 @@
       padding: 10px;
       display: grid;
       gap: 8px;
-      background:
-        linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015)),
-        linear-gradient(180deg, rgba(18, 31, 68, 0.82), rgba(9, 18, 42, 0.88));
+      background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015)), linear-gradient(180deg, rgba(18, 31, 68, 0.82), rgba(9, 18, 42, 0.88));
     }
-
     .tray-header {
       display: flex;
       align-items: center;
@@ -313,7 +282,6 @@
       gap: 12px;
       min-height: 18px;
     }
-
     .tray-title {
       font-size: 11px;
       font-weight: 900;
@@ -321,21 +289,17 @@
       letter-spacing: 0.08em;
       text-transform: uppercase;
     }
-
     .pieces {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 10px;
     }
-
     .piece-card {
       position: relative;
       min-height: 100px;
       border-radius: 22px;
       border: 1px solid rgba(255, 255, 255, 0.06);
-      background:
-        radial-gradient(120% 100% at 50% 0%, rgba(255,255,255,.10), transparent 55%),
-        linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      background: radial-gradient(120% 100% at 50% 0%, rgba(255,255,255,.10), transparent 55%), linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
       display: grid;
       place-items: center;
       padding: 10px 6px;
@@ -345,33 +309,21 @@
       transition: transform 120ms ease, border-color 120ms ease, background 120ms ease, opacity 120ms ease, box-shadow 120ms ease;
       box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
     }
-
     .piece-card.active {
-      background:
-        radial-gradient(120% 100% at 50% 0%, rgba(141,122,255,.24), transparent 55%),
-        linear-gradient(180deg, rgba(141, 122, 255, 0.14), rgba(255,255,255,.04));
+      background: radial-gradient(120% 100% at 50% 0%, rgba(141,122,255,.24), transparent 55%), linear-gradient(180deg, rgba(141, 122, 255, 0.14), rgba(255,255,255,.04));
       border-color: rgba(141, 122, 255, 0.38);
       transform: translateY(-2px) scale(1.01);
-      box-shadow:
-        0 10px 22px rgba(78, 70, 180, 0.22),
-        inset 0 1px 0 rgba(255,255,255,.08);
+      box-shadow: 0 10px 22px rgba(78, 70, 180, 0.22), inset 0 1px 0 rgba(255,255,255,.08);
     }
-
-    .piece-card.placed {
-      animation: piecePop 220ms ease;
-    }
-
+    .piece-card.placed { animation: piecePop 220ms ease; }
     @keyframes piecePop {
       0% { transform: scale(1); }
       50% { transform: scale(0.92); }
       100% { transform: scale(1); }
     }
-
     .piece-card.unplayable { opacity: 0.42; filter: grayscale(0.24); }
     .piece-card.used { opacity: 0.14; pointer-events: none; }
-
     .piece-grid { display: inline-grid; gap: 3px; }
-
     .piece-mini {
       width: 16px;
       height: 16px;
@@ -380,19 +332,11 @@
       opacity: 0;
       transition: transform 120ms ease;
     }
-
     .piece-mini.on {
       opacity: 1;
-      box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.22),
-        inset 0 -1px 0 rgba(0,0,0,.10),
-        0 4px 10px rgba(0,0,0,.10);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.22), inset 0 -1px 0 rgba(0,0,0,.10), 0 4px 10px rgba(0,0,0,.10);
     }
-
-    .piece-card.active .piece-mini.on {
-      transform: translateY(-1px);
-    }
-
+    .piece-card.active .piece-mini.on { transform: translateY(-1px); }
     .piece-tag {
       position: absolute;
       left: 8px;
@@ -422,16 +366,12 @@
       backdrop-filter: blur(12px);
       z-index: 40;
     }
-
     .overlay.show { display: grid; }
-
     .dialog {
       width: min(100%, 360px);
       padding: 20px;
       border-radius: 30px;
-      background:
-        radial-gradient(140% 120% at 50% 0%, rgba(109, 91, 255, 0.18), transparent 44%),
-        linear-gradient(180deg, rgba(22, 34, 70, 0.98), rgba(8, 15, 35, 0.98));
+      background: radial-gradient(140% 120% at 50% 0%, rgba(109, 91, 255, 0.18), transparent 44%), linear-gradient(180deg, rgba(22, 34, 70, 0.98), rgba(8, 15, 35, 0.98));
       border: 1px solid rgba(255, 255, 255, 0.1);
       box-shadow: var(--shadow);
       display: grid;
@@ -439,12 +379,10 @@
       text-align: center;
       animation: gameOverIn 240ms ease;
     }
-
     @keyframes gameOverIn {
       0% { transform: translateY(8px) scale(0.96); opacity: 0; }
       100% { transform: translateY(0) scale(1); opacity: 1; }
     }
-
     .dialog h2 { margin: 0; font-size: 28px; letter-spacing: -0.04em; }
     .dialog p { margin: 0; color: var(--muted); line-height: 1.45; }
     .dialog-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
@@ -458,9 +396,7 @@
       filter: drop-shadow(0 12px 26px rgba(0, 0, 0, 0.28));
       transform: translate3d(0, 0, 0);
     }
-
     .ghost.show { display: block; }
-
     .ghost-grid {
       display: inline-grid;
       gap: 3px;
@@ -470,14 +406,12 @@
       border: 1px solid rgba(255, 255, 255, 0.1);
       backdrop-filter: blur(10px);
     }
-
     .ghost-cell {
       width: max(16px, min(42px, calc(var(--cell-size) * 0.7)));
       height: max(16px, min(42px, calc(var(--cell-size) * 0.7)));
       border-radius: 6px;
       opacity: 0;
     }
-
     .ghost-cell.on { opacity: 1; }
 
     .floating-score {
@@ -492,7 +426,6 @@
       pointer-events: none;
       animation: floatUp 900ms ease forwards;
     }
-
     @keyframes floatUp {
       0% { transform: translateY(8px) scale(0.92); opacity: 0; }
       15% { transform: translateY(0) scale(1); opacity: 1; }
@@ -506,7 +439,6 @@
       overflow: hidden;
       z-index: 7;
     }
-
     .particle {
       position: absolute;
       width: 8px;
@@ -516,10 +448,34 @@
       animation: particleBurst 520ms ease forwards;
       box-shadow: 0 0 12px currentColor;
     }
-
     @keyframes particleBurst {
       0% { transform: translate(0, 0) scale(0.3); opacity: 1; }
       100% { transform: translate(var(--dx), var(--dy)) scale(1); opacity: 0; }
+    }
+
+    .record-banner {
+      position: absolute;
+      left: 50%;
+      top: 26%;
+      transform: translateX(-50%);
+      z-index: 12;
+      padding: 10px 16px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, rgba(255,230,151,.98), rgba(255,190,77,.95));
+      color: #5b3900;
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+      box-shadow: 0 14px 30px rgba(0,0,0,.20), 0 0 40px rgba(255, 201, 94, 0.24);
+      animation: recordIn 1200ms ease forwards;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    @keyframes recordIn {
+      0% { opacity: 0; transform: translateX(-50%) translateY(10px) scale(0.86); }
+      12% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1.04); }
+      70% { opacity: 1; transform: translateX(-50%) translateY(-4px) scale(1); }
+      100% { opacity: 0; transform: translateX(-50%) translateY(-14px) scale(0.98); }
     }
 
     @media (max-width: 420px) {
@@ -527,13 +483,14 @@
         padding-left: calc(var(--safe-left) + 10px);
         padding-right: calc(var(--safe-right) + 10px);
       }
-
       .title { font-size: 20px; }
-      .button { padding: 8px 11px; min-height: 38px; }
+      .button, .icon-button { min-height: 38px; }
+      .button { padding: 8px 11px; }
       .stats { padding: 8px; }
       .stat-value { font-size: 20px; }
       .piece-mini { width: 15px; height: 15px; }
       .piece-card { min-height: 96px; }
+      .record-banner { font-size: 14px; padding: 8px 14px; }
     }
   </style>
 </head>
@@ -545,6 +502,7 @@
           <h1 class="title">Bloquinhos</h1>
           <p class="subtitle">Feito para funcionar direito no iPhone.</p>
         </div>
+        <button class="icon-button" id="soundButton" type="button" aria-label="Alternar som">🔊</button>
         <button class="button" id="restartButton" type="button">Reiniciar</button>
       </section>
 
@@ -558,7 +516,7 @@
             <div class="stat-label">Combo</div>
             <div class="stat-value" id="comboValue">0</div>
           </div>
-          <div class="stat-card">
+          <div class="stat-card" id="bestCard">
             <div class="stat-label">Recorde</div>
             <div class="stat-value" id="bestValue">0</div>
           </div>
@@ -612,11 +570,13 @@
     (() => {
       const GRID_SIZE = 8;
       const BEST_KEY = "bloquinhos_best_score_v1";
+      const SOUND_KEY = "bloquinhos_sound_enabled_v1";
       const BOARD = document.getElementById("board");
       const PIECES = document.getElementById("pieces");
       const SCORE_VALUE = document.getElementById("scoreValue");
       const COMBO_VALUE = document.getElementById("comboValue");
       const BEST_VALUE = document.getElementById("bestValue");
+      const BEST_CARD = document.getElementById("bestCard");
       const COMBO_CHIP = document.getElementById("comboChip");
       const MESSAGE_TEXT = document.getElementById("messageText");
       const MOVES_TEXT = document.getElementById("movesText");
@@ -630,6 +590,7 @@
       const FINAL_BEST = document.getElementById("finalBest");
       const RESTART_BUTTON = document.getElementById("restartButton");
       const RESTART_OVERLAY_BUTTON = document.getElementById("restartOverlayButton");
+      const SOUND_BUTTON = document.getElementById("soundButton");
       const PARTICLES = document.getElementById("particles");
       const BOARD_WRAP = document.querySelector(".board-shell");
 
@@ -669,16 +630,85 @@
         placedPieceId: null,
         placedPieceTimer: null,
         comboFxTimer: null,
+        soundEnabled: loadSoundPref(),
+        audioCtx: null,
       };
 
       function loadBest() {
         try { return Number(localStorage.getItem(BEST_KEY) || 0); }
         catch { return 0; }
       }
-
       function saveBest() {
         try { localStorage.setItem(BEST_KEY, String(state.best)); }
         catch {}
+      }
+      function loadSoundPref() {
+        try {
+          const saved = localStorage.getItem(SOUND_KEY);
+          return saved === null ? true : saved === "true";
+        } catch {
+          return true;
+        }
+      }
+      function saveSoundPref() {
+        try { localStorage.setItem(SOUND_KEY, String(state.soundEnabled)); }
+        catch {}
+      }
+      function makeEmptyBoard() { return Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(null)); }
+      function cloneBoard(board) { return board.map((row) => [...row]); }
+      function randomIndex(max) { return Math.floor(Math.random() * max); }
+
+      function updateSoundButton() {
+        SOUND_BUTTON.textContent = state.soundEnabled ? "🔊" : "🔇";
+        SOUND_BUTTON.classList.toggle("off", !state.soundEnabled);
+      }
+
+      function ensureAudio() {
+        if (!state.soundEnabled) return null;
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return null;
+        if (!state.audioCtx) state.audioCtx = new AudioCtx();
+        if (state.audioCtx.state === "suspended") state.audioCtx.resume();
+        return state.audioCtx;
+      }
+
+      function playTone({ freq = 440, duration = 0.08, type = "sine", gain = 0.03, slideTo = null, when = 0 }) {
+        const ctx = ensureAudio();
+        if (!ctx) return;
+        const osc = ctx.createOscillator();
+        const amp = ctx.createGain();
+        const now = ctx.currentTime + when;
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, now);
+        if (slideTo) osc.frequency.exponentialRampToValueAtTime(slideTo, now + duration);
+        amp.gain.setValueAtTime(0.0001, now);
+        amp.gain.exponentialRampToValueAtTime(gain, now + 0.01);
+        amp.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+        osc.connect(amp).connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + duration + 0.02);
+      }
+
+      function playSound(kind) {
+        if (!state.soundEnabled) return;
+        if (kind === "place") {
+          playTone({ freq: 460, duration: 0.06, type: "triangle", gain: 0.03, slideTo: 360 });
+        } else if (kind === "clear") {
+          playTone({ freq: 620, duration: 0.08, type: "triangle", gain: 0.04, slideTo: 820 });
+          playTone({ freq: 930, duration: 0.1, type: "sine", gain: 0.02, when: 0.03, slideTo: 760 });
+        } else if (kind === "combo") {
+          playTone({ freq: 520, duration: 0.07, type: "triangle", gain: 0.035, slideTo: 760 });
+          playTone({ freq: 760, duration: 0.08, type: "triangle", gain: 0.03, when: 0.05, slideTo: 980 });
+        } else if (kind === "record") {
+          playTone({ freq: 660, duration: 0.08, type: "triangle", gain: 0.04, slideTo: 880 });
+          playTone({ freq: 880, duration: 0.09, type: "triangle", gain: 0.04, when: 0.07, slideTo: 1100 });
+          playTone({ freq: 1100, duration: 0.11, type: "triangle", gain: 0.04, when: 0.14, slideTo: 1320 });
+        } else if (kind === "gameover") {
+          playTone({ freq: 360, duration: 0.12, type: "sawtooth", gain: 0.025, slideTo: 220 });
+          playTone({ freq: 260, duration: 0.14, type: "triangle", gain: 0.018, when: 0.06, slideTo: 180 });
+        } else if (kind === "warn") {
+          playTone({ freq: 240, duration: 0.06, type: "square", gain: 0.02, slideTo: 180 });
+        }
       }
 
       function haptic(pattern = "light") {
@@ -686,18 +716,6 @@
         if (pattern === "success") navigator.vibrate([10, 18, 12]);
         else if (pattern === "warn") navigator.vibrate(18);
         else navigator.vibrate(10);
-      }
-
-      function makeEmptyBoard() {
-        return Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(null));
-      }
-
-      function cloneBoard(board) {
-        return board.map((row) => [...row]);
-      }
-
-      function randomIndex(max) {
-        return Math.floor(Math.random() * max);
       }
 
       function createPiece(shape) {
@@ -710,22 +728,14 @@
           used: false
         };
       }
-
-      function randomShape(pool) {
-        return pool[randomIndex(pool.length)];
-      }
-
+      function randomShape(pool) { return pool[randomIndex(pool.length)]; }
       function getShapePool(board) {
         const filled = board.flat().filter(Boolean).length;
         if (filled < 8) return SHAPES.filter((shape) => countShapeCells(shape) <= 4);
         if (filled < 24) return SHAPES.filter((shape) => countShapeCells(shape) <= 6);
         return SHAPES;
       }
-
-      function countShapeCells(shape) {
-        return shape.flat().filter(Boolean).length;
-      }
-
+      function countShapeCells(shape) { return shape.flat().filter(Boolean).length; }
       function buildPieceSet(board) {
         const pool = getShapePool(board);
         for (let attempt = 0; attempt < 80; attempt += 1) {
@@ -734,11 +744,7 @@
         }
         return [createPiece([[1]]), createPiece([[1,1]]), createPiece([[1],[1]])];
       }
-
-      function getPieceSize(piece) {
-        return { rows: piece.cells.length, cols: piece.cells[0].length };
-      }
-
+      function getPieceSize(piece) { return { rows: piece.cells.length, cols: piece.cells[0].length }; }
       function canPlace(board, piece, startRow, startCol) {
         for (let row = 0; row < piece.cells.length; row += 1) {
           for (let col = 0; col < piece.cells[row].length; col += 1) {
@@ -751,93 +757,55 @@
         }
         return true;
       }
-
       function placePiece(board, piece, startRow, startCol) {
         const next = cloneBoard(board);
         for (let row = 0; row < piece.cells.length; row += 1) {
           for (let col = 0; col < piece.cells[row].length; col += 1) {
             if (!piece.cells[row][col]) continue;
-            next[startRow + row][startCol + col] = {
-              color: piece.color,
-              flatColor: piece.flatColor
-            };
+            next[startRow + row][startCol + col] = { color: piece.color, flatColor: piece.flatColor };
           }
         }
         return next;
       }
-
       function clearFullLines(board) {
         const rowsToClear = [];
         const colsToClear = [];
-
-        for (let row = 0; row < GRID_SIZE; row += 1) {
-          if (board[row].every(Boolean)) rowsToClear.push(row);
-        }
-
+        for (let row = 0; row < GRID_SIZE; row += 1) if (board[row].every(Boolean)) rowsToClear.push(row);
         for (let col = 0; col < GRID_SIZE; col += 1) {
           let full = true;
           for (let row = 0; row < GRID_SIZE; row += 1) {
-            if (!board[row][col]) {
-              full = false;
-              break;
-            }
+            if (!board[row][col]) { full = false; break; }
           }
           if (full) colsToClear.push(col);
         }
-
         const cells = new Set();
-        rowsToClear.forEach((row) => {
-          for (let col = 0; col < GRID_SIZE; col += 1) cells.add(`${row}-${col}`);
-        });
-        colsToClear.forEach((col) => {
-          for (let row = 0; row < GRID_SIZE; row += 1) cells.add(`${row}-${col}`);
-        });
-
+        rowsToClear.forEach((row) => { for (let col = 0; col < GRID_SIZE; col += 1) cells.add(`${row}-${col}`); });
+        colsToClear.forEach((col) => { for (let row = 0; row < GRID_SIZE; row += 1) cells.add(`${row}-${col}`); });
         const next = cloneBoard(board);
-        rowsToClear.forEach((row) => {
-          for (let col = 0; col < GRID_SIZE; col += 1) next[row][col] = null;
-        });
-        colsToClear.forEach((col) => {
-          for (let row = 0; row < GRID_SIZE; row += 1) next[row][col] = null;
-        });
-
+        rowsToClear.forEach((row) => { for (let col = 0; col < GRID_SIZE; col += 1) next[row][col] = null; });
+        colsToClear.forEach((col) => { for (let row = 0; row < GRID_SIZE; row += 1) next[row][col] = null; });
         return { board: next, lineCount: rowsToClear.length + colsToClear.length, cells };
       }
-
       function hasAnyMove(board, pieces) {
         return pieces.some((piece) => {
           if (piece.used) return false;
           for (let row = 0; row < GRID_SIZE; row += 1) {
-            for (let col = 0; col < GRID_SIZE; col += 1) {
-              if (canPlace(board, piece, row, col)) return true;
-            }
+            for (let col = 0; col < GRID_SIZE; col += 1) if (canPlace(board, piece, row, col)) return true;
           }
           return false;
         });
       }
-
       function getPlayableAnchors(board, piece) {
         const anchors = new Set();
         for (let row = 0; row < GRID_SIZE; row += 1) {
-          for (let col = 0; col < GRID_SIZE; col += 1) {
-            if (canPlace(board, piece, row, col)) anchors.add(`${row}-${col}`);
-          }
+          for (let col = 0; col < GRID_SIZE; col += 1) if (canPlace(board, piece, row, col)) anchors.add(`${row}-${col}`);
         }
         return anchors;
       }
-
-      function countPieceCells(piece) {
-        return piece.cells.flat().filter(Boolean).length;
-      }
-
-      function getSelectedPiece() {
-        return state.pieces.find((piece) => piece.id === state.selectedPieceId && !piece.used) || null;
-      }
-
+      function countPieceCells(piece) { return piece.cells.flat().filter(Boolean).length; }
+      function getSelectedPiece() { return state.pieces.find((piece) => piece.id === state.selectedPieceId && !piece.used) || null; }
       function getActivePiece() {
-        return state.dragging
-          ? state.pieces.find((piece) => piece.id === state.dragging.pieceId) || null
-          : getSelectedPiece();
+        return state.dragging ? state.pieces.find((piece) => piece.id === state.dragging.pieceId) || null : getSelectedPiece();
       }
 
       function setMessage(text, kind = "info") {
@@ -862,9 +830,9 @@
         setTimeout(() => node.remove(), 900);
       }
 
-      function spawnParticles(color = "#ffffff") {
+      function spawnParticles(color = "#ffffff", intense = false) {
         PARTICLES.innerHTML = "";
-        const count = 10;
+        const count = intense ? 18 : 10;
         for (let i = 0; i < count; i += 1) {
           const p = document.createElement("div");
           p.className = "particle";
@@ -872,11 +840,11 @@
           p.style.top = `${46 + (Math.random() * 8 - 4)}%`;
           p.style.color = color;
           p.style.background = color;
-          p.style.setProperty("--dx", `${(Math.random() * 100 - 50)}px`);
-          p.style.setProperty("--dy", `${(Math.random() * 100 - 60)}px`);
+          p.style.setProperty("--dx", `${(Math.random() * (intense ? 160 : 100) - (intense ? 80 : 50))}px`);
+          p.style.setProperty("--dy", `${(Math.random() * (intense ? 150 : 100) - (intense ? 90 : 60))}px`);
           PARTICLES.appendChild(p);
         }
-        setTimeout(() => { PARTICLES.innerHTML = ""; }, 560);
+        setTimeout(() => { PARTICLES.innerHTML = ""; }, 620);
       }
 
       function triggerComboFx(hot = false) {
@@ -887,6 +855,23 @@
           if (!hot) BOARD.classList.remove("combo-glow");
           COMBO_CHIP.classList.remove("hot");
         }, 320);
+      }
+
+      function celebrateNewRecord() {
+        const banner = document.createElement("div");
+        banner.className = "record-banner";
+        banner.textContent = "🎉 Novo recorde!";
+        BOARD_WRAP.appendChild(banner);
+        BEST_CARD.classList.add("best-hit");
+        BOARD.classList.add("record-glow");
+        spawnParticles("#ffd36a", true);
+        playSound("record");
+        haptic("success");
+        setTimeout(() => banner.remove(), 1200);
+        setTimeout(() => {
+          BEST_CARD.classList.remove("best-hit");
+          BOARD.classList.remove("record-glow");
+        }, 1200);
       }
 
       function updateLayout() {
@@ -914,7 +899,6 @@
         const preview = state.preview;
         const activeAnchors = activePiece ? getPlayableAnchors(state.board, activePiece) : new Set();
         BOARD.innerHTML = "";
-
         for (let row = 0; row < GRID_SIZE; row += 1) {
           for (let col = 0; col < GRID_SIZE; col += 1) {
             const cell = document.createElement("button");
@@ -922,25 +906,16 @@
             cell.className = "cell";
             const value = state.board[row][col];
             const key = `${row}-${col}`;
-
             if (value) {
               cell.classList.add("filled");
               cell.style.background = value.color;
             }
-
-            if (state.clearingCells.has(key)) {
-              cell.classList.add("clearing");
-            }
-
-            if (activePiece && activeAnchors.has(key) && !value) {
-              cell.classList.add("anchor");
-            }
-
+            if (state.clearingCells.has(key)) cell.classList.add("clearing");
+            if (activePiece && activeAnchors.has(key) && !value) cell.classList.add("anchor");
             if (preview && preview.cells.has(key)) {
               cell.classList.add(preview.valid ? "preview-valid" : "preview-invalid");
               if (preview.valid) cell.style.background = activePiece?.color || value?.color;
             }
-
             cell.addEventListener("click", () => handleBoardTap(row, col));
             BOARD.appendChild(cell);
           }
@@ -951,7 +926,6 @@
         const rows = piece.cells.length;
         const cols = piece.cells[0].length;
         container.style.gridTemplateColumns = `repeat(${cols}, auto)`;
-
         for (let row = 0; row < rows; row += 1) {
           for (let col = 0; col < cols; col += 1) {
             const cell = document.createElement("div");
@@ -969,7 +943,6 @@
         const playableCount = state.pieces.filter((piece) => !piece.used && hasAnyMove(state.board, [piece])).length;
         MOVES_TEXT.textContent = playableCount > 0 ? `${playableCount} peça${playableCount > 1 ? "s" : ""}` : "Sem espaço";
         PIECES.innerHTML = "";
-
         state.pieces.forEach((piece) => {
           const card = document.createElement("button");
           card.type = "button";
@@ -979,17 +952,14 @@
           if (piece.id === state.placedPieceId) card.classList.add("placed");
           const playable = !piece.used && hasAnyMove(state.board, [piece]);
           if (!playable && !piece.used) card.classList.add("unplayable");
-
           const grid = document.createElement("div");
           grid.className = "piece-grid";
           buildMiniGrid(grid, piece, "piece-mini");
           card.appendChild(grid);
-
           const tag = document.createElement("div");
           tag.className = "piece-tag";
           tag.textContent = piece.used ? "usada" : playable ? "toque ou arraste" : "sem espaço";
           card.appendChild(tag);
-
           card.addEventListener("click", () => handlePieceTap(piece.id));
           card.addEventListener("pointerdown", (event) => beginDrag(event, piece.id));
           PIECES.appendChild(card);
@@ -1003,7 +973,6 @@
           GHOST_GRID.innerHTML = "";
           return;
         }
-
         GHOST_GRID.innerHTML = "";
         buildMiniGrid(GHOST_GRID, piece, "ghost-cell");
         GHOST.classList.add("show");
@@ -1018,6 +987,7 @@
         BEST_VALUE.textContent = String(state.best);
         COMBO_CHIP.textContent = state.combo > 1 ? `Combo x${state.combo}` : state.combo === 1 ? "Combo iniciado" : "Sem combo";
         if (state.combo <= 1) BOARD.classList.remove("combo-glow");
+        updateSoundButton();
       }
 
       function renderGameOver() {
@@ -1040,12 +1010,14 @@
       }
 
       function handlePieceTap(pieceId) {
+        ensureAudio();
         if (state.gameOver) return;
         const piece = state.pieces.find((item) => item.id === pieceId);
         if (!piece || piece.used) return;
         if (!hasAnyMove(state.board, [piece])) {
           setMessage("Essa peça não cabe agora.", "warn");
           haptic("warn");
+          playSound("warn");
           return;
         }
         state.selectedPieceId = state.selectedPieceId === pieceId ? null : pieceId;
@@ -1055,12 +1027,14 @@
       }
 
       function handleBoardTap(row, col) {
+        ensureAudio();
         if (state.gameOver) return;
         const piece = getSelectedPiece();
         if (!piece) return;
         if (!canPlace(state.board, piece, row, col)) {
           setMessage("Esse encaixe não cabe aqui.", "warn");
           haptic("warn");
+          playSound("warn");
           return;
         }
         commitPlacement(piece, row, col);
@@ -1080,6 +1054,7 @@
         state.board = cleared.board;
         state.clearingCells = cleared.cells;
 
+        const oldBest = state.best;
         const basePoints = countPieceCells(piece) * 5;
         const comboNow = cleared.lineCount > 0 ? state.combo + 1 : 0;
         const gained = basePoints + cleared.lineCount * 90 + (comboNow > 1 ? comboNow * 25 : 0);
@@ -1089,15 +1064,26 @@
         state.preview = null;
         state.previewValid = false;
 
-        if (state.score > state.best) {
+        const beatRecord = state.score > oldBest;
+        if (beatRecord) {
           state.best = state.score;
           saveBest();
         }
 
         spawnFloatingScore(gained);
-        haptic(cleared.lineCount > 0 ? "success" : "light");
-        triggerComboFx(comboNow > 1);
-        if (cleared.lineCount > 0) spawnParticles(piece.flatColor);
+        if (cleared.lineCount > 0) {
+          playSound(comboNow > 1 ? "combo" : "clear");
+          haptic("success");
+          triggerComboFx(comboNow > 1);
+          spawnParticles(piece.flatColor);
+        } else {
+          playSound("place");
+          haptic("light");
+        }
+
+        if (beatRecord) {
+          celebrateNewRecord();
+        }
 
         if (cleared.lineCount > 0) setMessage(comboNow > 1 ? `Boa! Combo x${comboNow}` : "Linha limpa.");
         else setMessage(`+${gained} pontos`);
@@ -1108,6 +1094,7 @@
 
         if (!hasAnyMove(state.board, state.pieces.filter((currentPiece) => !currentPiece.used))) {
           state.gameOver = true;
+          playSound("gameover");
         }
 
         render();
@@ -1133,42 +1120,35 @@
           state.previewValid = false;
           return;
         }
-
         const { rect, cell } = getBoardMetrics();
         const pieceSize = getPieceSize(piece);
         const anchorCol = Math.round((pointerX - rect.left - (pieceSize.cols * cell) / 2) / cell);
         const anchorRow = Math.round((pointerY - rect.top - (pieceSize.rows * cell) / 2) / cell);
         const cells = new Set();
-
         for (let row = 0; row < piece.cells.length; row += 1) {
           for (let col = 0; col < piece.cells[row].length; col += 1) {
             if (!piece.cells[row][col]) continue;
             cells.add(`${anchorRow + row}-${anchorCol + col}`);
           }
         }
-
         state.preview = { row: anchorRow, col: anchorCol, cells };
         state.previewValid = canPlace(state.board, piece, anchorRow, anchorCol);
       }
 
       function beginDrag(event, pieceId) {
+        ensureAudio();
         if (state.gameOver) return;
         const piece = state.pieces.find((item) => item.id === pieceId);
         if (!piece || piece.used) return;
         if (!hasAnyMove(state.board, [piece])) {
           setMessage("Essa peça não cabe agora.", "warn");
           haptic("warn");
+          playSound("warn");
           return;
         }
-
         event.preventDefault();
         state.selectedPieceId = pieceId;
-        state.dragging = {
-          pieceId,
-          pointerId: event.pointerId,
-          ghostLeft: event.clientX,
-          ghostTop: event.clientY
-        };
+        state.dragging = { pieceId, pointerId: event.pointerId, ghostLeft: event.clientX, ghostTop: event.clientY };
         updatePreviewFromPointer(event.clientX, event.clientY);
         render();
       }
@@ -1192,12 +1172,21 @@
         else {
           setMessage("Solte em uma posição válida.", "warn");
           haptic("warn");
+          playSound("warn");
           state.preview = null;
           state.previewValid = false;
           render();
         }
         state.dragging = null;
         renderGhost();
+      }
+
+      function toggleSound() {
+        ensureAudio();
+        state.soundEnabled = !state.soundEnabled;
+        saveSoundPref();
+        updateSoundButton();
+        if (state.soundEnabled) playSound("place");
       }
 
       function resetGame() {
@@ -1212,14 +1201,16 @@
         state.dragging = null;
         state.clearingCells = new Set();
         state.placedPieceId = null;
-        BOARD.classList.remove("combo-glow");
+        BOARD.classList.remove("combo-glow", "record-glow");
         COMBO_CHIP.classList.remove("hot");
+        BEST_CARD.classList.remove("best-hit");
         PARTICLES.innerHTML = "";
         render();
       }
 
-      RESTART_BUTTON.addEventListener("click", resetGame);
-      RESTART_OVERLAY_BUTTON.addEventListener("click", resetGame);
+      RESTART_BUTTON.addEventListener("click", () => { ensureAudio(); resetGame(); });
+      RESTART_OVERLAY_BUTTON.addEventListener("click", () => { ensureAudio(); resetGame(); });
+      SOUND_BUTTON.addEventListener("click", toggleSound);
       window.addEventListener("pointermove", handlePointerMove, { passive: true });
       window.addEventListener("pointerup", handlePointerUp, { passive: true });
       window.addEventListener("pointercancel", handlePointerUp, { passive: true });
@@ -1229,6 +1220,7 @@
         window.visualViewport.addEventListener("scroll", render, { passive: true });
       }
 
+      updateSoundButton();
       resetGame();
     })();
   </script>
