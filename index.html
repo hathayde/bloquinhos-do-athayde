@@ -18,14 +18,10 @@
       --panel-border: rgba(141, 165, 255, 0.18);
       --text: #eef3ff;
       --muted: #b4c0e9;
-      --accent: #8d7aff;
-      --accent-2: #47d7ff;
-      --danger: #ff6b92;
       --shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
       --radius-lg: 24px;
-      --radius-md: 18px;
       --cell-gap: 2px;
-      --board-size: min(88vw, 420px);
+      --board-size: min(92vw, 440px);
       --cell-size: calc((var(--board-size) - (7 * var(--cell-gap))) / 8);
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-right: env(safe-area-inset-right, 0px);
@@ -33,13 +29,8 @@
       --safe-left: env(safe-area-inset-left, 0px);
     }
 
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    html,
-    body {
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body {
       margin: 0;
       min-height: 100%;
       background:
@@ -49,20 +40,13 @@
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       overscroll-behavior: none;
     }
-
-    body {
-      min-height: 100dvh;
-    }
-
-    button {
-      font: inherit;
-      color: inherit;
-    }
+    body { min-height: 100dvh; }
+    button { font: inherit; color: inherit; }
 
     .app {
       min-height: 100dvh;
       padding:
-        calc(var(--safe-top) + 10px)
+        calc(var(--safe-top) + 8px)
         calc(var(--safe-right) + 12px)
         calc(var(--safe-bottom) + 14px)
         calc(var(--safe-left) + 12px);
@@ -76,7 +60,7 @@
       min-height: 100%;
       display: grid;
       grid-template-rows: auto auto 1fr auto auto;
-      gap: 10px;
+      gap: 8px;
       align-items: start;
     }
 
@@ -84,39 +68,32 @@
       display: grid;
       grid-template-columns: 1fr auto;
       align-items: center;
-      gap: 12px;
-      padding: 2px 2px 0;
+      gap: 10px;
+      padding: 0 2px;
     }
 
     .title {
       margin: 0;
-      font-size: clamp(28px, 6vw, 34px);
+      font-size: clamp(22px, 5vw, 28px);
       line-height: 1;
       letter-spacing: -0.03em;
       font-weight: 900;
     }
 
-    .subtitle {
-      margin: 4px 0 0;
-      font-size: 13px;
-      color: var(--muted);
-    }
+    .subtitle { display: none; }
 
     .button {
       border: 1px solid rgba(255, 255, 255, 0.12);
       background: rgba(255, 255, 255, 0.08);
-      border-radius: 16px;
-      padding: 12px 16px;
-      min-height: 48px;
+      border-radius: 14px;
+      padding: 9px 13px;
+      min-height: 40px;
       font-weight: 800;
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
       cursor: pointer;
       user-select: none;
     }
-
-    .button:active {
-      transform: scale(0.98);
-    }
+    .button:active { transform: scale(0.98); }
 
     .panel {
       background: linear-gradient(180deg, rgba(18, 30, 62, 0.96), rgba(9, 18, 42, 0.95));
@@ -127,59 +104,50 @@
     }
 
     .stats {
-      padding: 14px;
+      padding: 8px;
       display: grid;
-      gap: 12px;
+      gap: 6px;
     }
 
     .stat-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
+      gap: 6px;
     }
 
     .stat-card {
-      min-height: 74px;
-      border-radius: 18px;
-      padding: 10px 12px;
+      min-height: 54px;
+      border-radius: 16px;
+      padding: 7px 8px;
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid rgba(255, 255, 255, 0.06);
       display: grid;
       align-content: start;
-      gap: 4px;
+      gap: 2px;
     }
 
     .stat-label {
-      font-size: 12px;
+      font-size: 11px;
       color: var(--muted);
       letter-spacing: 0.01em;
     }
 
     .stat-value {
-      font-size: clamp(24px, 5vw, 28px);
+      font-size: clamp(20px, 4vw, 24px);
       line-height: 1;
       font-weight: 900;
       letter-spacing: -0.03em;
     }
 
-    .hint {
-      margin: 0;
-      font-size: 14px;
-      line-height: 1.45;
-      color: #d7dfff;
-    }
-
     .message {
-      min-height: 22px;
-      font-size: 13px;
+      min-height: 14px;
+      font-size: 11px;
       font-weight: 700;
       color: #d8ddff;
       letter-spacing: 0.01em;
+      text-align: center;
     }
-
-    .message.warn {
-      color: #ffd0dc;
-    }
+    .message.warn { color: #ffd0dc; }
 
     .board-wrap {
       display: grid;
@@ -191,7 +159,7 @@
       width: var(--board-size);
       display: grid;
       justify-items: center;
-      gap: 10px;
+      gap: 8px;
     }
 
     .board {
@@ -222,46 +190,30 @@
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
       transition: transform 120ms ease, filter 120ms ease, background 120ms ease, opacity 120ms ease;
     }
-
     .cell.filled {
-      box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.15),
-        0 8px 18px rgba(0, 0, 0, 0.14);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.15), 0 8px 18px rgba(0,0,0,.14);
     }
-
-    .cell.preview-valid {
-      filter: brightness(1.15);
-      opacity: 0.78;
-      transform: scale(0.96);
-    }
-
-    .cell.preview-invalid {
-      background: rgba(255, 89, 122, 0.34);
-      transform: scale(0.96);
-    }
-
-    .cell.anchor {
-      outline: 1px solid rgba(255, 255, 255, 0.08);
-      outline-offset: -1px;
-    }
+    .cell.preview-valid { filter: brightness(1.15); opacity: 0.78; transform: scale(0.96); }
+    .cell.preview-invalid { background: rgba(255, 89, 122, 0.34); transform: scale(0.96); }
+    .cell.anchor { outline: 1px solid rgba(255,255,255,.08); outline-offset: -1px; }
 
     .combo-chip {
-      min-height: 26px;
+      min-height: 24px;
       padding: 0 12px;
       border-radius: 999px;
       background: rgba(255, 255, 255, 0.07);
       border: 1px solid rgba(255, 255, 255, 0.08);
       display: inline-grid;
       place-items: center;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 800;
       color: #e4ebff;
     }
 
     .tray {
-      padding: 12px;
+      padding: 10px;
       display: grid;
-      gap: 10px;
+      gap: 8px;
     }
 
     .tray-header {
@@ -269,11 +221,11 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      min-height: 22px;
+      min-height: 18px;
     }
 
     .tray-title {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 800;
       color: var(--muted);
       letter-spacing: 0.02em;
@@ -288,52 +240,35 @@
 
     .piece-card {
       position: relative;
-      min-height: 116px;
+      min-height: 100px;
       border-radius: 20px;
       border: 1px solid rgba(255, 255, 255, 0.08);
       background: rgba(255, 255, 255, 0.04);
       display: grid;
       place-items: center;
-      padding: 12px 8px;
+      padding: 10px 6px;
       cursor: pointer;
       user-select: none;
       touch-action: none;
       transition: transform 120ms ease, border-color 120ms ease, background 120ms ease, opacity 120ms ease;
     }
-
     .piece-card.active {
       background: rgba(141, 122, 255, 0.12);
       border-color: rgba(141, 122, 255, 0.4);
       transform: translateY(-1px);
     }
+    .piece-card.unplayable { opacity: 0.45; filter: grayscale(0.22); }
+    .piece-card.used { opacity: 0.15; pointer-events: none; }
 
-    .piece-card.unplayable {
-      opacity: 0.45;
-      filter: grayscale(0.22);
-    }
-
-    .piece-card.used {
-      opacity: 0.15;
-      pointer-events: none;
-    }
-
-    .piece-grid {
-      display: inline-grid;
-      gap: 3px;
-    }
-
+    .piece-grid { display: inline-grid; gap: 3px; }
     .piece-mini {
-      width: 18px;
-      height: 18px;
+      width: 16px;
+      height: 16px;
       border-radius: 5px;
       background: transparent;
       opacity: 0;
     }
-
-    .piece-mini.on {
-      opacity: 1;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
-    }
+    .piece-mini.on { opacity: 1; box-shadow: inset 0 1px 0 rgba(255,255,255,.16); }
 
     .piece-tag {
       position: absolute;
@@ -341,14 +276,14 @@
       right: 8px;
       bottom: 7px;
       text-align: center;
-      font-size: 11px;
+      font-size: 10px;
       color: var(--muted);
       font-weight: 700;
     }
 
     .footer {
       text-align: center;
-      font-size: 11px;
+      font-size: 10px;
       color: rgba(180, 192, 233, 0.7);
       padding-bottom: 2px;
     }
@@ -363,10 +298,7 @@
       backdrop-filter: blur(10px);
       z-index: 40;
     }
-
-    .overlay.show {
-      display: grid;
-    }
+    .overlay.show { display: grid; }
 
     .dialog {
       width: min(100%, 360px);
@@ -379,24 +311,9 @@
       gap: 14px;
       text-align: center;
     }
-
-    .dialog h2 {
-      margin: 0;
-      font-size: 28px;
-      letter-spacing: -0.03em;
-    }
-
-    .dialog p {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.45;
-    }
-
-    .dialog-stats {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
-    }
+    .dialog h2 { margin: 0; font-size: 28px; letter-spacing: -0.03em; }
+    .dialog p { margin: 0; color: var(--muted); line-height: 1.45; }
+    .dialog-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
 
     .ghost {
       position: fixed;
@@ -407,11 +324,7 @@
       filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.28));
       transform: translate3d(0, 0, 0);
     }
-
-    .ghost.show {
-      display: block;
-    }
-
+    .ghost.show { display: block; }
     .ghost-grid {
       display: inline-grid;
       gap: 3px;
@@ -421,63 +334,24 @@
       border: 1px solid rgba(255, 255, 255, 0.1);
       backdrop-filter: blur(8px);
     }
-
     .ghost-cell {
       width: max(16px, min(42px, calc(var(--cell-size) * 0.7)));
       height: max(16px, min(42px, calc(var(--cell-size) * 0.7)));
       border-radius: 6px;
       opacity: 0;
     }
-
-    .ghost-cell.on {
-      opacity: 1;
-    }
+    .ghost-cell.on { opacity: 1; }
 
     @media (max-width: 420px) {
       .app {
         padding-left: calc(var(--safe-left) + 10px);
         padding-right: calc(var(--safe-right) + 10px);
       }
-
-      .title {
-        font-size: 24px;
-      }
-
-      .button {
-        padding: 11px 14px;
-        min-height: 46px;
-      }
-
-      .stats {
-        padding: 12px;
-      }
-
-      .stat-grid {
-        gap: 6px;
-      }
-
-      .stat-card {
-        min-height: 68px;
-        padding: 9px 10px;
-      }
-
-      .hint {
-        font-size: 13px;
-      }
-
-      .tray {
-        padding: 10px;
-      }
-
-      .piece-card {
-        min-height: 104px;
-        padding: 10px 6px;
-      }
-
-      .piece-mini {
-        width: 16px;
-        height: 16px;
-      }
+      .title { font-size: 20px; }
+      .button { padding: 8px 12px; min-height: 38px; }
+      .stats { padding: 8px; }
+      .stat-value { font-size: 20px; }
+      .piece-mini { width: 15px; height: 15px; }
     }
   </style>
 </head>
@@ -507,9 +381,6 @@
             <div class="stat-value" id="bestValue">0</div>
           </div>
         </div>
-        <p class="hint" id="hintText">
-          Toque em uma peça e depois no tabuleiro, ou arraste direto. O tabuleiro fica quadrado e a bandeja continua visível.
-        </p>
         <div class="message" id="messageText"></div>
       </section>
 
@@ -528,7 +399,7 @@
         <div class="pieces" id="pieces"></div>
       </section>
 
-      <div class="footer">Mobile first • sem gambiarra de canvas gigante</div>
+      <div class="footer">Mobile first • sem canvas gigante</div>
     </main>
   </div>
 
@@ -566,7 +437,6 @@
       const COMBO_CHIP = document.getElementById("comboChip");
       const MESSAGE_TEXT = document.getElementById("messageText");
       const MOVES_TEXT = document.getElementById("movesText");
-      const HINT_TEXT = document.getElementById("hintText");
       const STATS_PANEL = document.getElementById("statsPanel");
       const TRAY_PANEL = document.getElementById("trayPanel");
       const SHELL = document.querySelector(".shell");
@@ -578,136 +448,56 @@
       const RESTART_BUTTON = document.getElementById("restartButton");
       const RESTART_OVERLAY_BUTTON = document.getElementById("restartOverlayButton");
 
-      const COLORS = [
-        "#8d7aff",
-        "#49d7ff",
-        "#6ee89d",
-        "#ffb84d",
-        "#ff7aa2",
-        "#8df0d1",
-        "#9ea8ff",
-      ];
-
+      const COLORS = ["#8d7aff", "#49d7ff", "#6ee89d", "#ffb84d", "#ff7aa2", "#8df0d1", "#9ea8ff"];
       const SHAPES = [
-        [[1]],
-        [[1, 1]],
-        [[1], [1]],
-        [[1, 1, 1]],
-        [[1], [1], [1]],
-        [[1, 1], [1, 1]],
-        [[1, 0], [1, 1]],
-        [[0, 1], [1, 1]],
-        [[1, 1, 1], [0, 1, 0]],
-        [[1, 1, 0], [0, 1, 1]],
-        [[0, 1, 1], [1, 1, 0]],
-        [[1, 0, 0], [1, 1, 1]],
-        [[0, 0, 1], [1, 1, 1]],
-        [[1, 1, 1, 1]],
-        [[1], [1], [1], [1]],
-        [[1, 1, 1], [1, 0, 0]],
-        [[1, 1, 1], [0, 0, 1]],
-        [[1, 1, 1], [1, 1, 1]],
+        [[1]], [[1,1]], [[1],[1]], [[1,1,1]], [[1],[1],[1]], [[1,1],[1,1]],
+        [[1,0],[1,1]], [[0,1],[1,1]], [[1,1,1],[0,1,0]], [[1,1,0],[0,1,1]],
+        [[0,1,1],[1,1,0]], [[1,0,0],[1,1,1]], [[0,0,1],[1,1,1]], [[1,1,1,1]],
+        [[1],[1],[1],[1]], [[1,1,1],[1,0,0]], [[1,1,1],[0,0,1]], [[1,1,1],[1,1,1]],
       ];
 
       const state = {
-        board: makeEmptyBoard(),
-        pieces: [],
-        score: 0,
-        combo: 0,
-        best: loadBest(),
-        selectedPieceId: null,
-        gameOver: false,
-        preview: null,
-        previewValid: false,
-        dragging: null,
-        messageTimer: null,
+        board: makeEmptyBoard(), pieces: [], score: 0, combo: 0, best: loadBest(),
+        selectedPieceId: null, gameOver: false, preview: null, previewValid: false,
+        dragging: null, messageTimer: null,
       };
 
-      function loadBest() {
-        try {
-          return Number(localStorage.getItem(BEST_KEY) || 0);
-        } catch {
-          return 0;
-        }
-      }
-
-      function saveBest() {
-        try {
-          localStorage.setItem(BEST_KEY, String(state.best));
-        } catch {}
-      }
-
-      function makeEmptyBoard() {
-        return Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(null));
-      }
-
-      function cloneBoard(board) {
-        return board.map((row) => [...row]);
-      }
-
-      function randomColor() {
-        return COLORS[Math.floor(Math.random() * COLORS.length)];
-      }
-
+      function loadBest() { try { return Number(localStorage.getItem(BEST_KEY) || 0); } catch { return 0; } }
+      function saveBest() { try { localStorage.setItem(BEST_KEY, String(state.best)); } catch {} }
+      function makeEmptyBoard() { return Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(null)); }
+      function cloneBoard(board) { return board.map((row) => [...row]); }
+      function randomColor() { return COLORS[Math.floor(Math.random() * COLORS.length)]; }
       function createPiece(shape) {
-        return {
-          id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
-          cells: shape,
-          color: randomColor(),
-          used: false,
-        };
+        return { id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()), cells: shape, color: randomColor(), used: false };
       }
-
-      function randomShape(pool) {
-        return pool[Math.floor(Math.random() * pool.length)];
-      }
-
+      function randomShape(pool) { return pool[Math.floor(Math.random() * pool.length)]; }
       function getShapePool(board) {
         const filled = board.flat().filter(Boolean).length;
-        if (filled < 8) {
-          return SHAPES.filter((shape) => countShapeCells(shape) <= 4);
-        }
-        if (filled < 24) {
-          return SHAPES.filter((shape) => countShapeCells(shape) <= 6);
-        }
+        if (filled < 8) return SHAPES.filter((shape) => countShapeCells(shape) <= 4);
+        if (filled < 24) return SHAPES.filter((shape) => countShapeCells(shape) <= 6);
         return SHAPES;
       }
-
-      function countShapeCells(shape) {
-        return shape.flat().filter(Boolean).length;
-      }
-
+      function countShapeCells(shape) { return shape.flat().filter(Boolean).length; }
       function buildPieceSet(board) {
         const pool = getShapePool(board);
-
         for (let attempt = 0; attempt < 80; attempt += 1) {
           const candidate = Array.from({ length: 3 }, () => createPiece(randomShape(pool)));
           if (hasAnyMove(board, candidate)) return candidate;
         }
-
-        return [createPiece([[1]]), createPiece([[1, 1]]), createPiece([[1], [1]])];
+        return [createPiece([[1]]), createPiece([[1,1]]), createPiece([[1],[1]])];
       }
-
-      function getPieceSize(piece) {
-        return {
-          rows: piece.cells.length,
-          cols: piece.cells[0].length,
-        };
-      }
-
+      function getPieceSize(piece) { return { rows: piece.cells.length, cols: piece.cells[0].length }; }
       function canPlace(board, piece, startRow, startCol) {
         for (let row = 0; row < piece.cells.length; row += 1) {
           for (let col = 0; col < piece.cells[row].length; col += 1) {
             if (!piece.cells[row][col]) continue;
-            const boardRow = startRow + row;
-            const boardCol = startCol + col;
+            const boardRow = startRow + row, boardCol = startCol + col;
             if (boardRow < 0 || boardCol < 0 || boardRow >= GRID_SIZE || boardCol >= GRID_SIZE) return false;
             if (board[boardRow][boardCol]) return false;
           }
         }
         return true;
       }
-
       function placePiece(board, piece, startRow, startCol) {
         const next = cloneBoard(board);
         for (let row = 0; row < piece.cells.length; row += 1) {
@@ -718,92 +508,45 @@
         }
         return next;
       }
-
       function clearFullLines(board) {
-        const rowsToClear = [];
-        const colsToClear = [];
-
-        for (let row = 0; row < GRID_SIZE; row += 1) {
-          if (board[row].every(Boolean)) rowsToClear.push(row);
-        }
-
+        const rowsToClear = [], colsToClear = [];
+        for (let row = 0; row < GRID_SIZE; row += 1) if (board[row].every(Boolean)) rowsToClear.push(row);
         for (let col = 0; col < GRID_SIZE; col += 1) {
           let full = true;
-          for (let row = 0; row < GRID_SIZE; row += 1) {
-            if (!board[row][col]) {
-              full = false;
-              break;
-            }
-          }
+          for (let row = 0; row < GRID_SIZE; row += 1) if (!board[row][col]) { full = false; break; }
           if (full) colsToClear.push(col);
         }
-
         const next = cloneBoard(board);
-        rowsToClear.forEach((row) => {
-          for (let col = 0; col < GRID_SIZE; col += 1) next[row][col] = null;
-        });
-        colsToClear.forEach((col) => {
-          for (let row = 0; row < GRID_SIZE; row += 1) next[row][col] = null;
-        });
-
-        return {
-          board: next,
-          lineCount: rowsToClear.length + colsToClear.length,
-        };
+        rowsToClear.forEach((row) => { for (let col = 0; col < GRID_SIZE; col += 1) next[row][col] = null; });
+        colsToClear.forEach((col) => { for (let row = 0; row < GRID_SIZE; row += 1) next[row][col] = null; });
+        return { board: next, lineCount: rowsToClear.length + colsToClear.length };
       }
-
       function hasAnyMove(board, pieces) {
         return pieces.some((piece) => {
           if (piece.used) return false;
-          for (let row = 0; row < GRID_SIZE; row += 1) {
-            for (let col = 0; col < GRID_SIZE; col += 1) {
-              if (canPlace(board, piece, row, col)) return true;
-            }
-          }
+          for (let row = 0; row < GRID_SIZE; row += 1) for (let col = 0; col < GRID_SIZE; col += 1) if (canPlace(board, piece, row, col)) return true;
           return false;
         });
       }
-
       function getPlayableAnchors(board, piece) {
         const anchors = new Set();
-        for (let row = 0; row < GRID_SIZE; row += 1) {
-          for (let col = 0; col < GRID_SIZE; col += 1) {
-            if (canPlace(board, piece, row, col)) anchors.add(`${row}-${col}`);
-          }
-        }
+        for (let row = 0; row < GRID_SIZE; row += 1) for (let col = 0; col < GRID_SIZE; col += 1) if (canPlace(board, piece, row, col)) anchors.add(`${row}-${col}`);
         return anchors;
       }
-
-      function countPieceCells(piece) {
-        return piece.cells.flat().filter(Boolean).length;
-      }
-
-      function getSelectedPiece() {
-        return state.pieces.find((piece) => piece.id === state.selectedPieceId && !piece.used) || null;
-      }
-
-      function getActivePiece() {
-        if (state.dragging) {
-          return state.pieces.find((piece) => piece.id === state.dragging.pieceId) || null;
-        }
-        return getSelectedPiece();
-      }
-
+      function countPieceCells(piece) { return piece.cells.flat().filter(Boolean).length; }
+      function getSelectedPiece() { return state.pieces.find((piece) => piece.id === state.selectedPieceId && !piece.used) || null; }
+      function getActivePiece() { return state.dragging ? (state.pieces.find((piece) => piece.id === state.dragging.pieceId) || null) : getSelectedPiece(); }
       function setMessage(text, kind = "info") {
         clearTimeout(state.messageTimer);
         MESSAGE_TEXT.textContent = text;
         MESSAGE_TEXT.className = `message ${kind === "warn" ? "warn" : ""}`.trim();
-        state.messageTimer = setTimeout(() => {
-          MESSAGE_TEXT.textContent = "";
-          MESSAGE_TEXT.className = "message";
-        }, 1300);
+        state.messageTimer = setTimeout(() => { MESSAGE_TEXT.textContent = ""; MESSAGE_TEXT.className = "message"; }, 1200);
       }
-
       function updateLayout() {
         const vv = window.visualViewport;
         const viewportHeight = vv ? vv.height : window.innerHeight;
         const shellStyles = getComputedStyle(SHELL);
-        const gap = parseFloat(shellStyles.rowGap || shellStyles.gap || 10);
+        const gap = parseFloat(shellStyles.rowGap || shellStyles.gap || 8);
         const safeTop = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--safe-top")) || 0;
         const safeBottom = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--safe-bottom")) || 0;
         const shellWidth = Math.min(window.innerWidth - 24, 460);
@@ -811,75 +554,51 @@
         const statsHeight = STATS_PANEL.offsetHeight;
         const trayHeight = TRAY_PANEL.offsetHeight;
         const footerHeight = document.querySelector(".footer").offsetHeight;
-        const chromeAllowance = 22;
+        const chromeAllowance = 6;
         const totalFixed = headerHeight + statsHeight + trayHeight + footerHeight + gap * 4 + chromeAllowance + safeTop + safeBottom;
         const maxByHeight = viewportHeight - totalFixed;
         const maxByWidth = shellWidth - 2;
-        const nextBoardSize = Math.max(270, Math.min(maxByWidth, maxByHeight));
+        const nextBoardSize = Math.max(312, Math.min(maxByWidth, maxByHeight));
         document.documentElement.style.setProperty("--board-size", `${Math.floor(nextBoardSize)}px`);
       }
-
       function renderBoard() {
         const activePiece = getActivePiece();
         const preview = state.preview;
         const activeAnchors = activePiece ? getPlayableAnchors(state.board, activePiece) : new Set();
-
         BOARD.innerHTML = "";
-
         for (let row = 0; row < GRID_SIZE; row += 1) {
           for (let col = 0; col < GRID_SIZE; col += 1) {
             const cell = document.createElement("button");
             cell.type = "button";
             cell.className = "cell";
-            cell.dataset.row = String(row);
-            cell.dataset.col = String(col);
             const value = state.board[row][col];
-
-            if (value) {
-              cell.classList.add("filled");
-              cell.style.background = value;
-            }
-
-            if (activePiece && activeAnchors.has(`${row}-${col}`) && !value) {
-              cell.classList.add("anchor");
-            }
-
+            if (value) { cell.classList.add("filled"); cell.style.background = value; }
+            if (activePiece && activeAnchors.has(`${row}-${col}`) && !value) cell.classList.add("anchor");
             if (preview && preview.cells.has(`${row}-${col}`)) {
               cell.classList.add(preview.valid ? "preview-valid" : "preview-invalid");
-              if (preview.valid) {
-                cell.style.background = activePiece?.color || value;
-              }
+              if (preview.valid) cell.style.background = activePiece?.color || value;
             }
-
             cell.addEventListener("click", () => handleBoardTap(row, col));
             BOARD.appendChild(cell);
           }
         }
       }
-
       function buildMiniGrid(container, piece, className) {
-        const rows = piece.cells.length;
-        const cols = piece.cells[0].length;
+        const rows = piece.cells.length, cols = piece.cells[0].length;
         container.style.gridTemplateColumns = `repeat(${cols}, auto)`;
-
         for (let row = 0; row < rows; row += 1) {
           for (let col = 0; col < cols; col += 1) {
             const cell = document.createElement("div");
             cell.className = className;
-            if (piece.cells[row][col]) {
-              cell.classList.add("on");
-              cell.style.background = piece.color;
-            }
+            if (piece.cells[row][col]) { cell.classList.add("on"); cell.style.background = piece.color; }
             container.appendChild(cell);
           }
         }
       }
-
       function renderPieces() {
         const playableCount = state.pieces.filter((piece) => !piece.used && hasAnyMove(state.board, [piece])).length;
-        MOVES_TEXT.textContent = playableCount > 0 ? `${playableCount} peça${playableCount > 1 ? "s" : ""} cabendo` : "Sem espaço";
+        MOVES_TEXT.textContent = playableCount > 0 ? `${playableCount} peça${playableCount > 1 ? "s" : ""}` : "Sem espaço";
         PIECES.innerHTML = "";
-
         state.pieces.forEach((piece) => {
           const card = document.createElement("button");
           card.type = "button";
@@ -888,31 +607,22 @@
           if (piece.used) card.classList.add("used");
           const playable = !piece.used && hasAnyMove(state.board, [piece]);
           if (!playable && !piece.used) card.classList.add("unplayable");
-
           const grid = document.createElement("div");
           grid.className = "piece-grid";
           buildMiniGrid(grid, piece, "piece-mini");
           card.appendChild(grid);
-
           const tag = document.createElement("div");
           tag.className = "piece-tag";
           tag.textContent = piece.used ? "usada" : playable ? "toque ou arraste" : "sem espaço";
           card.appendChild(tag);
-
           card.addEventListener("click", () => handlePieceTap(piece.id));
           card.addEventListener("pointerdown", (event) => beginDrag(event, piece.id));
           PIECES.appendChild(card);
         });
       }
-
       function renderGhost() {
         const piece = getActivePiece();
-        if (!state.dragging || !piece) {
-          GHOST.classList.remove("show");
-          GHOST_GRID.innerHTML = "";
-          return;
-        }
-
+        if (!state.dragging || !piece) { GHOST.classList.remove("show"); GHOST_GRID.innerHTML = ""; return; }
         GHOST_GRID.innerHTML = "";
         buildMiniGrid(GHOST_GRID, piece, "ghost-cell");
         GHOST.classList.add("show");
@@ -920,121 +630,62 @@
         GHOST.style.top = `${state.dragging.ghostTop}px`;
         GHOST.style.opacity = state.previewValid ? "0.96" : "0.72";
       }
-
       function renderStats() {
         SCORE_VALUE.textContent = String(state.score);
         COMBO_VALUE.textContent = String(state.combo);
         BEST_VALUE.textContent = String(state.best);
         COMBO_CHIP.textContent = state.combo > 1 ? `Combo x${state.combo}` : state.combo === 1 ? "Combo iniciado" : "Sem combo";
       }
-
       function renderGameOver() {
-        if (!state.gameOver) {
-          GAME_OVER_OVERLAY.classList.remove("show");
-          return;
-        }
+        if (!state.gameOver) { GAME_OVER_OVERLAY.classList.remove("show"); return; }
         FINAL_SCORE.textContent = String(state.score);
         FINAL_BEST.textContent = String(state.best);
         GAME_OVER_OVERLAY.classList.add("show");
       }
-
-      function render() {
-        updateLayout();
-        renderStats();
-        renderBoard();
-        renderPieces();
-        renderGhost();
-        renderGameOver();
-      }
-
+      function render() { updateLayout(); renderStats(); renderBoard(); renderPieces(); renderGhost(); renderGameOver(); }
       function handlePieceTap(pieceId) {
         if (state.gameOver) return;
         const piece = state.pieces.find((item) => item.id === pieceId);
         if (!piece || piece.used) return;
-        if (!hasAnyMove(state.board, [piece])) {
-          setMessage("Essa peça não cabe agora.", "warn");
-          return;
-        }
+        if (!hasAnyMove(state.board, [piece])) { setMessage("Essa peça não cabe agora.", "warn"); return; }
         state.selectedPieceId = state.selectedPieceId === pieceId ? null : pieceId;
-        state.preview = null;
-        state.previewValid = false;
-        HINT_TEXT.textContent = state.selectedPieceId
-          ? "Peça selecionada. Toque em uma posição válida do tabuleiro ou arraste direto."
-          : "Toque em uma peça e depois no tabuleiro, ou arraste direto. O tabuleiro fica quadrado e a bandeja continua visível.";
-        render();
+        state.preview = null; state.previewValid = false; render();
       }
-
       function handleBoardTap(row, col) {
         if (state.gameOver) return;
         const piece = getSelectedPiece();
         if (!piece) return;
-        if (!canPlace(state.board, piece, row, col)) {
-          setMessage("Esse encaixe não cabe aqui.", "warn");
-          return;
-        }
+        if (!canPlace(state.board, piece, row, col)) { setMessage("Esse encaixe não cabe aqui.", "warn"); return; }
         commitPlacement(piece, row, col);
       }
-
       function commitPlacement(piece, row, col) {
         state.board = placePiece(state.board, piece, row, col);
         piece.used = true;
         const cleared = clearFullLines(state.board);
         state.board = cleared.board;
-
         const basePoints = countPieceCells(piece) * 5;
         const comboNow = cleared.lineCount > 0 ? state.combo + 1 : 0;
         const gained = basePoints + cleared.lineCount * 90 + (comboNow > 1 ? comboNow * 25 : 0);
-        state.score += gained;
-        state.combo = comboNow;
-        state.selectedPieceId = null;
-        state.preview = null;
-        state.previewValid = false;
-
-        if (state.score > state.best) {
-          state.best = state.score;
-          saveBest();
-        }
-
-        if (cleared.lineCount > 0) {
-          setMessage(comboNow > 1 ? `Boa! Combo x${comboNow}` : "Linha limpa.");
-        } else {
-          setMessage(`+${gained} pontos`);
-        }
-
-        if (state.pieces.every((currentPiece) => currentPiece.used)) {
-          state.pieces = buildPieceSet(state.board);
-        }
-
-        if (!hasAnyMove(state.board, state.pieces.filter((currentPiece) => !currentPiece.used))) {
-          state.gameOver = true;
-        }
-
-        HINT_TEXT.textContent = state.gameOver
-          ? "Acabaram as jogadas possíveis. Reinicie para tentar de novo."
-          : "Toque em uma peça e depois no tabuleiro, ou arraste direto. O tabuleiro fica quadrado e a bandeja continua visível.";
-
+        state.score += gained; state.combo = comboNow; state.selectedPieceId = null; state.preview = null; state.previewValid = false;
+        if (state.score > state.best) { state.best = state.score; saveBest(); }
+        if (cleared.lineCount > 0) setMessage(comboNow > 1 ? `Boa! Combo x${comboNow}` : "Linha limpa.");
+        else setMessage(`+${gained} pontos`);
+        if (state.pieces.every((currentPiece) => currentPiece.used)) state.pieces = buildPieceSet(state.board);
+        if (!hasAnyMove(state.board, state.pieces.filter((currentPiece) => !currentPiece.used))) state.gameOver = true;
         render();
       }
-
       function getBoardMetrics() {
         const rect = BOARD.getBoundingClientRect();
         const cell = rect.width / GRID_SIZE;
         return { rect, cell };
       }
-
       function updatePreviewFromPointer(pointerX, pointerY) {
         const piece = getActivePiece();
-        if (!piece) {
-          state.preview = null;
-          state.previewValid = false;
-          return;
-        }
-
+        if (!piece) { state.preview = null; state.previewValid = false; return; }
         const { rect, cell } = getBoardMetrics();
         const pieceSize = getPieceSize(piece);
         const anchorCol = Math.round((pointerX - rect.left - (pieceSize.cols * cell) / 2) / cell);
         const anchorRow = Math.round((pointerY - rect.top - (pieceSize.rows * cell) / 2) / cell);
-
         const cells = new Set();
         for (let row = 0; row < piece.cells.length; row += 1) {
           for (let col = 0; col < piece.cells[row].length; col += 1) {
@@ -1042,77 +693,45 @@
             cells.add(`${anchorRow + row}-${anchorCol + col}`);
           }
         }
-
-        state.preview = {
-          row: anchorRow,
-          col: anchorCol,
-          cells,
-        };
+        state.preview = { row: anchorRow, col: anchorCol, cells };
         state.previewValid = canPlace(state.board, piece, anchorRow, anchorCol);
       }
-
       function beginDrag(event, pieceId) {
         if (state.gameOver) return;
         const piece = state.pieces.find((item) => item.id === pieceId);
         if (!piece || piece.used) return;
-        if (!hasAnyMove(state.board, [piece])) {
-          setMessage("Essa peça não cabe agora.", "warn");
-          return;
-        }
-
+        if (!hasAnyMove(state.board, [piece])) { setMessage("Essa peça não cabe agora.", "warn"); return; }
         event.preventDefault();
         state.selectedPieceId = pieceId;
-        state.dragging = {
-          pieceId,
-          pointerId: event.pointerId,
-          ghostLeft: event.clientX,
-          ghostTop: event.clientY,
-        };
+        state.dragging = { pieceId, pointerId: event.pointerId, ghostLeft: event.clientX, ghostTop: event.clientY };
         updatePreviewFromPointer(event.clientX, event.clientY);
         render();
       }
-
       function handlePointerMove(event) {
         if (!state.dragging || event.pointerId !== state.dragging.pointerId) return;
         const piece = getActivePiece();
         if (!piece) return;
-        const { rect, cell } = getBoardMetrics();
+        const { cell } = getBoardMetrics();
         const pieceSize = getPieceSize(piece);
         state.dragging.ghostLeft = event.clientX - Math.min(30, (pieceSize.cols * cell) / 2);
         state.dragging.ghostTop = event.clientY - Math.min(30, (pieceSize.rows * cell) / 2);
         updatePreviewFromPointer(event.clientX, event.clientY);
         render();
       }
-
       function handlePointerUp(event) {
         if (!state.dragging || event.pointerId !== state.dragging.pointerId) return;
         const piece = getActivePiece();
-        if (piece && state.preview && state.previewValid) {
-          commitPlacement(piece, state.preview.row, state.preview.col);
-        } else {
+        if (piece && state.preview && state.previewValid) commitPlacement(piece, state.preview.row, state.preview.col);
+        else {
           setMessage("Solte em uma posição válida.", "warn");
-          state.preview = null;
-          state.previewValid = false;
-          render();
+          state.preview = null; state.previewValid = false; render();
         }
-        state.dragging = null;
-        renderGhost();
+        state.dragging = null; renderGhost();
       }
-
       function resetGame() {
-        state.board = makeEmptyBoard();
-        state.pieces = buildPieceSet(state.board);
-        state.score = 0;
-        state.combo = 0;
-        state.selectedPieceId = null;
-        state.gameOver = false;
-        state.preview = null;
-        state.previewValid = false;
-        state.dragging = null;
-        HINT_TEXT.textContent = "Toque em uma peça e depois no tabuleiro, ou arraste direto. O tabuleiro fica quadrado e a bandeja continua visível.";
-        render();
+        state.board = makeEmptyBoard(); state.pieces = buildPieceSet(state.board); state.score = 0; state.combo = 0;
+        state.selectedPieceId = null; state.gameOver = false; state.preview = null; state.previewValid = false; state.dragging = null; render();
       }
-
       RESTART_BUTTON.addEventListener("click", resetGame);
       RESTART_OVERLAY_BUTTON.addEventListener("click", resetGame);
       window.addEventListener("pointermove", handlePointerMove, { passive: true });
@@ -1123,7 +742,6 @@
         window.visualViewport.addEventListener("resize", render, { passive: true });
         window.visualViewport.addEventListener("scroll", render, { passive: true });
       }
-
       resetGame();
     })();
   </script>
