@@ -3,9 +3,7 @@ const CACHE_NAME = "bloquinhos-cache-v1";
 const APP_SHELL = [
   "/",
   "/index.html",
-  "/manifest.json",
-  "/icon-192.png",
-  "/icon-512.png"
+  "/manifest.json"
 ];
 
 self.addEventListener("install", (event) => {
@@ -30,7 +28,6 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   const request = event.request;
-
   if (request.method !== "GET") return;
 
   event.respondWith(
@@ -50,17 +47,10 @@ self.addEventListener("fetch", (event) => {
           return networkResponse;
         })
         .catch(async () => {
-          if (
-            request.mode === "navigate" ||
-            request.destination === "document"
-          ) {
+          if (request.mode === "navigate" || request.destination === "document") {
             return caches.match("/index.html");
           }
-
-          return new Response("Offline", {
-            status: 503,
-            statusText: "Offline"
-          });
+          return new Response("Offline", { status: 503, statusText: "Offline" });
         });
     })
   );
