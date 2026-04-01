@@ -9,6 +9,8 @@
   <meta name="theme-color" content="#091120" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="apple-touch-icon" href="/icon-192.png" />
   <title>Bloquinhos do Athayde</title>
   <style>
     :root {
@@ -732,6 +734,15 @@
         state.board = makeEmptyBoard(); state.pieces = buildPieceSet(state.board); state.score = 0; state.combo = 0;
         state.selectedPieceId = null; state.gameOver = false; state.preview = null; state.previewValid = false; state.dragging = null; render();
       }
+
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("/service-worker.js").catch((error) => {
+            console.error("Erro ao registrar service worker:", error);
+          });
+        });
+      }
+
       RESTART_BUTTON.addEventListener("click", resetGame);
       RESTART_OVERLAY_BUTTON.addEventListener("click", resetGame);
       window.addEventListener("pointermove", handlePointerMove, { passive: true });
