@@ -643,6 +643,7 @@
         soundEnabled: loadSoundPref(),
         audioCtx: null,
         celebratedRecordThisRun: false,
+        turns: 0,
       };
 
       function loadBest() {
@@ -742,17 +743,34 @@
       function randomShape(pool) { return pool[randomIndex(pool.length)]; }
       function getShapePool(board) {
         const filled = board.flat().filter(Boolean).length;
-        if (filled < 8) return SHAPES.filter((shape) => countShapeCells(shape) <= 4);
-        if (filled < 24) return SHAPES.filter((shape) => countShapeCells(shape) <= 6);
+        const turn = state.turns;
+
+        if (turn < 4 || filled < 8) {
+          return SHAPES.filter((shape) => countShapeCells(shape) <= 4);
+        }
+
+        if (turn < 9 || filled < 22) {
+          return SHAPES.filter((shape) => countShapeCells(shape) <= 6);
+        }
+
         return SHAPES;
       }
       function countShapeCells(shape) { return shape.flat().filter(Boolean).length; }
       function buildPieceSet(board) {
         const pool = getShapePool(board);
-        for (let attempt = 0; attempt < 80; attempt += 1) {
+
+        for (let attempt = 0; attempt < 120; attempt += 1) {
           const candidate = Array.from({ length: 3 }, () => createPiece(randomShape(pool)));
-          if (hasAnyMove(board, candidate)) return candidate;
+          const playableCount = candidate.filter((piece) => hasAnyMove(board, [piece])).length;
+          const heavyCount = candidate.filter((piece) => countPieceCells(piece) >= 6).length;
+
+          if (!hasAnyMove(board, candidate)) continue;
+          if (state.turns < 6 && heavyCount > 1) continue;
+          if (playableCount < 2 && attempt < 80) continue;
+
+          return candidate;
         }
+
         return [createPiece([[1]]), createPiece([[1,1]]), createPiece([[1],[1]])];
       }
       function getPieceSize(piece) { return { rows: piece.cells.length, cols: piece.cells[0].length }; }
@@ -960,7 +978,7 @@
 
       function renderPieces() {
         const playableCount = state.pieces.filter((piece) => !piece.used && hasAnyMove(state.board, [piece])).length;
-        MOVES_TEXT.textContent = playableCount > 0 ? `${playableCount} peça${playableCount > 1 ? "s" : ""}` : "Sem espaço";
+        MOVES_TEXT.textContent = playableCount > 0 ? `${playableCount} peça${playableCount > 1 ? "s" : ""} • jogada ${state.turns}` : "Sem espaço";
         PIECES.innerHTML = "";
         state.pieces.forEach((piece) => {
           const card = document.createElement("button");
@@ -1061,6 +1079,7 @@
 
       function commitPlacement(piece, row, col) {
         state.board = placePiece(state.board, piece, row, col);
+        state.turns += 1;
         state.placedPieceId = piece.id;
         clearTimeout(state.placedPieceTimer);
         state.placedPieceTimer = setTimeout(() => {
@@ -1074,9 +1093,13 @@
         state.clearingCells = cleared.cells;
 
         const oldBest = state.best;
-        const basePoints = countPieceCells(piece) * 5;
+        const pieceCells = countPieceCells(piece);
+        const basePoints = pieceCells * 6;
         const comboNow = cleared.lineCount > 0 ? state.combo + 1 : 0;
-        const gained = basePoints + cleared.lineCount * 90 + (comboNow > 1 ? comboNow * 25 : 0);
+        const lineBonus = cleared.lineCount * 100;
+        const comboBonus = comboNow > 1 ? comboNow * 35 : 0;
+        const survivalBonus = state.turns > 10 ? Math.min(20, Math.floor(state.turns / 3)) : 0;
+        const gained = basePoints + lineBonus + comboBonus + survivalBonus;
         state.score += gained;
         state.combo = comboNow;
         state.selectedPieceId = null;
@@ -1106,8 +1129,13 @@
           celebrateNewRecord();
         }
 
-        if (cleared.lineCount > 0) setMessage(comboNow > 1 ? `Boa! Combo x${comboNow}` : "Linha limpa.");
-        else setMessage(`+${gained} pontos`);
+        if (cleared.lineCount > 0) {
+          setMessage(comboNow > 1 ? `Boa! Combo x${comboNow}` : "Linha limpa.");
+        } else if (survivalBonus > 0) {
+          setMessage(`+${gained} pontos • sobrevivência`);
+        } else {
+          setMessage(`+${gained} pontos`);
+        }
 
         if (state.pieces.every((currentPiece) => currentPiece.used)) {
           state.pieces = buildPieceSet(state.board);
@@ -1221,6 +1249,7 @@
         state.previewValid = false;
         state.dragging = null;
         state.celebratedRecordThisRun = false;
+        state.turns = 0;
         state.clearingCells = new Set();
         state.placedPieceId = null;
         BOARD.classList.remove("combo-glow", "record-glow");
