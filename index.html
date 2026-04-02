@@ -371,10 +371,8 @@
 
   <div class="overlay" id="startOverlay">
     <div class="dialog hero">
-      <div class="hero-badge">✨ Cara de app de verdade</div>
       <div>
         <h2 class="hero-title">Bloquinhos</h2>
-        <p class="hero-copy">Entre no jogo, acompanhe seu histórico e veja o quanto já evoluiu. Agora ele abre com cara de app mesmo.</p>
       </div>
       <div class="hero-actions">
         <button class="button primary-cta" id="startPlayButton" type="button">Jogar agora</button>
@@ -925,7 +923,15 @@
       RESTART_OVERLAY_BUTTON.addEventListener("click", () => { ensureAudio(); resetGame(); });
       SOUND_BUTTON.addEventListener("click", toggleSound);
       HOME_BUTTON.addEventListener("click", () => { ensureAudio(); showStartScreen(); });
-      START_PLAY_BUTTON.addEventListener("click", () => { ensureAudio(); if (!state.hasStartedGame) state.hasStartedGame = true; resetGame(); });
+      START_PLAY_BUTTON.addEventListener("click", () => {
+        ensureAudio();
+        if (!state.hasStartedGame) state.hasStartedGame = true;
+        hideStartScreen();
+        hideStatsScreen();
+        GAME_OVER_OVERLAY.classList.remove("show");
+        state.gameOver = false;
+        resetGame();
+      });
       OPEN_STATS_BUTTON.addEventListener("click", () => { ensureAudio(); showStatsScreen(); });
       CLOSE_STATS_BUTTON.addEventListener("click", hideStatsScreen);
       window.addEventListener("pointermove", handlePointerMove, { passive: true });
