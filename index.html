@@ -456,23 +456,33 @@
     .record-banner {
       position: absolute;
       left: 50%;
-      top: 26%;
+      top: 22%;
       transform: translateX(-50%);
       z-index: 12;
-      padding: 10px 16px;
+      padding: 12px 18px;
       border-radius: 999px;
-      background: linear-gradient(180deg, rgba(255,230,151,.98), rgba(255,190,77,.95));
+      background:
+        radial-gradient(120% 120% at 50% 0%, rgba(255,255,255,.55), transparent 38%),
+        linear-gradient(180deg, rgba(255,232,157,.98), rgba(255,187,61,.96));
       color: #5b3900;
-      font-size: 16px;
+      font-size: 17px;
       font-weight: 900;
-      letter-spacing: 0.02em;
-      box-shadow: 0 14px 30px rgba(0,0,0,.20), 0 0 40px rgba(255, 201, 94, 0.24);
-      animation: recordIn 1200ms ease forwards;
+      letter-spacing: 0.03em;
+      box-shadow:
+        0 18px 34px rgba(0,0,0,.22),
+        0 0 46px rgba(255, 201, 94, 0.30);
+      animation: recordIn 1500ms cubic-bezier(.2,.8,.2,1) forwards;
       pointer-events: none;
       white-space: nowrap;
+      text-transform: uppercase;
     }
     @keyframes recordIn {
-      0% { opacity: 0; transform: translateX(-50%) translateY(10px) scale(0.86); }
+      0% { opacity: 0; transform: translateX(-50%) translateY(18px) scale(0.72) rotate(-4deg); }
+      12% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1.10) rotate(2deg); }
+      24% { transform: translateX(-50%) translateY(-2px) scale(1) rotate(-1deg); }
+      72% { opacity: 1; transform: translateX(-50%) translateY(-8px) scale(1.02) rotate(0deg); }
+      100% { opacity: 0; transform: translateX(-50%) translateY(-28px) scale(0.96); }
+    }
       12% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1.04); }
       70% { opacity: 1; transform: translateX(-50%) translateY(-4px) scale(1); }
       100% { opacity: 0; transform: translateX(-50%) translateY(-14px) scale(0.98); }
@@ -632,6 +642,7 @@
         comboFxTimer: null,
         soundEnabled: loadSoundPref(),
         audioCtx: null,
+        celebratedRecordThisRun: false,
       };
 
       function loadBest() {
@@ -832,19 +843,23 @@
 
       function spawnParticles(color = "#ffffff", intense = false) {
         PARTICLES.innerHTML = "";
-        const count = intense ? 18 : 10;
+        const count = intense ? 28 : 10;
         for (let i = 0; i < count; i += 1) {
           const p = document.createElement("div");
           p.className = "particle";
-          p.style.left = `${46 + (Math.random() * 8 - 4)}%`;
-          p.style.top = `${46 + (Math.random() * 8 - 4)}%`;
+          p.style.left = `${46 + (Math.random() * 10 - 5)}%`;
+          p.style.top = `${42 + (Math.random() * 12 - 6)}%`;
           p.style.color = color;
-          p.style.background = color;
-          p.style.setProperty("--dx", `${(Math.random() * (intense ? 160 : 100) - (intense ? 80 : 50))}px`);
-          p.style.setProperty("--dy", `${(Math.random() * (intense ? 150 : 100) - (intense ? 90 : 60))}px`);
+          p.style.background = i % 5 === 0 ? "#fff3b0" : color;
+          const spread = intense ? 210 : 100;
+          const lift = intense ? 180 : 100;
+          p.style.width = intense && i % 4 === 0 ? "10px" : "8px";
+          p.style.height = p.style.width;
+          p.style.setProperty("--dx", `${(Math.random() * spread - spread / 2)}px`);
+          p.style.setProperty("--dy", `${(Math.random() * lift - lift * 0.75)}px`);
           PARTICLES.appendChild(p);
         }
-        setTimeout(() => { PARTICLES.innerHTML = ""; }, 620);
+        setTimeout(() => { PARTICLES.innerHTML = ""; }, intense ? 900 : 620);
       }
 
       function triggerComboFx(hot = false) {
@@ -860,18 +875,22 @@
       function celebrateNewRecord() {
         const banner = document.createElement("div");
         banner.className = "record-banner";
-        banner.textContent = "🎉 Novo recorde!";
+        banner.textContent = "🏆 Novo recorde!";
         BOARD_WRAP.appendChild(banner);
         BEST_CARD.classList.add("best-hit");
         BOARD.classList.add("record-glow");
+        COMBO_CHIP.classList.add("hot");
         spawnParticles("#ffd36a", true);
+        setTimeout(() => spawnParticles("#fff3b0", true), 180);
+        setTimeout(() => spawnParticles("#ff9ec4", true), 320);
         playSound("record");
         haptic("success");
-        setTimeout(() => banner.remove(), 1200);
+        setTimeout(() => banner.remove(), 1500);
         setTimeout(() => {
           BEST_CARD.classList.remove("best-hit");
           BOARD.classList.remove("record-glow");
-        }, 1200);
+          COMBO_CHIP.classList.remove("hot");
+        }, 1500);
       }
 
       function updateLayout() {
@@ -1065,6 +1084,7 @@
         state.previewValid = false;
 
         const beatRecord = state.score > oldBest;
+        const shouldCelebrateRecord = beatRecord && !state.celebratedRecordThisRun;
         if (beatRecord) {
           state.best = state.score;
           saveBest();
@@ -1081,7 +1101,8 @@
           haptic("light");
         }
 
-        if (beatRecord) {
+        if (shouldCelebrateRecord) {
+          state.celebratedRecordThisRun = true;
           celebrateNewRecord();
         }
 
@@ -1199,6 +1220,7 @@
         state.preview = null;
         state.previewValid = false;
         state.dragging = null;
+        state.celebratedRecordThisRun = false;
         state.clearingCells = new Set();
         state.placedPieceId = null;
         BOARD.classList.remove("combo-glow", "record-glow");
