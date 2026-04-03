@@ -912,11 +912,29 @@
       }
       function toggleSound() { state.soundEnabled = !state.soundEnabled; saveSoundPref(); updateSoundButton(); if (state.soundEnabled) playSound("place"); }
       function resetGame() {
-        state.board = makeEmptyBoard(); state.pieces = buildPieceSet(state.board); state.score = 0; state.combo = 0; state.selectedPieceId = null;
-        state.gameOver = false; state.preview = null; state.previewValid = false; state.dragging = null; state.clearingCells = new Set();
-        state.placedPieceId = null; state.celebratedRecordThisRun = false; state.turns = 0; state.totalLinesRun = 0; state.maxComboRun = 0;
-        BOARD.classList.remove("combo-glow", "record-glow"); COMBO_CHIP.classList.remove("hot"); BEST_CARD.classList.remove("best-hit"); PARTICLES.innerHTML = "";
-        hideStartScreen(); hideStatsScreen(); GAME_OVER_OVERLAY.classList.remove("show"); render();
+        state.board = makeEmptyBoard();
+        state.score = 0;
+        state.combo = 0;
+        state.selectedPieceId = null;
+        state.gameOver = false;
+        state.preview = null;
+        state.previewValid = false;
+        state.dragging = null;
+        state.clearingCells = new Set();
+        state.placedPieceId = null;
+        state.celebratedRecordThisRun = false;
+        state.turns = 0;
+        state.totalLinesRun = 0;
+        state.maxComboRun = 0;
+        state.pieces = buildPieceSet(state.board);
+        BOARD.classList.remove("combo-glow", "record-glow");
+        COMBO_CHIP.classList.remove("hot");
+        BEST_CARD.classList.remove("best-hit");
+        PARTICLES.innerHTML = "";
+        hideStartScreen();
+        hideStatsScreen();
+        GAME_OVER_OVERLAY.classList.remove("show");
+        render();
       }
 
       RESTART_BUTTON.addEventListener("click", () => { ensureAudio(); resetGame(); });
