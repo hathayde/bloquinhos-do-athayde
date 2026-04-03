@@ -26,6 +26,7 @@
       --safe-bottom: env(safe-area-inset-bottom, 0px);
       --safe-left: env(safe-area-inset-left, 0px);
     }
+
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     html, body {
       margin: 0;
@@ -270,17 +271,8 @@
       100% { opacity:0; transform: translateX(-50%) translateY(-28px) scale(.96); }
     }
 
-    .hero {
-      display:grid; gap: 14px; text-align:left;
-    }
-    .hero-badge {
-      display:inline-flex; align-items:center; gap:8px; width:max-content;
-      padding: 8px 12px; border-radius: 999px;
-      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
-      border:1px solid rgba(255,255,255,.08); color:#eef2ff; font-weight:800; font-size:12px;
-    }
+    .hero { display:grid; gap: 14px; text-align:left; }
     .hero-title { margin:0; font-size: 34px; line-height: .95; letter-spacing: -.05em; }
-    .hero-copy { margin:0; color: var(--muted); font-size: 14px; line-height: 1.5; }
     .hero-actions { display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
     .primary-cta {
       min-height: 48px;
@@ -289,9 +281,7 @@
       background: linear-gradient(180deg, rgba(255,232,157,.98), rgba(255,187,61,.96));
       color:#5b3900; font-weight:900; box-shadow: 0 12px 28px rgba(255,187,61,.22);
     }
-    .secondary-cta {
-      min-height: 48px; border-radius:18px; font-weight: 800;
-    }
+    .secondary-cta { min-height: 48px; border-radius:18px; font-weight: 800; }
     .overview-grid { display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
     .mini-panel {
       padding: 12px; border-radius: 20px;
@@ -430,6 +420,7 @@
       const BEST_KEY = "bloquinhos_best_score_v1";
       const SOUND_KEY = "bloquinhos_sound_enabled_v1";
       const META_KEY = "bloquinhos_meta_v1";
+
       const BOARD = document.getElementById("board");
       const PIECES = document.getElementById("pieces");
       const SCORE_VALUE = document.getElementById("scoreValue");
@@ -484,17 +475,48 @@
       ];
 
       const state = {
-        board: makeEmptyBoard(), pieces: [], score: 0, combo: 0, best: loadBest(), selectedPieceId: null,
-        gameOver: false, preview: null, previewValid: false, dragging: null, messageTimer: null,
-        clearingCells: new Set(), placedPieceId: null, placedPieceTimer: null, comboFxTimer: null,
-        soundEnabled: loadSoundPref(), audioCtx: null, celebratedRecordThisRun: false,
-        turns: 0, totalLinesRun: 0, maxComboRun: 0, hasStartedGame: false, meta: loadMeta(),
+        board: makeEmptyBoard(),
+        pieces: [],
+        score: 0,
+        combo: 0,
+        best: loadBest(),
+        selectedPieceId: null,
+        gameOver: false,
+        preview: null,
+        previewValid: false,
+        dragging: null,
+        messageTimer: null,
+        clearingCells: new Set(),
+        placedPieceId: null,
+        placedPieceTimer: null,
+        comboFxTimer: null,
+        soundEnabled: loadSoundPref(),
+        audioCtx: null,
+        celebratedRecordThisRun: false,
+        turns: 0,
+        totalLinesRun: 0,
+        maxComboRun: 0,
+        hasStartedGame: false,
+        meta: loadMeta(),
       };
 
-      function loadBest() { try { return Number(localStorage.getItem(BEST_KEY) || 0); } catch { return 0; } }
-      function saveBest() { try { localStorage.setItem(BEST_KEY, String(state.best)); } catch {} }
-      function loadSoundPref() { try { const saved = localStorage.getItem(SOUND_KEY); return saved === null ? true : saved === "true"; } catch { return true; } }
-      function saveSoundPref() { try { localStorage.setItem(SOUND_KEY, String(state.soundEnabled)); } catch {} }
+      function loadBest() {
+        try { return Number(localStorage.getItem(BEST_KEY) || 0); } catch { return 0; }
+      }
+      function saveBest() {
+        try { localStorage.setItem(BEST_KEY, String(state.best)); } catch {}
+      }
+      function loadSoundPref() {
+        try {
+          const saved = localStorage.getItem(SOUND_KEY);
+          return saved === null ? true : saved === "true";
+        } catch {
+          return true;
+        }
+      }
+      function saveSoundPref() {
+        try { localStorage.setItem(SOUND_KEY, String(state.soundEnabled)); } catch {}
+      }
       function loadMeta() {
         try {
           const raw = JSON.parse(localStorage.getItem(META_KEY) || "{}");
@@ -509,10 +531,19 @@
           return { totalMatches: 0, totalScore: 0, totalLines: 0, bestComboEver: 0, history: [] };
         }
       }
-      function saveMeta() { try { localStorage.setItem(META_KEY, JSON.stringify(state.meta)); } catch {} }
-      function makeEmptyBoard() { return Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(null)); }
-      function cloneBoard(board) { return board.map((row) => [...row]); }
-      function randomIndex(max) { return Math.floor(Math.random() * max); }
+      function saveMeta() {
+        try { localStorage.setItem(META_KEY, JSON.stringify(state.meta)); } catch {}
+      }
+
+      function makeEmptyBoard() {
+        return Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(null));
+      }
+      function cloneBoard(board) {
+        return board.map((row) => [...row]);
+      }
+      function randomIndex(max) {
+        return Math.floor(Math.random() * max);
+      }
 
       function updateSoundButton() {
         SOUND_BUTTON.textContent = state.soundEnabled ? "🔊" : "🔇";
@@ -527,32 +558,64 @@
         return state.audioCtx;
       }
       function playTone({ freq = 440, duration = 0.08, type = "sine", gain = 0.03, slideTo = null, when = 0 }) {
-        const ctx = ensureAudio(); if (!ctx) return;
-        const osc = ctx.createOscillator(); const amp = ctx.createGain(); const now = ctx.currentTime + when;
-        osc.type = type; osc.frequency.setValueAtTime(freq, now); if (slideTo) osc.frequency.exponentialRampToValueAtTime(slideTo, now + duration);
-        amp.gain.setValueAtTime(0.0001, now); amp.gain.exponentialRampToValueAtTime(gain, now + 0.01); amp.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-        osc.connect(amp).connect(ctx.destination); osc.start(now); osc.stop(now + duration + 0.02);
+        const ctx = ensureAudio();
+        if (!ctx) return;
+        const osc = ctx.createOscillator();
+        const amp = ctx.createGain();
+        const now = ctx.currentTime + when;
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, now);
+        if (slideTo) osc.frequency.exponentialRampToValueAtTime(slideTo, now + duration);
+        amp.gain.setValueAtTime(0.0001, now);
+        amp.gain.exponentialRampToValueAtTime(gain, now + 0.01);
+        amp.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+        osc.connect(amp).connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + duration + 0.02);
       }
       function playSound(kind) {
         if (!state.soundEnabled) return;
         if (kind === "place") playTone({ freq: 460, duration: 0.06, type: "triangle", gain: 0.03, slideTo: 360 });
-        else if (kind === "clear") { playTone({ freq: 620, duration: 0.08, type: "triangle", gain: 0.04, slideTo: 820 }); playTone({ freq: 930, duration: 0.1, type: "sine", gain: 0.02, when: 0.03, slideTo: 760 }); }
-        else if (kind === "combo") { playTone({ freq: 520, duration: 0.07, type: "triangle", gain: 0.035, slideTo: 760 }); playTone({ freq: 760, duration: 0.08, type: "triangle", gain: 0.03, when: 0.05, slideTo: 980 }); }
-        else if (kind === "record") { playTone({ freq: 660, duration: 0.08, type: "triangle", gain: 0.04, slideTo: 880 }); playTone({ freq: 880, duration: 0.09, type: "triangle", gain: 0.04, when: 0.07, slideTo: 1100 }); playTone({ freq: 1100, duration: 0.11, type: "triangle", gain: 0.04, when: 0.14, slideTo: 1320 }); }
-        else if (kind === "gameover") { playTone({ freq: 360, duration: 0.12, type: "sawtooth", gain: 0.025, slideTo: 220 }); playTone({ freq: 260, duration: 0.14, type: "triangle", gain: 0.018, when: 0.06, slideTo: 180 }); }
-        else if (kind === "warn") playTone({ freq: 240, duration: 0.06, type: "square", gain: 0.02, slideTo: 180 });
+        else if (kind === "clear") {
+          playTone({ freq: 620, duration: 0.08, type: "triangle", gain: 0.04, slideTo: 820 });
+          playTone({ freq: 930, duration: 0.1, type: "sine", gain: 0.02, when: 0.03, slideTo: 760 });
+        } else if (kind === "combo") {
+          playTone({ freq: 520, duration: 0.07, type: "triangle", gain: 0.035, slideTo: 760 });
+          playTone({ freq: 760, duration: 0.08, type: "triangle", gain: 0.03, when: 0.05, slideTo: 980 });
+        } else if (kind === "record") {
+          playTone({ freq: 660, duration: 0.08, type: "triangle", gain: 0.04, slideTo: 880 });
+          playTone({ freq: 880, duration: 0.09, type: "triangle", gain: 0.04, when: 0.07, slideTo: 1100 });
+          playTone({ freq: 1100, duration: 0.11, type: "triangle", gain: 0.04, when: 0.14, slideTo: 1320 });
+        } else if (kind === "gameover") {
+          playTone({ freq: 360, duration: 0.12, type: "sawtooth", gain: 0.025, slideTo: 220 });
+          playTone({ freq: 260, duration: 0.14, type: "triangle", gain: 0.018, when: 0.06, slideTo: 180 });
+        } else if (kind === "warn") {
+          playTone({ freq: 240, duration: 0.06, type: "square", gain: 0.02, slideTo: 180 });
+        }
       }
       function haptic(pattern = "light") {
         if (!navigator.vibrate) return;
-        if (pattern === "success") navigator.vibrate([10, 18, 12]); else if (pattern === "warn") navigator.vibrate(18); else navigator.vibrate(10);
+        if (pattern === "success") navigator.vibrate([10, 18, 12]);
+        else if (pattern === "warn") navigator.vibrate(18);
+        else navigator.vibrate(10);
       }
 
       function createPiece(shape) {
         const colorIndex = randomIndex(COLORS.length);
-        return { id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()), cells: shape, color: COLORS[colorIndex], flatColor: FLAT_COLORS[colorIndex], used: false };
+        return {
+          id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+          cells: shape,
+          color: COLORS[colorIndex],
+          flatColor: FLAT_COLORS[colorIndex],
+          used: false,
+        };
       }
-      function randomShape(pool) { return pool[randomIndex(pool.length)]; }
-      function countShapeCells(shape) { return shape.flat().filter(Boolean).length; }
+      function randomShape(pool) {
+        return pool[randomIndex(pool.length)];
+      }
+      function countShapeCells(shape) {
+        return shape.flat().filter(Boolean).length;
+      }
       function getShapePool(board) {
         const filled = board.flat().filter(Boolean).length;
         const turn = state.turns;
@@ -565,7 +628,7 @@
         for (let attempt = 0; attempt < 120; attempt += 1) {
           const candidate = Array.from({ length: 3 }, () => createPiece(randomShape(pool)));
           const playableCount = candidate.filter((piece) => hasAnyMove(board, [piece])).length;
-          const heavyCount = candidate.filter((piece) => countPieceCells(piece.cells || piece) >= 6).length;
+          const heavyCount = candidate.filter((piece) => countPieceCells(piece.cells) >= 6).length;
           if (!hasAnyMove(board, candidate)) continue;
           if (state.turns < 6 && heavyCount > 1) continue;
           if (playableCount < 2 && attempt < 80) continue;
@@ -573,12 +636,15 @@
         }
         return [createPiece([[1]]), createPiece([[1,1]]), createPiece([[1],[1]])];
       }
-      function getPieceSize(piece) { return { rows: piece.cells.length, cols: piece.cells[0].length }; }
+      function getPieceSize(piece) {
+        return { rows: piece.cells.length, cols: piece.cells[0].length };
+      }
       function canPlace(board, piece, startRow, startCol) {
         for (let row = 0; row < piece.cells.length; row += 1) {
           for (let col = 0; col < piece.cells[row].length; col += 1) {
             if (!piece.cells[row][col]) continue;
-            const boardRow = startRow + row; const boardCol = startCol + col;
+            const boardRow = startRow + row;
+            const boardCol = startCol + col;
             if (boardRow < 0 || boardCol < 0 || boardRow >= GRID_SIZE || boardCol >= GRID_SIZE) return false;
             if (board[boardRow][boardCol]) return false;
           }
@@ -596,10 +662,16 @@
         return next;
       }
       function clearFullLines(board) {
-        const rowsToClear = []; const colsToClear = [];
-        for (let row = 0; row < GRID_SIZE; row += 1) if (board[row].every(Boolean)) rowsToClear.push(row);
+        const rowsToClear = [];
+        const colsToClear = [];
+        for (let row = 0; row < GRID_SIZE; row += 1) {
+          if (board[row].every(Boolean)) rowsToClear.push(row);
+        }
         for (let col = 0; col < GRID_SIZE; col += 1) {
-          let full = true; for (let row = 0; row < GRID_SIZE; row += 1) if (!board[row][col]) { full = false; break; }
+          let full = true;
+          for (let row = 0; row < GRID_SIZE; row += 1) {
+            if (!board[row][col]) { full = false; break; }
+          }
           if (full) colsToClear.push(col);
         }
         const cells = new Set();
@@ -613,51 +685,95 @@
       function hasAnyMove(board, pieces) {
         return pieces.some((piece) => {
           if (piece.used) return false;
-          for (let row = 0; row < GRID_SIZE; row += 1) for (let col = 0; col < GRID_SIZE; col += 1) if (canPlace(board, piece, row, col)) return true;
+          for (let row = 0; row < GRID_SIZE; row += 1) {
+            for (let col = 0; col < GRID_SIZE; col += 1) {
+              if (canPlace(board, piece, row, col)) return true;
+            }
+          }
           return false;
         });
       }
       function getPlayableAnchors(board, piece) {
         const anchors = new Set();
-        for (let row = 0; row < GRID_SIZE; row += 1) for (let col = 0; col < GRID_SIZE; col += 1) if (canPlace(board, piece, row, col)) anchors.add(`${row}-${col}`);
+        for (let row = 0; row < GRID_SIZE; row += 1) {
+          for (let col = 0; col < GRID_SIZE; col += 1) {
+            if (canPlace(board, piece, row, col)) anchors.add(`${row}-${col}`);
+          }
+        }
         return anchors;
       }
-      function countPieceCells(piece) { return piece.cells.flat().filter(Boolean).length; }
-      function getSelectedPiece() { return state.pieces.find((piece) => piece.id === state.selectedPieceId && !piece.used) || null; }
-      function getActivePiece() { return state.dragging ? state.pieces.find((piece) => piece.id === state.dragging.pieceId) || null : getSelectedPiece(); }
+      function countPieceCells(piece) {
+        return piece.cells.flat().filter(Boolean).length;
+      }
+      function getSelectedPiece() {
+        return state.pieces.find((piece) => piece.id === state.selectedPieceId && !piece.used) || null;
+      }
+      function getActivePiece() {
+        return state.dragging ? state.pieces.find((piece) => piece.id === state.dragging.pieceId) || null : getSelectedPiece();
+      }
 
       function setMessage(text, kind = "info") {
         clearTimeout(state.messageTimer);
         MESSAGE_TEXT.textContent = text;
         MESSAGE_TEXT.className = `message ${kind === "warn" ? "warn" : ""}`.trim();
-        state.messageTimer = setTimeout(() => { MESSAGE_TEXT.textContent = ""; MESSAGE_TEXT.className = "message"; }, 1200);
+        state.messageTimer = setTimeout(() => {
+          MESSAGE_TEXT.textContent = "";
+          MESSAGE_TEXT.className = "message";
+        }, 1200);
       }
       function spawnFloatingScore(value) {
-        const node = document.createElement("div"); node.className = "floating-score"; node.textContent = `+${value}`; BOARD_WRAP.appendChild(node); setTimeout(() => node.remove(), 900);
+        const node = document.createElement("div");
+        node.className = "floating-score";
+        node.textContent = `+${value}`;
+        BOARD_WRAP.appendChild(node);
+        setTimeout(() => node.remove(), 900);
       }
       function spawnParticles(color = "#ffffff", intense = false) {
-        PARTICLES.innerHTML = ""; const count = intense ? 28 : 10;
+        PARTICLES.innerHTML = "";
+        const count = intense ? 28 : 10;
         for (let i = 0; i < count; i += 1) {
-          const p = document.createElement("div"); p.className = "particle";
-          p.style.left = `${46 + (Math.random() * 10 - 5)}%`; p.style.top = `${42 + (Math.random() * 12 - 6)}%`;
-          p.style.color = color; p.style.background = i % 5 === 0 ? "#fff3b0" : color;
-          const spread = intense ? 210 : 100; const lift = intense ? 180 : 100;
-          p.style.setProperty("--dx", `${(Math.random() * spread - spread / 2)}px`); p.style.setProperty("--dy", `${(Math.random() * lift - lift * 0.75)}px`);
+          const p = document.createElement("div");
+          p.className = "particle";
+          p.style.left = `${46 + (Math.random() * 10 - 5)}%`;
+          p.style.top = `${42 + (Math.random() * 12 - 6)}%`;
+          p.style.color = color;
+          p.style.background = i % 5 === 0 ? "#fff3b0" : color;
+          const spread = intense ? 210 : 100;
+          const lift = intense ? 180 : 100;
+          p.style.setProperty("--dx", `${(Math.random() * spread - spread / 2)}px`);
+          p.style.setProperty("--dy", `${(Math.random() * lift - lift * 0.75)}px`);
           PARTICLES.appendChild(p);
         }
         setTimeout(() => { PARTICLES.innerHTML = ""; }, intense ? 900 : 620);
       }
       function triggerComboFx(hot = false) {
-        clearTimeout(state.comboFxTimer); BOARD.classList.add("combo-glow"); COMBO_CHIP.classList.add("hot");
-        state.comboFxTimer = setTimeout(() => { if (!hot) BOARD.classList.remove("combo-glow"); COMBO_CHIP.classList.remove("hot"); }, 320);
+        clearTimeout(state.comboFxTimer);
+        BOARD.classList.add("combo-glow");
+        COMBO_CHIP.classList.add("hot");
+        state.comboFxTimer = setTimeout(() => {
+          if (!hot) BOARD.classList.remove("combo-glow");
+          COMBO_CHIP.classList.remove("hot");
+        }, 320);
       }
       function celebrateNewRecord() {
-        const banner = document.createElement("div"); banner.className = "record-banner"; banner.textContent = "🏆 Novo recorde!";
-        BOARD_WRAP.appendChild(banner); BEST_CARD.classList.add("best-hit"); BOARD.classList.add("record-glow"); COMBO_CHIP.classList.add("hot");
-        spawnParticles("#ffd36a", true); setTimeout(() => spawnParticles("#fff3b0", true), 180); setTimeout(() => spawnParticles("#ff9ec4", true), 320);
-        playSound("record"); haptic("success");
+        const banner = document.createElement("div");
+        banner.className = "record-banner";
+        banner.textContent = "🏆 Novo recorde!";
+        BOARD_WRAP.appendChild(banner);
+        BEST_CARD.classList.add("best-hit");
+        BOARD.classList.add("record-glow");
+        COMBO_CHIP.classList.add("hot");
+        spawnParticles("#ffd36a", true);
+        setTimeout(() => spawnParticles("#fff3b0", true), 180);
+        setTimeout(() => spawnParticles("#ff9ec4", true), 320);
+        playSound("record");
+        haptic("success");
         setTimeout(() => banner.remove(), 1500);
-        setTimeout(() => { BEST_CARD.classList.remove("best-hit"); BOARD.classList.remove("record-glow"); COMBO_CHIP.classList.remove("hot"); }, 1500);
+        setTimeout(() => {
+          BEST_CARD.classList.remove("best-hit");
+          BOARD.classList.remove("record-glow");
+          COMBO_CHIP.classList.remove("hot");
+        }, 1500);
       }
 
       function persistMatch() {
@@ -676,14 +792,12 @@
         state.meta.history = state.meta.history.slice(0, 8);
         saveMeta();
       }
-
       function formatRelativeDate(iso) {
         const date = new Date(iso);
         if (Number.isNaN(date.getTime())) return "agora";
         return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
       }
-
-      function renderHistoryList(target, items, compact = false) {
+      function renderHistoryList(target, items) {
         target.innerHTML = "";
         if (!items.length) {
           const empty = document.createElement("div");
@@ -705,7 +819,6 @@
           target.appendChild(row);
         });
       }
-
       function renderGlobalStats() {
         const avgScore = state.meta.totalMatches ? Math.round(state.meta.totalScore / state.meta.totalMatches) : 0;
         const cards = [
@@ -724,22 +837,30 @@
           GLOBAL_STATS_GRID.appendChild(card);
         });
       }
-
       function renderStartScreen() {
         HERO_BEST.textContent = state.best;
         HERO_MATCHES.textContent = `${state.meta.totalMatches} ${state.meta.totalMatches === 1 ? "partida jogada" : "partidas jogadas"}`;
         const last = state.meta.history[0];
         HERO_LAST_SCORE.textContent = last ? last.score : "—";
         HERO_LAST_META.textContent = last ? `${last.lines} linhas • combo ${last.maxCombo || 0}` : "Ainda sem histórico";
-        renderHistoryList(START_HISTORY_LIST, state.meta.history.slice(0, 3), true);
-        renderHistoryList(FULL_HISTORY_LIST, state.meta.history, false);
+        renderHistoryList(START_HISTORY_LIST, state.meta.history.slice(0, 3));
+        renderHistoryList(FULL_HISTORY_LIST, state.meta.history);
         renderGlobalStats();
       }
-
-      function showStartScreen() { renderStartScreen(); START_OVERLAY.classList.add("show"); }
-      function hideStartScreen() { START_OVERLAY.classList.remove("show"); }
-      function showStatsScreen() { renderStartScreen(); STATS_OVERLAY.classList.add("show"); }
-      function hideStatsScreen() { STATS_OVERLAY.classList.remove("show"); }
+      function showStartScreen() {
+        renderStartScreen();
+        START_OVERLAY.classList.add("show");
+      }
+      function hideStartScreen() {
+        START_OVERLAY.classList.remove("show");
+      }
+      function showStatsScreen() {
+        renderStartScreen();
+        STATS_OVERLAY.classList.add("show");
+      }
+      function hideStatsScreen() {
+        STATS_OVERLAY.classList.remove("show");
+      }
 
       function updateLayout() {
         const vv = window.visualViewport;
@@ -770,7 +891,10 @@
             cell.className = "cell";
             const value = state.board[row][col];
             const key = `${row}-${col}`;
-            if (value) { cell.classList.add("filled"); cell.style.background = value.color; }
+            if (value) {
+              cell.classList.add("filled");
+              cell.style.background = value.color;
+            }
             if (state.clearingCells.has(key)) cell.classList.add("clearing");
             if (activePiece && activeAnchors.has(key) && !value) cell.classList.add("anchor");
             if (preview && preview.cells.has(key)) {
@@ -786,25 +910,43 @@
         container.style.gridTemplateColumns = `repeat(${piece.cells[0].length}, auto)`;
         for (let row = 0; row < piece.cells.length; row += 1) {
           for (let col = 0; col < piece.cells[row].length; col += 1) {
-            const cell = document.createElement("div"); cell.className = className;
-            if (piece.cells[row][col]) { cell.classList.add("on"); cell.style.background = piece.color; }
+            const cell = document.createElement("div");
+            cell.className = className;
+            if (piece.cells[row][col]) {
+              cell.classList.add("on");
+              cell.style.background = piece.color;
+            }
             container.appendChild(cell);
           }
         }
       }
+      function ensurePiecesReady() {
+        if (!Array.isArray(state.pieces) || state.pieces.length === 0) {
+          state.pieces = buildPieceSet(state.board);
+        }
+      }
       function renderPieces() {
+        ensurePiecesReady();
         const playableCount = state.pieces.filter((piece) => !piece.used && hasAnyMove(state.board, [piece])).length;
         MOVES_TEXT.textContent = playableCount > 0 ? `${playableCount} peça${playableCount > 1 ? "s" : ""} • jogada ${state.turns}` : "Sem espaço";
         PIECES.innerHTML = "";
         state.pieces.forEach((piece) => {
-          const card = document.createElement("button"); card.type = "button"; card.className = "piece-card";
+          const card = document.createElement("button");
+          card.type = "button";
+          card.className = "piece-card";
           if (piece.id === state.selectedPieceId) card.classList.add("active");
           if (piece.used) card.classList.add("used");
           if (piece.id === state.placedPieceId) card.classList.add("placed");
           const playable = !piece.used && hasAnyMove(state.board, [piece]);
           if (!playable && !piece.used) card.classList.add("unplayable");
-          const grid = document.createElement("div"); grid.className = "piece-grid"; buildMiniGrid(grid, piece, "piece-mini"); card.appendChild(grid);
-          const tag = document.createElement("div"); tag.className = "piece-tag"; tag.textContent = piece.used ? "usada" : playable ? "toque ou arraste" : "sem espaço"; card.appendChild(tag);
+          const grid = document.createElement("div");
+          grid.className = "piece-grid";
+          buildMiniGrid(grid, piece, "piece-mini");
+          card.appendChild(grid);
+          const tag = document.createElement("div");
+          tag.className = "piece-tag";
+          tag.textContent = piece.used ? "usada" : playable ? "toque ou arraste" : "sem espaço";
+          card.appendChild(tag);
           card.addEventListener("click", () => handlePieceTap(piece.id));
           card.addEventListener("pointerdown", (event) => beginDrag(event, piece.id));
           PIECES.appendChild(card);
@@ -812,34 +954,74 @@
       }
       function renderGhost() {
         const piece = getActivePiece();
-        if (!state.dragging || !piece) { GHOST.classList.remove("show"); GHOST_GRID.innerHTML = ""; return; }
-        GHOST_GRID.innerHTML = ""; buildMiniGrid(GHOST_GRID, piece, "ghost-cell"); GHOST.classList.add("show");
-        GHOST.style.left = `${state.dragging.ghostLeft}px`; GHOST.style.top = `${state.dragging.ghostTop}px`; GHOST.style.opacity = state.previewValid ? "0.96" : "0.72";
+        if (!state.dragging || !piece) {
+          GHOST.classList.remove("show");
+          GHOST_GRID.innerHTML = "";
+          return;
+        }
+        GHOST_GRID.innerHTML = "";
+        buildMiniGrid(GHOST_GRID, piece, "ghost-cell");
+        GHOST.classList.add("show");
+        GHOST.style.left = `${state.dragging.ghostLeft}px`;
+        GHOST.style.top = `${state.dragging.ghostTop}px`;
+        GHOST.style.opacity = state.previewValid ? "0.96" : "0.72";
       }
       function renderStats() {
-        SCORE_VALUE.textContent = state.score; COMBO_VALUE.textContent = state.combo; BEST_VALUE.textContent = state.best;
+        SCORE_VALUE.textContent = state.score;
+        COMBO_VALUE.textContent = state.combo;
+        BEST_VALUE.textContent = state.best;
         COMBO_CHIP.textContent = state.combo > 1 ? `Combo x${state.combo}` : state.combo === 1 ? "Combo iniciado" : "Sem combo";
-        if (state.combo <= 1) BOARD.classList.remove("combo-glow"); updateSoundButton();
+        if (state.combo <= 1) BOARD.classList.remove("combo-glow");
+        updateSoundButton();
       }
       function renderGameOver() {
-        if (!state.gameOver) { GAME_OVER_OVERLAY.classList.remove("show"); return; }
-        FINAL_SCORE.textContent = state.score; FINAL_BEST.textContent = state.best; GAME_OVER_OVERLAY.classList.add("show");
+        if (!state.gameOver) {
+          GAME_OVER_OVERLAY.classList.remove("show");
+          return;
+        }
+        FINAL_SCORE.textContent = state.score;
+        FINAL_BEST.textContent = state.best;
+        GAME_OVER_OVERLAY.classList.add("show");
       }
-      function render() { updateLayout(); renderStats(); renderBoard(); renderPieces(); renderGhost(); renderGameOver(); }
+      function render() {
+        updateLayout();
+        renderStats();
+        renderBoard();
+        renderPieces();
+        renderGhost();
+        renderGameOver();
+      }
 
       function handlePieceTap(pieceId) {
-        ensureAudio(); hideStartScreen();
+        ensureAudio();
+        hideStartScreen();
         if (state.gameOver) return;
+        ensurePiecesReady();
         const piece = state.pieces.find((item) => item.id === pieceId);
         if (!piece || piece.used) return;
-        if (!hasAnyMove(state.board, [piece])) { setMessage("Essa peça não cabe agora.", "warn"); haptic("warn"); playSound("warn"); return; }
-        state.selectedPieceId = state.selectedPieceId === pieceId ? null : pieceId; state.preview = null; state.previewValid = false; render();
+        if (!hasAnyMove(state.board, [piece])) {
+          setMessage("Essa peça não cabe agora.", "warn");
+          haptic("warn");
+          playSound("warn");
+          return;
+        }
+        state.selectedPieceId = state.selectedPieceId === pieceId ? null : pieceId;
+        state.preview = null;
+        state.previewValid = false;
+        render();
       }
       function handleBoardTap(row, col) {
-        ensureAudio(); hideStartScreen();
+        ensureAudio();
+        hideStartScreen();
         if (state.gameOver) return;
-        const piece = getSelectedPiece(); if (!piece) return;
-        if (!canPlace(state.board, piece, row, col)) { setMessage("Esse encaixe não cabe aqui.", "warn"); haptic("warn"); playSound("warn"); return; }
+        const piece = getSelectedPiece();
+        if (!piece) return;
+        if (!canPlace(state.board, piece, row, col)) {
+          setMessage("Esse encaixe não cabe aqui.", "warn");
+          haptic("warn");
+          playSound("warn");
+          return;
+        }
         commitPlacement(piece, row, col);
       }
       function commitPlacement(piece, row, col) {
@@ -847,10 +1029,15 @@
         state.turns += 1;
         state.placedPieceId = piece.id;
         clearTimeout(state.placedPieceTimer);
-        state.placedPieceTimer = setTimeout(() => { state.placedPieceId = null; render(); }, 220);
+        state.placedPieceTimer = setTimeout(() => {
+          state.placedPieceId = null;
+          render();
+        }, 220);
         piece.used = true;
         const cleared = clearFullLines(state.board);
-        state.board = cleared.board; state.clearingCells = cleared.cells; state.totalLinesRun += cleared.lineCount;
+        state.board = cleared.board;
+        state.clearingCells = cleared.cells;
+        state.totalLinesRun += cleared.lineCount;
         const oldBest = state.best;
         const pieceCells = countPieceCells(piece);
         const basePoints = pieceCells * 6;
@@ -859,58 +1046,128 @@
         const comboBonus = comboNow > 1 ? comboNow * 35 : 0;
         const survivalBonus = state.turns > 10 ? Math.min(20, Math.floor(state.turns / 3)) : 0;
         const gained = basePoints + lineBonus + comboBonus + survivalBonus;
-        state.score += gained; state.combo = comboNow; state.maxComboRun = Math.max(state.maxComboRun, comboNow); state.selectedPieceId = null; state.preview = null; state.previewValid = false;
+        state.score += gained;
+        state.combo = comboNow;
+        state.maxComboRun = Math.max(state.maxComboRun, comboNow);
+        state.selectedPieceId = null;
+        state.preview = null;
+        state.previewValid = false;
         const beatRecord = state.score > oldBest;
         const shouldCelebrateRecord = beatRecord && !state.celebratedRecordThisRun;
-        if (beatRecord) { state.best = state.score; saveBest(); }
+        if (beatRecord) {
+          state.best = state.score;
+          saveBest();
+        }
         spawnFloatingScore(gained);
-        if (cleared.lineCount > 0) { playSound(comboNow > 1 ? "combo" : "clear"); haptic("success"); triggerComboFx(comboNow > 1); spawnParticles(piece.flatColor); }
-        else { playSound("place"); haptic("light"); }
-        if (shouldCelebrateRecord) { state.celebratedRecordThisRun = true; celebrateNewRecord(); }
+        if (cleared.lineCount > 0) {
+          playSound(comboNow > 1 ? "combo" : "clear");
+          haptic("success");
+          triggerComboFx(comboNow > 1);
+          spawnParticles(piece.flatColor);
+        } else {
+          playSound("place");
+          haptic("light");
+        }
+        if (shouldCelebrateRecord) {
+          state.celebratedRecordThisRun = true;
+          celebrateNewRecord();
+        }
         if (cleared.lineCount > 0) setMessage(comboNow > 1 ? `Boa! Combo x${comboNow}` : "Linha limpa.");
         else if (survivalBonus > 0) setMessage(`+${gained} pontos • sobrevivência`);
         else setMessage(`+${gained} pontos`);
-        if (state.pieces.every((currentPiece) => currentPiece.used)) state.pieces = buildPieceSet(state.board);
+        if (state.pieces.every((currentPiece) => currentPiece.used)) {
+          state.pieces = buildPieceSet(state.board);
+        }
         if (!hasAnyMove(state.board, state.pieces.filter((currentPiece) => !currentPiece.used))) {
-          state.gameOver = true; playSound("gameover"); persistMatch(); renderStartScreen();
+          state.gameOver = true;
+          playSound("gameover");
+          persistMatch();
+          renderStartScreen();
         }
         render();
-        if (state.clearingCells.size) setTimeout(() => { state.clearingCells = new Set(); render(); }, 260);
+        if (state.clearingCells.size) {
+          setTimeout(() => {
+            state.clearingCells = new Set();
+            render();
+          }, 260);
+        }
       }
-      function getBoardMetrics() { const rect = BOARD.getBoundingClientRect(); const cell = rect.width / GRID_SIZE; return { rect, cell }; }
+      function getBoardMetrics() {
+        const rect = BOARD.getBoundingClientRect();
+        const cell = rect.width / GRID_SIZE;
+        return { rect, cell };
+      }
       function updatePreviewFromPointer(pointerX, pointerY) {
-        const piece = getActivePiece(); if (!piece) { state.preview = null; state.previewValid = false; return; }
-        const { rect, cell } = getBoardMetrics(); const pieceSize = getPieceSize(piece);
+        const piece = getActivePiece();
+        if (!piece) {
+          state.preview = null;
+          state.previewValid = false;
+          return;
+        }
+        const { rect, cell } = getBoardMetrics();
+        const pieceSize = getPieceSize(piece);
         const anchorCol = Math.round((pointerX - rect.left - (pieceSize.cols * cell) / 2) / cell);
         const anchorRow = Math.round((pointerY - rect.top - (pieceSize.rows * cell) / 2) / cell);
         const cells = new Set();
-        for (let row = 0; row < piece.cells.length; row += 1) for (let col = 0; col < piece.cells[row].length; col += 1) if (piece.cells[row][col]) cells.add(`${anchorRow + row}-${anchorCol + col}`);
-        state.preview = { row: anchorRow, col: anchorCol, cells }; state.previewValid = canPlace(state.board, piece, anchorRow, anchorCol);
+        for (let row = 0; row < piece.cells.length; row += 1) {
+          for (let col = 0; col < piece.cells[row].length; col += 1) {
+            if (piece.cells[row][col]) cells.add(`${anchorRow + row}-${anchorCol + col}`);
+          }
+        }
+        state.preview = { row: anchorRow, col: anchorCol, cells };
+        state.previewValid = canPlace(state.board, piece, anchorRow, anchorCol);
       }
       function beginDrag(event, pieceId) {
-        ensureAudio(); hideStartScreen();
+        ensureAudio();
+        hideStartScreen();
         if (state.gameOver) return;
+        ensurePiecesReady();
         const piece = state.pieces.find((item) => item.id === pieceId);
         if (!piece || piece.used) return;
-        if (!hasAnyMove(state.board, [piece])) { setMessage("Essa peça não cabe agora.", "warn"); haptic("warn"); playSound("warn"); return; }
-        event.preventDefault(); state.selectedPieceId = pieceId; state.dragging = { pieceId, pointerId: event.pointerId, ghostLeft: event.clientX, ghostTop: event.clientY }; updatePreviewFromPointer(event.clientX, event.clientY); render();
+        if (!hasAnyMove(state.board, [piece])) {
+          setMessage("Essa peça não cabe agora.", "warn");
+          haptic("warn");
+          playSound("warn");
+          return;
+        }
+        event.preventDefault();
+        state.selectedPieceId = pieceId;
+        state.dragging = { pieceId, pointerId: event.pointerId, ghostLeft: event.clientX, ghostTop: event.clientY };
+        updatePreviewFromPointer(event.clientX, event.clientY);
+        render();
       }
       function handlePointerMove(event) {
         if (!state.dragging || event.pointerId !== state.dragging.pointerId) return;
-        const piece = getActivePiece(); if (!piece) return;
-        const { cell } = getBoardMetrics(); const pieceSize = getPieceSize(piece);
+        const piece = getActivePiece();
+        if (!piece) return;
+        const { cell } = getBoardMetrics();
+        const pieceSize = getPieceSize(piece);
         state.dragging.ghostLeft = event.clientX - Math.min(30, (pieceSize.cols * cell) / 2);
         state.dragging.ghostTop = event.clientY - Math.min(30, (pieceSize.rows * cell) / 2);
-        updatePreviewFromPointer(event.clientX, event.clientY); render();
+        updatePreviewFromPointer(event.clientX, event.clientY);
+        render();
       }
       function handlePointerUp(event) {
         if (!state.dragging || event.pointerId !== state.dragging.pointerId) return;
         const piece = getActivePiece();
         if (piece && state.preview && state.previewValid) commitPlacement(piece, state.preview.row, state.preview.col);
-        else { setMessage("Solte em uma posição válida.", "warn"); haptic("warn"); playSound("warn"); state.preview = null; state.previewValid = false; render(); }
-        state.dragging = null; renderGhost();
+        else {
+          setMessage("Solte em uma posição válida.", "warn");
+          haptic("warn");
+          playSound("warn");
+          state.preview = null;
+          state.previewValid = false;
+          render();
+        }
+        state.dragging = null;
+        renderGhost();
       }
-      function toggleSound() { state.soundEnabled = !state.soundEnabled; saveSoundPref(); updateSoundButton(); if (state.soundEnabled) playSound("place"); }
+      function toggleSound() {
+        state.soundEnabled = !state.soundEnabled;
+        saveSoundPref();
+        updateSoundButton();
+        if (state.soundEnabled) playSound("place");
+      }
       function resetGame() {
         state.board = makeEmptyBoard();
         state.score = 0;
@@ -926,6 +1183,7 @@
         state.turns = 0;
         state.totalLinesRun = 0;
         state.maxComboRun = 0;
+        state.pieces = [];
         state.pieces = buildPieceSet(state.board);
         BOARD.classList.remove("combo-glow", "record-glow");
         COMBO_CHIP.classList.remove("hot");
@@ -943,11 +1201,7 @@
       HOME_BUTTON.addEventListener("click", () => { ensureAudio(); showStartScreen(); });
       START_PLAY_BUTTON.addEventListener("click", () => {
         ensureAudio();
-        if (!state.hasStartedGame) state.hasStartedGame = true;
-        hideStartScreen();
-        hideStatsScreen();
-        GAME_OVER_OVERLAY.classList.remove("show");
-        state.gameOver = false;
+        state.hasStartedGame = true;
         resetGame();
       });
       OPEN_STATS_BUTTON.addEventListener("click", () => { ensureAudio(); showStatsScreen(); });
@@ -962,7 +1216,7 @@
       }
 
       updateSoundButton();
-      render();
+      resetGame();
       showStartScreen();
     })();
   </script>
