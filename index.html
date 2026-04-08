@@ -568,7 +568,7 @@
 
     .hero { display: grid; gap: 14px; text-align: left; }
     .hero-title { margin: 0; font-size: 34px; line-height: .95; letter-spacing: -.05em; }
-    .hero-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .hero-actions { display: grid; grid-template-columns: 1fr; gap: 10px; }
 
     .primary-cta {
       min-height: 48px;
@@ -584,6 +584,13 @@
       min-height: 48px;
       border-radius: 18px;
       font-weight: 800;
+    }
+
+    .continue-cta {
+      min-height: 48px;
+      border-radius: 18px;
+      font-weight: 900;
+      border: 1px solid rgba(255,255,255,.12);
     }
 
     .overview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -641,6 +648,8 @@
 
     .stats-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
 
+    [hidden] { display: none !important; }
+
     @media (max-width: 420px) {
       .app {
         padding-left: calc(var(--safe-left) + 10px);
@@ -656,7 +665,7 @@
       .piece-card { min-height: 96px; }
       .record-banner { font-size: 14px; padding: 8px 14px; }
       .hero-title { font-size: 28px; }
-      .hero-actions, .overview-grid, .stats-grid-2 { grid-template-columns: 1fr; }
+      .overview-grid, .stats-grid-2 { grid-template-columns: 1fr; }
       .mini-big, .history-score { font-size: 20px; }
     }
   </style>
@@ -719,6 +728,7 @@
       </div>
 
       <div class="hero-actions">
+        <button class="button continue-cta" id="continuePlayButton" type="button" hidden>Continuar partida</button>
         <button class="button primary-cta" id="startPlayButton" type="button">Jogar agora</button>
         <button class="button secondary-cta" id="openStatsButton" type="button">Ver estatísticas</button>
       </div>
@@ -785,6 +795,7 @@
       const BEST_KEY = "bloquinhos_best_score_v1";
       const SOUND_KEY = "bloquinhos_sound_enabled_v1";
       const META_KEY = "bloquinhos_meta_v1";
+      const SAVE_KEY = "bloquinhos_current_game_v1";
 
       const BOARD = document.getElementById("board");
       const PIECES = document.getElementById("pieces");
@@ -810,6 +821,7 @@
       const SOUND_BUTTON = document.getElementById("soundButton");
       const HOME_BUTTON = document.getElementById("homeButton");
       const START_PLAY_BUTTON = document.getElementById("startPlayButton");
+      const CONTINUE_PLAY_BUTTON = document.getElementById("continuePlayButton");
       const OPEN_STATS_BUTTON = document.getElementById("openStatsButton");
       const CLOSE_STATS_BUTTON = document.getElementById("closeStatsButton");
       const PARTICLES = document.getElementById("particles");
@@ -935,6 +947,86 @@
         saveMeta();
       }
 
+      function loadSavedGame() {
+        try {
+          const raw = JSON.parse(localStorage.getItem(SAVE_KEY) || "null");
+          if (!raw || typeof raw !== "object") return null;
+          if (!Array.isArray(raw.board) || raw.board.length !== GRID_SIZE) return null;
+          if (!Array.isArray(raw.pieces) || raw.pieces.length !== 3) return null;
+          return raw;
+        } catch {
+          return null;
+        }
+      }
+
+      function clearSavedGame() {
+        try { localStorage.removeItem(SAVE_KEY); }
+        catch {}
+      }
+
+      function saveCurrentGame() {
+        if (state.gameOver) {
+          clearSavedGame();
+          return;
+        }
+
+        const payload = {
+          board: state.board,
+          pieces: state.pieces,
+          score: state.score,
+          combo: state.combo,
+          best: state.best,
+          turns: state.turns,
+          maxComboRun: state.maxComboRun,
+          totalLinesRun: state.totalLinesRun,
+          celebratedRecordThisRun: state.celebratedRecordThisRun,
+        };
+
+        try {
+          localStorage.setItem(SAVE_KEY, JSON.stringify(payload));
+        } catch {}
+      }
+
+      function applySavedGame(save) {
+        state.board = Array.isArray(save.board) ? save.board : makeEmptyBoard();
+        state.pieces = Array.isArray(save.pieces) ? save.pieces : buildPieceSet(state.board);
+        state.score = Number(save.score || 0);
+        state.combo = Number(save.combo || 0);
+        state.best = Math.max(state.best, Number(save.best || 0));
+        state.turns = Number(save.turns || 0);
+        state.maxComboRun = Number(save.maxComboRun || 0);
+        state.totalLinesRun = Number(save.totalLinesRun || 0);
+        state.celebratedRecordThisRun = Boolean(save.celebratedRecordThisRun);
+        state.gameOver = false;
+
+        if (state.best > loadBest()) {
+          saveBest();
+        }
+      }
+
+      function restoreSavedGame() {
+        const save = loadSavedGame();
+        if (!save) {
+          resetGame();
+          return;
+        }
+
+        clearUiTimers();
+        closeAllOverlays();
+        clearTransientState();
+
+        applySavedGame(save);
+
+        BOARD.classList.remove("combo-glow", "record-glow");
+        COMBO_CHIP.classList.remove("hot");
+        BEST_CARD.classList.remove("best-hit");
+        PARTICLES.innerHTML = "";
+        MESSAGE_TEXT.textContent = "";
+        MESSAGE_TEXT.className = "message";
+
+        render();
+      }
+
       function formatRelativeDate(iso) {
         const date = new Date(iso);
         if (Number.isNaN(date.getTime())) return "agora";
@@ -997,6 +1089,8 @@
         renderHistoryList(START_HISTORY_LIST, state.meta.history.slice(0, 3));
         renderHistoryList(FULL_HISTORY_LIST, state.meta.history);
         renderGlobalStats();
+
+        CONTINUE_PLAY_BUTTON.hidden = !loadSavedGame();
       }
 
       function closeAllOverlays() {
@@ -1648,8 +1742,11 @@
         if (!hasAnyMove(state.board, state.pieces.filter((currentPiece) => !currentPiece.used))) {
           state.gameOver = true;
           clearTransientState();
+          clearSavedGame();
           playSound("gameover");
           persistMatch();
+        } else {
+          saveCurrentGame();
         }
 
         render();
@@ -1679,18 +1776,19 @@
         const { rect, cell } = getBoardMetrics();
         const pieceSize = getPieceSize(piece);
         const anchorCol = Math.round((pointerX - rect.left - (pieceSize.cols * cell) / 2) / cell);
-        const anchorRow = Math.round((pointerY - rect.top - (pieceSize.rows * cell) / 2) / cell);
+        const anchorRow = Math.round((pointerX !== undefined ? pointerY : pointerY) - rect.top - (pieceSize.rows * cell) / 2) / cell;
+        const roundedAnchorRow = Math.round(anchorRow);
         const cells = new Set();
 
         for (let row = 0; row < piece.cells.length; row += 1) {
           for (let col = 0; col < piece.cells[row].length; col += 1) {
             if (!piece.cells[row][col]) continue;
-            cells.add(`${anchorRow + row}-${anchorCol + col}`);
+            cells.add(`${roundedAnchorRow + row}-${anchorCol + col}`);
           }
         }
 
-        state.preview = { row: anchorRow, col: anchorCol, cells };
-        state.previewValid = canPlace(state.board, piece, anchorRow, anchorCol);
+        state.preview = { row: roundedAnchorRow, col: anchorCol, cells };
+        state.previewValid = canPlace(state.board, piece, roundedAnchorRow, anchorCol);
       }
 
       function beginDrag(event, pieceId) {
@@ -1788,6 +1886,7 @@
       function resetGame() {
         clearUiTimers();
         closeAllOverlays();
+        clearSavedGame();
 
         state.board = makeEmptyBoard();
         state.pieces = buildPieceSet(state.board);
@@ -1831,6 +1930,11 @@
       START_PLAY_BUTTON.addEventListener("click", () => {
         ensureAudio();
         resetGame();
+      });
+
+      CONTINUE_PLAY_BUTTON.addEventListener("click", () => {
+        ensureAudio();
+        restoreSavedGame();
       });
 
       OPEN_STATS_BUTTON.addEventListener("click", () => {
