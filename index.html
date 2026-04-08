@@ -1938,39 +1938,39 @@
         ensureAudio();
         resetGame();
       });
-
-      RESTART_OVERLAY_BUTTON.addEventListener("click", () => {
+      
+      bindPress(RESTART_OVERLAY_BUTTON, () => {
         ensureAudio();
         resetGame();
       });
-
+      
       SOUND_BUTTON.addEventListener("click", toggleSound);
-
+      
       bindPress(HOME_BUTTON, () => {
         ensureAudio();
         showStartScreen();
       });
-
+      
       bindPress(START_PLAY_BUTTON, () => {
         ensureAudio();
         resetGame();
       });
-
+      
       bindPress(CONTINUE_PLAY_BUTTON, () => {
         ensureAudio();
         restoreSavedGame();
       });
-
+      
       bindPress(OPEN_STATS_BUTTON, () => {
         ensureAudio();
         showStatsScreen();
       });
-
+      
       bindPress(CLOSE_STATS_BUTTON, () => {
         hideStatsScreen();
         showStartScreen();
       });
-
+      
       window.addEventListener("pointermove", handlePointerMove, { passive: true });
       window.addEventListener("pointerup", handlePointerUp, { passive: true });
       window.addEventListener("pointercancel", handlePointerUp, { passive: true });
