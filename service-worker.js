@@ -4,9 +4,7 @@ const RUNTIME_CACHE = "bloquinhos-runtime-v2";
 const APP_SHELL = [
   "/",
   "/index.html",
-  "/manifest.json",
-  "/icon-192.png",
-  "/icon-512.png"
+  "/manifest.json"
 ];
 
 self.addEventListener("install", (event) => {
@@ -106,10 +104,7 @@ async function staleWhileRevalidate(request) {
     })
     .catch(() => null);
 
-  if (cachedResponse) {
-    eventWaitUntilSafe(networkFetch);
-    return cachedResponse;
-  }
+  if (cachedResponse) return cachedResponse;
 
   const networkResponse = await networkFetch;
   if (networkResponse) return networkResponse;
@@ -119,10 +114,4 @@ async function staleWhileRevalidate(request) {
     statusText: "Offline",
     headers: { "Content-Type": "text/plain; charset=utf-8" }
   });
-}
-
-function eventWaitUntilSafe(promise) {
-  try {
-    self.registration && promise && promise.catch(() => {});
-  } catch {}
 }
