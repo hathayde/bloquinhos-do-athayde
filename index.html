@@ -16,8 +16,6 @@
     :root {
       --bg-1: #081225;
       --bg-2: #040916;
-      --bg-3: #10193a;
-      --panel: rgba(19, 31, 67, 0.72);
       --panel-border: rgba(176, 193, 255, 0.14);
       --text: #f3f6ff;
       --muted: #aebce8;
@@ -443,7 +441,7 @@
     }
 
     .dialog {
-      width: min(100%, 380px);
+      width: min(100%, 390px);
       padding: 20px;
       border-radius: 30px;
       background:
@@ -655,6 +653,160 @@
 
     .stats-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
 
+    .goal-card {
+      padding: 12px;
+      border-radius: 20px;
+      background: linear-gradient(180deg, rgba(255,232,157,.12), rgba(255,255,255,.03));
+      border: 1px solid rgba(255,255,255,.08);
+      display: grid;
+      gap: 8px;
+    }
+
+    .goal-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .goal-title {
+      font-size: 11px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #ffd98f;
+      font-weight: 900;
+    }
+
+    .goal-progress-text {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .goal-desc {
+      font-size: 14px;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .goal-bar {
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+      overflow: hidden;
+    }
+
+    .goal-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #ffd98f, #ffab43);
+      transition: width 220ms ease;
+    }
+
+    .achievement-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .achievement-card {
+      padding: 10px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.06);
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      display: grid;
+      gap: 6px;
+      min-height: 84px;
+      align-content: start;
+    }
+
+    .achievement-card.locked {
+      opacity: .55;
+      filter: grayscale(.25);
+    }
+
+    .achievement-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .achievement-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      background: rgba(255,255,255,.08);
+      font-size: 15px;
+    }
+
+    .achievement-name {
+      font-size: 13px;
+      font-weight: 900;
+      line-height: 1.15;
+    }
+
+    .achievement-desc {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .achievement-meta {
+      font-size: 10px;
+      color: #ffd98f;
+      font-weight: 900;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(var(--safe-bottom) + 20px);
+      transform: translateX(-50%) translateY(14px);
+      width: min(92vw, 360px);
+      padding: 14px 16px;
+      border-radius: 20px;
+      background:
+        radial-gradient(120% 120% at 50% 0%, rgba(255,232,157,.26), transparent 42%),
+        linear-gradient(180deg, rgba(25,38,76,.98), rgba(11,18,40,.98));
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: 0 18px 38px rgba(0,0,0,.28);
+      display: grid;
+      gap: 6px;
+      z-index: 80;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .toast-title {
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #ffd98f;
+    }
+
+    .toast-main {
+      font-size: 15px;
+      font-weight: 900;
+      line-height: 1.25;
+    }
+
+    .toast-sub {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
     [hidden] { display: none !important; }
 
     @media (max-width: 420px) {
@@ -672,7 +824,7 @@
       .piece-card { min-height: 96px; }
       .record-banner { font-size: 14px; padding: 8px 14px; }
       .hero-title { font-size: 28px; }
-      .overview-grid, .stats-grid-2 { grid-template-columns: 1fr; }
+      .overview-grid, .stats-grid-2, .achievement-grid { grid-template-columns: 1fr; }
       .mini-big, .history-score { font-size: 20px; }
     }
   </style>
@@ -740,6 +892,15 @@
         <button class="button secondary-cta" id="openStatsButton" type="button">Ver estatísticas</button>
       </div>
 
+      <div class="goal-card">
+        <div class="goal-head">
+          <div class="goal-title">Próxima meta</div>
+          <div class="goal-progress-text" id="goalProgressText">0%</div>
+        </div>
+        <div class="goal-desc" id="goalDescription">Faça 150 pontos em uma partida</div>
+        <div class="goal-bar"><div class="goal-fill" id="goalFill" style="width:0%"></div></div>
+      </div>
+
       <div class="overview-grid">
         <div class="mini-panel">
           <div class="mini-title">Melhor score</div>
@@ -748,9 +909,9 @@
         </div>
 
         <div class="mini-panel">
-          <div class="mini-title">Última partida</div>
-          <div class="mini-big" id="heroLastScore">—</div>
-          <div class="history-sub" id="heroLastMeta">Ainda sem histórico</div>
+          <div class="mini-title">Última conquista</div>
+          <div class="mini-big" id="heroLastAchievement">—</div>
+          <div class="history-sub" id="heroLastAchievementMeta">Ainda sem conquistas</div>
         </div>
       </div>
 
@@ -764,12 +925,28 @@
   <div class="overlay" id="statsOverlay">
     <div class="dialog">
       <h2>Suas estatísticas</h2>
-      <p>Uma visão geral das últimas partidas e do seu progresso no jogo.</p>
+      <p>Uma visão geral das partidas, metas e conquistas.</p>
       <div class="stats-grid-2" id="globalStatsGrid"></div>
+
+      <div class="goal-card">
+        <div class="goal-head">
+          <div class="goal-title">Meta atual</div>
+          <div class="goal-progress-text" id="statsGoalProgressText">0%</div>
+        </div>
+        <div class="goal-desc" id="statsGoalDescription">Faça 150 pontos em uma partida</div>
+        <div class="goal-bar"><div class="goal-fill" id="statsGoalFill" style="width:0%"></div></div>
+      </div>
+
+      <div class="mini-panel">
+        <div class="mini-title">Conquistas</div>
+        <div class="achievement-grid" id="achievementGrid"></div>
+      </div>
+
       <div class="mini-panel">
         <div class="mini-title">Histórico recente</div>
         <div class="mini-list" id="fullHistoryList"></div>
       </div>
+
       <button class="button" id="closeStatsButton" type="button">Fechar</button>
     </div>
   </div>
@@ -796,6 +973,12 @@
     <div class="ghost-grid" id="ghostGrid"></div>
   </div>
 
+  <div class="toast" id="achievementToast">
+    <div class="toast-title">Conquista desbloqueada</div>
+    <div class="toast-main" id="achievementToastTitle">Nova conquista</div>
+    <div class="toast-sub" id="achievementToastDesc">Descrição</div>
+  </div>
+
   <script>
     (() => {
       const GRID_SIZE = 8;
@@ -803,6 +986,7 @@
       const SOUND_KEY = "bloquinhos_sound_enabled_v1";
       const META_KEY = "bloquinhos_meta_v1";
       const SAVE_KEY = "bloquinhos_current_game_v1";
+      const PROGRESS_KEY = "bloquinhos_progress_v1";
 
       const BOARD = document.getElementById("board");
       const PIECES = document.getElementById("pieces");
@@ -835,11 +1019,21 @@
       const BOARD_WRAP = document.querySelector(".board-shell");
       const HERO_BEST = document.getElementById("heroBest");
       const HERO_MATCHES = document.getElementById("heroMatches");
-      const HERO_LAST_SCORE = document.getElementById("heroLastScore");
-      const HERO_LAST_META = document.getElementById("heroLastMeta");
+      const HERO_LAST_ACHIEVEMENT = document.getElementById("heroLastAchievement");
+      const HERO_LAST_ACHIEVEMENT_META = document.getElementById("heroLastAchievementMeta");
       const START_HISTORY_LIST = document.getElementById("startHistoryList");
       const FULL_HISTORY_LIST = document.getElementById("fullHistoryList");
       const GLOBAL_STATS_GRID = document.getElementById("globalStatsGrid");
+      const GOAL_DESCRIPTION = document.getElementById("goalDescription");
+      const GOAL_PROGRESS_TEXT = document.getElementById("goalProgressText");
+      const GOAL_FILL = document.getElementById("goalFill");
+      const STATS_GOAL_DESCRIPTION = document.getElementById("statsGoalDescription");
+      const STATS_GOAL_PROGRESS_TEXT = document.getElementById("statsGoalProgressText");
+      const STATS_GOAL_FILL = document.getElementById("statsGoalFill");
+      const ACHIEVEMENT_GRID = document.getElementById("achievementGrid");
+      const ACHIEVEMENT_TOAST = document.getElementById("achievementToast");
+      const ACHIEVEMENT_TOAST_TITLE = document.getElementById("achievementToastTitle");
+      const ACHIEVEMENT_TOAST_DESC = document.getElementById("achievementToastDesc");
 
       const COLORS = [
         "linear-gradient(180deg, #b59cff, #7e63ff)",
@@ -858,6 +1052,23 @@
         [[1,0],[1,1]], [[0,1],[1,1]], [[1,1,1],[0,1,0]], [[1,1,0],[0,1,1]],
         [[0,1,1],[1,1,0]], [[1,0,0],[1,1,1]], [[0,0,1],[1,1,1]], [[1,1,1,1]],
         [[1],[1],[1],[1]], [[1,1,1],[1,0,0]], [[1,1,1],[0,0,1]], [[1,1,1],[1,1,1]]
+      ];
+
+      const ACHIEVEMENTS = [
+        { id: "first_line", icon: "✨", name: "Primeira linha", desc: "Limpe sua primeira linha.", test: (run) => run.totalLinesRun >= 1 },
+        { id: "combo_2", icon: "⚡", name: "Combo duplo", desc: "Alcance combo x2.", test: (run) => run.maxComboRun >= 2 },
+        { id: "score_500", icon: "🏅", name: "500 pontos", desc: "Chegue a 500 pontos.", test: (run) => run.score >= 500 },
+        { id: "score_1000", icon: "👑", name: "1000 pontos", desc: "Chegue a 1000 pontos.", test: (run) => run.score >= 1000 },
+        { id: "survivor", icon: "🛡️", name: "Sobrevivente", desc: "Jogue 20 turnos em uma partida.", test: (run) => run.turns >= 20 },
+        { id: "line_master", icon: "🧱", name: "Mestre dos blocos", desc: "Limpe 10 linhas em uma partida.", test: (run) => run.totalLinesRun >= 10 },
+      ];
+
+      const GOALS = [
+        { id: "g150", label: "Faça 150 pontos em uma partida", progress: (run) => calcProgress(run.score, 150) },
+        { id: "g_lines_3", label: "Limpe 3 linhas em uma partida", progress: (run) => calcProgress(run.totalLinesRun, 3) },
+        { id: "g_combo_2", label: "Faça combo x2 em uma partida", progress: (run) => calcProgress(run.maxComboRun, 2) },
+        { id: "g_turns_15", label: "Sobreviva por 15 jogadas", progress: (run) => calcProgress(run.turns, 15) },
+        { id: "g500", label: "Faça 500 pontos em uma partida", progress: (run) => calcProgress(run.score, 500) },
       ];
 
       const state = {
@@ -884,26 +1095,28 @@
         maxComboRun: 0,
         totalLinesRun: 0,
         meta: loadMeta(),
+        progress: loadProgress(),
+        toastTimer: null,
       };
 
       function bindPress(element, handler) {
         let fired = false;
-
         const run = (event) => {
           event.preventDefault();
           event.stopPropagation();
-
           if (fired) return;
           fired = true;
           handler(event);
-
-          requestAnimationFrame(() => {
-            fired = false;
-          });
+          requestAnimationFrame(() => { fired = false; });
         };
-
         element.addEventListener("pointerup", run);
         element.addEventListener("click", run);
+      }
+
+      function calcProgress(value, target) {
+        const safe = Math.max(0, value);
+        const pct = Math.max(0, Math.min(1, safe / target));
+        return { value: safe, target, pct };
       }
 
       function loadBest() {
@@ -953,6 +1166,24 @@
 
       function saveMeta() {
         try { localStorage.setItem(META_KEY, JSON.stringify(state.meta)); }
+        catch {}
+      }
+
+      function loadProgress() {
+        try {
+          const raw = JSON.parse(localStorage.getItem(PROGRESS_KEY) || "{}");
+          return {
+            unlocked: Array.isArray(raw.unlocked) ? raw.unlocked : [],
+            lastAchievementId: raw.lastAchievementId || null,
+            currentGoalIndex: Number.isInteger(raw.currentGoalIndex) ? raw.currentGoalIndex : 0,
+          };
+        } catch {
+          return { unlocked: [], lastAchievementId: null, currentGoalIndex: 0 };
+        }
+      }
+
+      function saveProgress() {
+        try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(state.progress)); }
         catch {}
       }
 
@@ -1026,9 +1257,7 @@
         state.celebratedRecordThisRun = Boolean(save.celebratedRecordThisRun);
         state.gameOver = false;
 
-        if (state.best > loadBest()) {
-          saveBest();
-        }
+        if (state.best > loadBest()) saveBest();
       }
 
       function restoreSavedGame() {
@@ -1041,7 +1270,6 @@
         clearUiTimers();
         closeAllOverlays();
         clearTransientState();
-
         applySavedGame(save);
 
         BOARD.classList.remove("combo-glow", "record-glow");
@@ -1105,17 +1333,101 @@
         });
       }
 
+      function getCurrentRunSnapshot() {
+        return {
+          score: state.score,
+          totalLinesRun: state.totalLinesRun,
+          maxComboRun: state.maxComboRun,
+          turns: state.turns,
+        };
+      }
+
+      function getCurrentGoal() {
+        const index = Math.max(0, Math.min(GOALS.length - 1, state.progress.currentGoalIndex || 0));
+        return { goal: GOALS[index], index };
+      }
+
+      function maybeAdvanceGoal() {
+        const { goal, index } = getCurrentGoal();
+        const p = goal.progress(getCurrentRunSnapshot());
+        if (p.pct >= 1 && index < GOALS.length - 1) {
+          state.progress.currentGoalIndex = index + 1;
+          saveProgress();
+        }
+      }
+
+      function renderGoal(targetDesc, targetText, targetFill) {
+        const { goal } = getCurrentGoal();
+        const p = goal.progress(getCurrentRunSnapshot());
+        targetDesc.textContent = goal.label;
+        targetText.textContent = `${Math.round(p.pct * 100)}%`;
+        targetFill.style.width = `${Math.round(p.pct * 100)}%`;
+      }
+
+      function getAchievementById(id) {
+        return ACHIEVEMENTS.find((item) => item.id === id) || null;
+      }
+
+      function renderAchievements() {
+        ACHIEVEMENT_GRID.innerHTML = "";
+        ACHIEVEMENTS.forEach((item) => {
+          const unlocked = state.progress.unlocked.includes(item.id);
+          const card = document.createElement("div");
+          card.className = `achievement-card ${unlocked ? "" : "locked"}`.trim();
+          card.innerHTML = `
+            <div class="achievement-top">
+              <div class="achievement-icon">${item.icon}</div>
+              <div class="achievement-name">${item.name}</div>
+            </div>
+            <div class="achievement-desc">${item.desc}</div>
+            <div class="achievement-meta">${unlocked ? "Desbloqueada" : "Bloqueada"}</div>
+          `;
+          ACHIEVEMENT_GRID.appendChild(card);
+        });
+      }
+
+      function showAchievementToast(achievement) {
+        clearTimeout(state.toastTimer);
+        ACHIEVEMENT_TOAST_TITLE.textContent = `${achievement.icon} ${achievement.name}`;
+        ACHIEVEMENT_TOAST_DESC.textContent = achievement.desc;
+        ACHIEVEMENT_TOAST.classList.add("show");
+        state.toastTimer = setTimeout(() => {
+          ACHIEVEMENT_TOAST.classList.remove("show");
+        }, 2200);
+      }
+
+      function maybeUnlockAchievements() {
+        const run = getCurrentRunSnapshot();
+        const newOnes = ACHIEVEMENTS.filter(
+          (item) => !state.progress.unlocked.includes(item.id) && item.test(run)
+        );
+
+        if (!newOnes.length) return;
+
+        newOnes.forEach((item, idx) => {
+          state.progress.unlocked.push(item.id);
+          state.progress.lastAchievementId = item.id;
+          setTimeout(() => showAchievementToast(item), idx * 260);
+        });
+
+        saveProgress();
+        renderStartScreen();
+      }
+
       function renderStartScreen() {
         HERO_BEST.textContent = state.best;
         HERO_MATCHES.textContent = `${state.meta.totalMatches} ${state.meta.totalMatches === 1 ? "partida jogada" : "partidas jogadas"}`;
 
-        const last = state.meta.history[0];
-        HERO_LAST_SCORE.textContent = last ? last.score : "—";
-        HERO_LAST_META.textContent = last ? `${last.lines} linhas • combo ${last.maxCombo || 0}` : "Ainda sem histórico";
+        const lastAchievement = getAchievementById(state.progress.lastAchievementId);
+        HERO_LAST_ACHIEVEMENT.textContent = lastAchievement ? `${lastAchievement.icon} ${lastAchievement.name}` : "—";
+        HERO_LAST_ACHIEVEMENT_META.textContent = lastAchievement ? lastAchievement.desc : "Ainda sem conquistas";
 
         renderHistoryList(START_HISTORY_LIST, state.meta.history.slice(0, 3));
         renderHistoryList(FULL_HISTORY_LIST, state.meta.history);
         renderGlobalStats();
+        renderGoal(GOAL_DESCRIPTION, GOAL_PROGRESS_TEXT, GOAL_FILL);
+        renderGoal(STATS_GOAL_DESCRIPTION, STATS_GOAL_PROGRESS_TEXT, STATS_GOAL_FILL);
+        renderAchievements();
 
         CONTINUE_PLAY_BUTTON.hidden = !loadSavedGame();
       }
@@ -1247,6 +1559,9 @@
           playTone({ freq: 260, duration: 0.14, type: "triangle", gain: 0.018, when: 0.06, slideTo: 180 });
         } else if (kind === "warn") {
           playTone({ freq: 240, duration: 0.06, type: "square", gain: 0.02, slideTo: 180 });
+        } else if (kind === "achievement") {
+          playTone({ freq: 740, duration: 0.07, type: "triangle", gain: 0.04, slideTo: 980 });
+          playTone({ freq: 980, duration: 0.1, type: "triangle", gain: 0.035, when: 0.06, slideTo: 1220 });
         }
       }
 
@@ -1254,6 +1569,7 @@
         if (!navigator.vibrate) return;
         if (pattern === "success") navigator.vibrate([10, 18, 12]);
         else if (pattern === "warn") navigator.vibrate(18);
+        else if (pattern === "achievement") navigator.vibrate([10, 20, 10, 20, 12]);
         else navigator.vibrate(10);
       }
 
@@ -1654,6 +1970,12 @@
         renderGameOver();
       }
 
+      function evaluateRunProgress() {
+        maybeUnlockAchievements();
+        maybeAdvanceGoal();
+        renderStartScreen();
+      }
+
       function handlePieceTap(pieceId) {
         ensureAudio();
 
@@ -1765,6 +2087,8 @@
         if (state.pieces.every((currentPiece) => currentPiece.used)) {
           state.pieces = buildPieceSet(state.board);
         }
+
+        evaluateRunProgress();
 
         if (!hasAnyMove(state.board, state.pieces.filter((currentPiece) => !currentPiece.used))) {
           state.gameOver = true;
@@ -1934,45 +2258,46 @@
         MESSAGE_TEXT.className = "message";
 
         render();
+        renderStartScreen();
       }
+
+      bindPress(HOME_BUTTON, () => {
+        ensureAudio();
+        showStartScreen();
+      });
 
       RESTART_BUTTON.addEventListener("click", () => {
         ensureAudio();
         resetGame();
       });
-      
+
       bindPress(RESTART_OVERLAY_BUTTON, () => {
         ensureAudio();
         resetGame();
       });
-      
+
       SOUND_BUTTON.addEventListener("click", toggleSound);
-      
-      bindPress(HOME_BUTTON, () => {
-        ensureAudio();
-        showStartScreen();
-      });
-      
+
       bindPress(START_PLAY_BUTTON, () => {
         ensureAudio();
         resetGame();
       });
-      
+
       bindPress(CONTINUE_PLAY_BUTTON, () => {
         ensureAudio();
         restoreSavedGame();
       });
-      
+
       bindPress(OPEN_STATS_BUTTON, () => {
         ensureAudio();
         showStatsScreen();
       });
-      
+
       bindPress(CLOSE_STATS_BUTTON, () => {
         hideStatsScreen();
         showStartScreen();
       });
-      
+
       window.addEventListener("pointermove", handlePointerMove, { passive: true });
       window.addEventListener("pointerup", handlePointerUp, { passive: true });
       window.addEventListener("pointercancel", handlePointerUp, { passive: true });
@@ -1985,6 +2310,7 @@
 
       updateSoundButton();
       resetGame();
+      renderStartScreen();
       showStartScreen();
     })();
   </script>
