@@ -1391,6 +1391,8 @@
         ACHIEVEMENT_TOAST_TITLE.textContent = `${achievement.icon} ${achievement.name}`;
         ACHIEVEMENT_TOAST_DESC.textContent = achievement.desc;
         ACHIEVEMENT_TOAST.classList.add("show");
+        playSound("achievement");
+        haptic("achievement");
         state.toastTimer = setTimeout(() => {
           ACHIEVEMENT_TOAST.classList.remove("show");
         }, 2200);
