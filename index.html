@@ -222,7 +222,7 @@
       touch-action: none;
       user-select: none;
       overflow: hidden;
-      transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+      transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease, opacity 180ms ease;
     }
 
     .board.combo-glow {
@@ -241,6 +241,12 @@
         0 0 0 1px rgba(255,255,255,.05),
         0 0 48px rgba(255, 196, 87, 0.32);
       filter: saturate(1.14) brightness(1.03);
+    }
+
+    .board.gameover-soft {
+      opacity: .86;
+      filter: saturate(.88) brightness(.92);
+      transform: scale(.992);
     }
 
     .board::after {
@@ -304,7 +310,7 @@
       font-weight: 900;
       color: #ecf1ff;
       box-shadow: var(--shadow-soft);
-      transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+      transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease, opacity 160ms ease;
     }
 
     .combo-chip.hot {
@@ -312,6 +318,8 @@
       box-shadow: var(--shadow-soft), 0 0 24px rgba(109, 91, 255, 0.2);
       background: linear-gradient(180deg, rgba(131,108,255,.22), rgba(255,255,255,.06));
     }
+
+    .combo-chip.fade-soft { opacity: .72; }
 
     .tray {
       padding: 10px;
@@ -464,7 +472,6 @@
 
     .dialog h2 { margin: 0; font-size: 28px; letter-spacing: -0.04em; }
     .dialog p { margin: 0; color: var(--muted); line-height: 1.45; }
-    .dialog-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
 
     .ghost {
       position: fixed;
@@ -653,54 +660,91 @@
 
     .stats-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
 
-    .goal-card {
+    .goal-card, .next-card, .end-summary-card {
       padding: 12px;
       border-radius: 20px;
-      background: linear-gradient(180deg, rgba(255,232,157,.12), rgba(255,255,255,.03));
       border: 1px solid rgba(255,255,255,.08);
       display: grid;
       gap: 8px;
+      text-align: left;
     }
 
-    .goal-head {
+    .goal-card {
+      background: linear-gradient(180deg, rgba(255,232,157,.12), rgba(255,255,255,.03));
+    }
+
+    .next-card {
+      background: linear-gradient(180deg, rgba(141,122,255,.14), rgba(255,255,255,.03));
+    }
+
+    .end-summary-card {
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+    }
+
+    .goal-head, .next-head, .end-head {
       display: flex;
       justify-content: space-between;
       gap: 10px;
       align-items: center;
     }
 
-    .goal-title {
+    .goal-title, .next-title, .end-title {
       font-size: 11px;
       letter-spacing: .08em;
       text-transform: uppercase;
-      color: #ffd98f;
       font-weight: 900;
     }
 
-    .goal-progress-text {
+    .goal-title { color: #ffd98f; }
+    .next-title { color: #d9c9ff; }
+    .end-title { color: #d8ddff; }
+
+    .goal-progress-text, .next-progress-text, .end-progress-text {
       font-size: 12px;
       color: var(--muted);
       font-weight: 800;
     }
 
-    .goal-desc {
+    .goal-desc, .next-desc, .end-desc {
       font-size: 14px;
       font-weight: 800;
       line-height: 1.35;
     }
 
-    .goal-bar {
+    .goal-sub, .next-sub, .end-sub {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.35;
+      min-height: 16px;
+    }
+
+    .goal-bar, .next-bar, .end-bar {
       height: 8px;
       border-radius: 999px;
       background: rgba(255,255,255,.08);
       overflow: hidden;
     }
 
-    .goal-fill {
+    .goal-fill, .next-fill, .end-fill {
       height: 100%;
       border-radius: inherit;
-      background: linear-gradient(90deg, #ffd98f, #ffab43);
       transition: width 220ms ease;
+    }
+
+    .goal-fill {
+      background: linear-gradient(90deg, #ffd98f, #ffab43);
+    }
+
+    .next-fill {
+      background: linear-gradient(90deg, #c9b0ff, #7e63ff);
+    }
+
+    .end-fill.goal {
+      background: linear-gradient(90deg, #ffd98f, #ffab43);
+    }
+
+    .end-fill.achievement {
+      background: linear-gradient(90deg, #c9b0ff, #7e63ff);
     }
 
     .achievement-grid {
@@ -807,6 +851,46 @@
       line-height: 1.35;
     }
 
+    .gameover-hero {
+      display: grid;
+      gap: 6px;
+      text-align: center;
+    }
+
+    .gameover-line {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .gameover-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .gameover-actions {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .gameover-primary {
+      min-height: 50px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: linear-gradient(180deg, rgba(255,232,157,.98), rgba(255,187,61,.96));
+      color: #5b3900;
+      font-weight: 900;
+      box-shadow: 0 12px 28px rgba(255,187,61,.22);
+    }
+
+    .gameover-secondary {
+      min-height: 46px;
+      border-radius: 18px;
+      font-weight: 800;
+    }
+
     [hidden] { display: none !important; }
 
     @media (max-width: 420px) {
@@ -824,7 +908,7 @@
       .piece-card { min-height: 96px; }
       .record-banner { font-size: 14px; padding: 8px 14px; }
       .hero-title { font-size: 28px; }
-      .overview-grid, .stats-grid-2, .achievement-grid { grid-template-columns: 1fr; }
+      .overview-grid, .stats-grid-2, .achievement-grid, .gameover-grid { grid-template-columns: 1fr; }
       .mini-big, .history-score { font-size: 20px; }
     }
   </style>
@@ -898,7 +982,18 @@
           <div class="goal-progress-text" id="goalProgressText">0%</div>
         </div>
         <div class="goal-desc" id="goalDescription">Faça 150 pontos em uma partida</div>
+        <div class="goal-sub" id="goalRemainingText">Faltam 150 pontos</div>
         <div class="goal-bar"><div class="goal-fill" id="goalFill" style="width:0%"></div></div>
+      </div>
+
+      <div class="next-card">
+        <div class="next-head">
+          <div class="next-title">Próxima conquista</div>
+          <div class="next-progress-text" id="nextAchievementProgressText">0%</div>
+        </div>
+        <div class="next-desc" id="nextAchievementDescription">✨ Primeira linha</div>
+        <div class="next-sub" id="nextAchievementRemainingText">Limpe 1 linha</div>
+        <div class="next-bar"><div class="next-fill" id="nextAchievementFill" style="width:0%"></div></div>
       </div>
 
       <div class="overview-grid">
@@ -934,7 +1029,18 @@
           <div class="goal-progress-text" id="statsGoalProgressText">0%</div>
         </div>
         <div class="goal-desc" id="statsGoalDescription">Faça 150 pontos em uma partida</div>
+        <div class="goal-sub" id="statsGoalRemainingText">Faltam 150 pontos</div>
         <div class="goal-bar"><div class="goal-fill" id="statsGoalFill" style="width:0%"></div></div>
+      </div>
+
+      <div class="next-card">
+        <div class="next-head">
+          <div class="next-title">Próxima conquista</div>
+          <div class="next-progress-text" id="statsNextAchievementProgressText">0%</div>
+        </div>
+        <div class="next-desc" id="statsNextAchievementDescription">✨ Primeira linha</div>
+        <div class="next-sub" id="statsNextAchievementRemainingText">Limpe 1 linha</div>
+        <div class="next-bar"><div class="next-fill" id="statsNextAchievementFill" style="width:0%"></div></div>
       </div>
 
       <div class="mini-panel">
@@ -953,9 +1059,12 @@
 
   <div class="overlay" id="gameOverOverlay">
     <div class="dialog">
-      <h2>Fim de jogo</h2>
-      <p>Não existe mais espaço para nenhuma peça do trio atual.</p>
-      <div class="dialog-stats">
+      <div class="gameover-hero">
+        <h2 id="gameOverTitle">Boa run</h2>
+        <div class="gameover-line" id="gameOverLine">Você foi longe. Bora tentar mais uma?</div>
+      </div>
+
+      <div class="gameover-grid">
         <div class="stat-card">
           <div class="stat-label">Pontuação final</div>
           <div class="stat-value" id="finalScore">0</div>
@@ -964,8 +1073,40 @@
           <div class="stat-label">Melhor resultado</div>
           <div class="stat-value" id="finalBest">0</div>
         </div>
+        <div class="stat-card">
+          <div class="stat-label">Linhas limpas</div>
+          <div class="stat-value" id="finalLines">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Melhor combo</div>
+          <div class="stat-value" id="finalCombo">0</div>
+        </div>
       </div>
-      <button class="button" id="restartOverlayButton" type="button">Jogar de novo</button>
+
+      <div class="end-summary-card">
+        <div class="end-head">
+          <div class="end-title">Quase lá na meta</div>
+          <div class="end-progress-text" id="endGoalProgressText">0%</div>
+        </div>
+        <div class="end-desc" id="endGoalDescription">Faça 150 pontos em uma partida</div>
+        <div class="end-sub" id="endGoalRemainingText">Faltam 150 pontos</div>
+        <div class="end-bar"><div class="end-fill goal" id="endGoalFill" style="width:0%"></div></div>
+      </div>
+
+      <div class="end-summary-card">
+        <div class="end-head">
+          <div class="end-title">Quase lá na conquista</div>
+          <div class="end-progress-text" id="endAchievementProgressText">0%</div>
+        </div>
+        <div class="end-desc" id="endAchievementDescription">✨ Primeira linha</div>
+        <div class="end-sub" id="endAchievementRemainingText">Limpe 1 linha</div>
+        <div class="end-bar"><div class="end-fill achievement" id="endAchievementFill" style="width:0%"></div></div>
+      </div>
+
+      <div class="gameover-actions">
+        <button class="button gameover-primary" id="restartOverlayButton" type="button">Jogar de novo</button>
+        <button class="button gameover-secondary" id="gameOverMenuButton" type="button">Voltar ao menu</button>
+      </div>
     </div>
   </div>
 
@@ -1007,8 +1148,21 @@
       const STATS_OVERLAY = document.getElementById("statsOverlay");
       const FINAL_SCORE = document.getElementById("finalScore");
       const FINAL_BEST = document.getElementById("finalBest");
+      const FINAL_LINES = document.getElementById("finalLines");
+      const FINAL_COMBO = document.getElementById("finalCombo");
+      const GAME_OVER_TITLE = document.getElementById("gameOverTitle");
+      const GAME_OVER_LINE = document.getElementById("gameOverLine");
+      const END_GOAL_DESCRIPTION = document.getElementById("endGoalDescription");
+      const END_GOAL_PROGRESS_TEXT = document.getElementById("endGoalProgressText");
+      const END_GOAL_REMAINING_TEXT = document.getElementById("endGoalRemainingText");
+      const END_GOAL_FILL = document.getElementById("endGoalFill");
+      const END_ACHIEVEMENT_DESCRIPTION = document.getElementById("endAchievementDescription");
+      const END_ACHIEVEMENT_PROGRESS_TEXT = document.getElementById("endAchievementProgressText");
+      const END_ACHIEVEMENT_REMAINING_TEXT = document.getElementById("endAchievementRemainingText");
+      const END_ACHIEVEMENT_FILL = document.getElementById("endAchievementFill");
       const RESTART_BUTTON = document.getElementById("restartButton");
       const RESTART_OVERLAY_BUTTON = document.getElementById("restartOverlayButton");
+      const GAME_OVER_MENU_BUTTON = document.getElementById("gameOverMenuButton");
       const SOUND_BUTTON = document.getElementById("soundButton");
       const HOME_BUTTON = document.getElementById("homeButton");
       const START_PLAY_BUTTON = document.getElementById("startPlayButton");
@@ -1026,10 +1180,20 @@
       const GLOBAL_STATS_GRID = document.getElementById("globalStatsGrid");
       const GOAL_DESCRIPTION = document.getElementById("goalDescription");
       const GOAL_PROGRESS_TEXT = document.getElementById("goalProgressText");
+      const GOAL_REMAINING_TEXT = document.getElementById("goalRemainingText");
       const GOAL_FILL = document.getElementById("goalFill");
       const STATS_GOAL_DESCRIPTION = document.getElementById("statsGoalDescription");
       const STATS_GOAL_PROGRESS_TEXT = document.getElementById("statsGoalProgressText");
+      const STATS_GOAL_REMAINING_TEXT = document.getElementById("statsGoalRemainingText");
       const STATS_GOAL_FILL = document.getElementById("statsGoalFill");
+      const NEXT_ACHIEVEMENT_DESCRIPTION = document.getElementById("nextAchievementDescription");
+      const NEXT_ACHIEVEMENT_PROGRESS_TEXT = document.getElementById("nextAchievementProgressText");
+      const NEXT_ACHIEVEMENT_REMAINING_TEXT = document.getElementById("nextAchievementRemainingText");
+      const NEXT_ACHIEVEMENT_FILL = document.getElementById("nextAchievementFill");
+      const STATS_NEXT_ACHIEVEMENT_DESCRIPTION = document.getElementById("statsNextAchievementDescription");
+      const STATS_NEXT_ACHIEVEMENT_PROGRESS_TEXT = document.getElementById("statsNextAchievementProgressText");
+      const STATS_NEXT_ACHIEVEMENT_REMAINING_TEXT = document.getElementById("statsNextAchievementRemainingText");
+      const STATS_NEXT_ACHIEVEMENT_FILL = document.getElementById("statsNextAchievementFill");
       const ACHIEVEMENT_GRID = document.getElementById("achievementGrid");
       const ACHIEVEMENT_TOAST = document.getElementById("achievementToast");
       const ACHIEVEMENT_TOAST_TITLE = document.getElementById("achievementToastTitle");
@@ -1055,20 +1219,126 @@
       ];
 
       const ACHIEVEMENTS = [
-        { id: "first_line", icon: "✨", name: "Primeira linha", desc: "Limpe sua primeira linha.", test: (run) => run.totalLinesRun >= 1 },
-        { id: "combo_2", icon: "⚡", name: "Combo duplo", desc: "Alcance combo x2.", test: (run) => run.maxComboRun >= 2 },
-        { id: "score_500", icon: "🏅", name: "500 pontos", desc: "Chegue a 500 pontos.", test: (run) => run.score >= 500 },
-        { id: "score_1000", icon: "👑", name: "1000 pontos", desc: "Chegue a 1000 pontos.", test: (run) => run.score >= 1000 },
-        { id: "survivor", icon: "🛡️", name: "Sobrevivente", desc: "Jogue 20 turnos em uma partida.", test: (run) => run.turns >= 20 },
-        { id: "line_master", icon: "🧱", name: "Mestre dos blocos", desc: "Limpe 10 linhas em uma partida.", test: (run) => run.totalLinesRun >= 10 },
+        {
+          id: "first_line",
+          icon: "✨",
+          name: "Primeira linha",
+          desc: "Limpe sua primeira linha.",
+          test: (run) => run.totalLinesRun >= 1,
+          progress: (run) => calcProgress(run.totalLinesRun, 1),
+          remaining: (run) => {
+            const left = Math.max(0, 1 - run.totalLinesRun);
+            return left === 0 ? "Conquista pronta para desbloquear." : `Falta ${left} linha`;
+          }
+        },
+        {
+          id: "combo_2",
+          icon: "⚡",
+          name: "Combo duplo",
+          desc: "Alcance combo x2.",
+          test: (run) => run.maxComboRun >= 2,
+          progress: (run) => calcProgress(run.maxComboRun, 2),
+          remaining: (run) => {
+            const left = Math.max(0, 2 - run.maxComboRun);
+            return left === 0 ? "Conquista pronta para desbloquear." : "Falta alcançar combo x2";
+          }
+        },
+        {
+          id: "score_500",
+          icon: "🏅",
+          name: "500 pontos",
+          desc: "Chegue a 500 pontos.",
+          test: (run) => run.score >= 500,
+          progress: (run) => calcProgress(run.score, 500),
+          remaining: (run) => {
+            const left = Math.max(0, 500 - run.score);
+            return left === 0 ? "Conquista pronta para desbloquear." : `Faltam ${left} pontos`;
+          }
+        },
+        {
+          id: "score_1000",
+          icon: "👑",
+          name: "1000 pontos",
+          desc: "Chegue a 1000 pontos.",
+          test: (run) => run.score >= 1000,
+          progress: (run) => calcProgress(run.score, 1000),
+          remaining: (run) => {
+            const left = Math.max(0, 1000 - run.score);
+            return left === 0 ? "Conquista pronta para desbloquear." : `Faltam ${left} pontos`;
+          }
+        },
+        {
+          id: "survivor",
+          icon: "🛡️",
+          name: "Sobrevivente",
+          desc: "Jogue 20 turnos em uma partida.",
+          test: (run) => run.turns >= 20,
+          progress: (run) => calcProgress(run.turns, 20),
+          remaining: (run) => {
+            const left = Math.max(0, 20 - run.turns);
+            return left === 0 ? "Conquista pronta para desbloquear." : `Faltam ${left} jogadas`;
+          }
+        },
+        {
+          id: "line_master",
+          icon: "🧱",
+          name: "Mestre dos blocos",
+          desc: "Limpe 10 linhas em uma partida.",
+          test: (run) => run.totalLinesRun >= 10,
+          progress: (run) => calcProgress(run.totalLinesRun, 10),
+          remaining: (run) => {
+            const left = Math.max(0, 10 - run.totalLinesRun);
+            return left === 0 ? "Conquista pronta para desbloquear." : `Faltam ${left} linhas`;
+          }
+        },
       ];
 
       const GOALS = [
-        { id: "g150", label: "Faça 150 pontos em uma partida", progress: (run) => calcProgress(run.score, 150) },
-        { id: "g_lines_3", label: "Limpe 3 linhas em uma partida", progress: (run) => calcProgress(run.totalLinesRun, 3) },
-        { id: "g_combo_2", label: "Faça combo x2 em uma partida", progress: (run) => calcProgress(run.maxComboRun, 2) },
-        { id: "g_turns_15", label: "Sobreviva por 15 jogadas", progress: (run) => calcProgress(run.turns, 15) },
-        { id: "g500", label: "Faça 500 pontos em uma partida", progress: (run) => calcProgress(run.score, 500) },
+        {
+          id: "g150",
+          label: "Faça 150 pontos em uma partida",
+          progress: (run) => calcProgress(run.score, 150),
+          remaining: (run) => {
+            const left = Math.max(0, 150 - run.score);
+            return left === 0 ? "Meta concluída." : `Faltam ${left} pontos`;
+          }
+        },
+        {
+          id: "g_lines_3",
+          label: "Limpe 3 linhas em uma partida",
+          progress: (run) => calcProgress(run.totalLinesRun, 3),
+          remaining: (run) => {
+            const left = Math.max(0, 3 - run.totalLinesRun);
+            return left === 0 ? "Meta concluída." : `Faltam ${left} linhas`;
+          }
+        },
+        {
+          id: "g_combo_2",
+          label: "Faça combo x2 em uma partida",
+          progress: (run) => calcProgress(run.maxComboRun, 2),
+          remaining: (run) => {
+            const left = Math.max(0, 2 - run.maxComboRun);
+            return left === 0 ? "Meta concluída." : "Falta alcançar combo x2";
+          }
+        },
+        {
+          id: "g_turns_15",
+          label: "Sobreviva por 15 jogadas",
+          progress: (run) => calcProgress(run.turns, 15),
+          remaining: (run) => {
+            const left = Math.max(0, 15 - run.turns);
+            return left === 0 ? "Meta concluída." : `Faltam ${left} jogadas`;
+          }
+        },
+        {
+          id: "g500",
+          label: "Faça 500 pontos em uma partida",
+          progress: (run) => calcProgress(run.score, 500),
+          remaining: (run) => {
+            const left = Math.max(0, 500 - run.score);
+            return left === 0 ? "Meta concluída." : `Faltam ${left} pontos`;
+          }
+        },
       ];
 
       const state = {
@@ -1097,6 +1367,7 @@
         meta: loadMeta(),
         progress: loadProgress(),
         toastTimer: null,
+        pendingGameOverTimer: null,
       };
 
       function bindPress(element, handler) {
@@ -1272,8 +1543,8 @@
         clearTransientState();
         applySavedGame(save);
 
-        BOARD.classList.remove("combo-glow", "record-glow");
-        COMBO_CHIP.classList.remove("hot");
+        BOARD.classList.remove("combo-glow", "record-glow", "gameover-soft");
+        COMBO_CHIP.classList.remove("hot", "fade-soft");
         BEST_CARD.classList.remove("best-hit");
         PARTICLES.innerHTML = "";
         MESSAGE_TEXT.textContent = "";
@@ -1356,16 +1627,38 @@
         }
       }
 
-      function renderGoal(targetDesc, targetText, targetFill) {
+      function renderGoal(targetDesc, targetText, targetRemaining, targetFill) {
         const { goal } = getCurrentGoal();
         const p = goal.progress(getCurrentRunSnapshot());
         targetDesc.textContent = goal.label;
         targetText.textContent = `${Math.round(p.pct * 100)}%`;
+        targetRemaining.textContent = goal.remaining(getCurrentRunSnapshot());
         targetFill.style.width = `${Math.round(p.pct * 100)}%`;
       }
 
       function getAchievementById(id) {
         return ACHIEVEMENTS.find((item) => item.id === id) || null;
+      }
+
+      function getNextLockedAchievement() {
+        return ACHIEVEMENTS.find((item) => !state.progress.unlocked.includes(item.id)) || null;
+      }
+
+      function renderNextAchievement(targetDesc, targetText, targetRemaining, targetFill) {
+        const next = getNextLockedAchievement();
+        if (!next) {
+          targetDesc.textContent = "🏆 Tudo concluído";
+          targetText.textContent = "100%";
+          targetRemaining.textContent = "Você desbloqueou todas as conquistas.";
+          targetFill.style.width = "100%";
+          return;
+        }
+
+        const p = next.progress(getCurrentRunSnapshot());
+        targetDesc.textContent = `${next.icon} ${next.name}`;
+        targetText.textContent = `${Math.round(p.pct * 100)}%`;
+        targetRemaining.textContent = next.remaining(getCurrentRunSnapshot());
+        targetFill.style.width = `${Math.round(p.pct * 100)}%`;
       }
 
       function renderAchievements() {
@@ -1416,6 +1709,68 @@
         renderStartScreen();
       }
 
+      function getGameOverCopy() {
+        const run = getCurrentRunSnapshot();
+
+        if (state.score >= state.best && state.score > 0) {
+          return {
+            title: "Novo topo",
+            line: "Você bateu seu melhor resultado. Bora repetir essa run?"
+          };
+        }
+
+        if (run.maxComboRun >= 3) {
+          return {
+            title: "Quase encaixou tudo",
+            line: `Seu combo chegou a x${run.maxComboRun}. Faltou pouco para embalar ainda mais.`
+          };
+        }
+
+        if (run.totalLinesRun >= 8) {
+          return {
+            title: "Run forte",
+            line: `Você limpou ${run.totalLinesRun} linhas. Dá para transformar isso em recorde na próxima.`
+          };
+        }
+
+        if (run.turns >= 18) {
+          return {
+            title: "Você foi longe",
+            line: `Foram ${run.turns} jogadas de sobrevivência. Mais uma boa sequência e o score sobe rápido.`
+          };
+        }
+
+        if (run.score >= 250) {
+          return {
+            title: "Boa tentativa",
+            line: "A base da partida foi boa. Mais uma run e você provavelmente passa dessa marca."
+          };
+        }
+
+        return {
+          title: "Mais uma?",
+          line: "O começo já aquece a mão. Bora encaixar melhor na próxima rodada."
+        };
+      }
+
+      function prepareGameOverOverlay() {
+        const copy = getGameOverCopy();
+        GAME_OVER_TITLE.textContent = copy.title;
+        GAME_OVER_LINE.textContent = copy.line;
+        FINAL_SCORE.textContent = String(state.score);
+        FINAL_BEST.textContent = String(state.best);
+        FINAL_LINES.textContent = String(state.totalLinesRun);
+        FINAL_COMBO.textContent = String(state.maxComboRun);
+
+        renderGoal(END_GOAL_DESCRIPTION, END_GOAL_PROGRESS_TEXT, END_GOAL_REMAINING_TEXT, END_GOAL_FILL);
+        renderNextAchievement(
+          END_ACHIEVEMENT_DESCRIPTION,
+          END_ACHIEVEMENT_PROGRESS_TEXT,
+          END_ACHIEVEMENT_REMAINING_TEXT,
+          END_ACHIEVEMENT_FILL
+        );
+      }
+
       function renderStartScreen() {
         HERO_BEST.textContent = state.best;
         HERO_MATCHES.textContent = `${state.meta.totalMatches} ${state.meta.totalMatches === 1 ? "partida jogada" : "partidas jogadas"}`;
@@ -1427,9 +1782,12 @@
         renderHistoryList(START_HISTORY_LIST, state.meta.history.slice(0, 3));
         renderHistoryList(FULL_HISTORY_LIST, state.meta.history);
         renderGlobalStats();
-        renderGoal(GOAL_DESCRIPTION, GOAL_PROGRESS_TEXT, GOAL_FILL);
-        renderGoal(STATS_GOAL_DESCRIPTION, STATS_GOAL_PROGRESS_TEXT, STATS_GOAL_FILL);
+        renderGoal(GOAL_DESCRIPTION, GOAL_PROGRESS_TEXT, GOAL_REMAINING_TEXT, GOAL_FILL);
+        renderGoal(STATS_GOAL_DESCRIPTION, STATS_GOAL_PROGRESS_TEXT, STATS_GOAL_REMAINING_TEXT, STATS_GOAL_FILL);
+        renderNextAchievement(NEXT_ACHIEVEMENT_DESCRIPTION, NEXT_ACHIEVEMENT_PROGRESS_TEXT, NEXT_ACHIEVEMENT_REMAINING_TEXT, NEXT_ACHIEVEMENT_FILL);
+        renderNextAchievement(STATS_NEXT_ACHIEVEMENT_DESCRIPTION, STATS_NEXT_ACHIEVEMENT_PROGRESS_TEXT, STATS_NEXT_ACHIEVEMENT_REMAINING_TEXT, STATS_NEXT_ACHIEVEMENT_FILL);
         renderAchievements();
+        prepareGameOverOverlay();
 
         CONTINUE_PLAY_BUTTON.hidden = !loadSavedGame();
       }
@@ -1462,11 +1820,13 @@
         clearTimeout(state.messagePopTimer);
         clearTimeout(state.placedPieceTimer);
         clearTimeout(state.comboFxTimer);
+        clearTimeout(state.pendingGameOverTimer);
 
         state.messageTimer = null;
         state.messagePopTimer = null;
         state.placedPieceTimer = null;
         state.comboFxTimer = null;
+        state.pendingGameOverTimer = null;
       }
 
       function showStartScreen() {
@@ -1493,6 +1853,17 @@
 
       function hideStatsScreen() {
         STATS_OVERLAY.classList.remove("show");
+      }
+
+      function beginSoftGameOver() {
+        prepareGameOverOverlay();
+        BOARD.classList.add("gameover-soft");
+        COMBO_CHIP.classList.add("fade-soft");
+        playSound("gameover");
+        haptic("light");
+        state.pendingGameOverTimer = setTimeout(() => {
+          render();
+        }, 260);
       }
 
       function makeEmptyBoard() {
@@ -1557,8 +1928,8 @@
           playTone({ freq: 880, duration: 0.09, type: "triangle", gain: 0.04, when: 0.07, slideTo: 1100 });
           playTone({ freq: 1100, duration: 0.11, type: "triangle", gain: 0.04, when: 0.14, slideTo: 1320 });
         } else if (kind === "gameover") {
-          playTone({ freq: 360, duration: 0.12, type: "sawtooth", gain: 0.025, slideTo: 220 });
-          playTone({ freq: 260, duration: 0.14, type: "triangle", gain: 0.018, when: 0.06, slideTo: 180 });
+          playTone({ freq: 320, duration: 0.09, type: "triangle", gain: 0.018, slideTo: 270 });
+          playTone({ freq: 270, duration: 0.11, type: "sine", gain: 0.016, when: 0.05, slideTo: 230 });
         } else if (kind === "warn") {
           playTone({ freq: 240, duration: 0.06, type: "square", gain: 0.02, slideTo: 180 });
         } else if (kind === "achievement") {
@@ -1960,6 +2331,8 @@
 
         FINAL_SCORE.textContent = String(state.score);
         FINAL_BEST.textContent = String(state.best);
+        FINAL_LINES.textContent = String(state.totalLinesRun);
+        FINAL_COMBO.textContent = String(state.maxComboRun);
         GAME_OVER_OVERLAY.classList.add("show");
       }
 
@@ -2096,8 +2469,7 @@
           state.gameOver = true;
           clearTransientState();
           clearSavedGame();
-          playSound("gameover");
-          persistMatch();
+          beginSoftGameOver();
         } else {
           saveCurrentGame();
         }
@@ -2252,8 +2624,8 @@
 
         clearTransientState();
 
-        BOARD.classList.remove("combo-glow", "record-glow");
-        COMBO_CHIP.classList.remove("hot");
+        BOARD.classList.remove("combo-glow", "record-glow", "gameover-soft");
+        COMBO_CHIP.classList.remove("hot", "fade-soft");
         BEST_CARD.classList.remove("best-hit");
         PARTICLES.innerHTML = "";
         MESSAGE_TEXT.textContent = "";
@@ -2276,6 +2648,11 @@
       bindPress(RESTART_OVERLAY_BUTTON, () => {
         ensureAudio();
         resetGame();
+      });
+
+      bindPress(GAME_OVER_MENU_BUTTON, () => {
+        ensureAudio();
+        showStartScreen();
       });
 
       SOUND_BUTTON.addEventListener("click", toggleSound);
