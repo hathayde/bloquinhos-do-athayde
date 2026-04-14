@@ -222,6 +222,7 @@
     .btn-soft { background: rgba(255,255,255,0.72); }
     .btn-danger { background: var(--danger-soft); color: var(--danger); }
     .btn-success { background: var(--success-soft); color: var(--success); }
+    .btn-warning { background: var(--warning-soft); color: var(--warning); }
 
     .section-head {
       display: flex;
@@ -722,11 +723,11 @@
 
   <script src="llm.js"></script>
   <script>
-    const STORAGE_KEY = 'pilha:v11:ideas';
-    const SESSION_KEY = 'pilha:v11:sessions';
-    const STACKS_KEY = 'pilha:v11:stacks';
-    const LLM_SETTINGS_KEY = 'pilha:v11:llm-settings';
-    const CLASSIFICATION_LOG_KEY = 'pilha:v11:classification-log';
+    const STORAGE_KEY = 'pilha:v12:ideas';
+    const SESSION_KEY = 'pilha:v12:sessions';
+    const STACKS_KEY = 'pilha:v12:stacks';
+    const LLM_SETTINGS_KEY = 'pilha:v12:llm-settings';
+    const CLASSIFICATION_LOG_KEY = 'pilha:v12:classification-log';
 
     const CATEGORY_RULES = [
       { category: 'Produto', keywords: ['produto', 'feature', 'funcionalidade', 'app', 'ux', 'ui', 'usuario', 'usuário', 'mvp'] },
@@ -766,7 +767,7 @@
       showAdvancedSettings: false,
       showClassificationLog: false,
       showClassificationDebug: false,
-      stackTodoFilter: 'all'
+      stackTodoFilter: 'open'
     };
 
     const screens = [...document.querySelectorAll('.screen')];
@@ -789,6 +790,10 @@
     function safeId() {
       if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
       return 'id-' + Date.now() + '-' + Math.random().toString(16).slice(2);
+    }
+
+    function getActiveIdeas() {
+      return ideas.filter(idea => !idea.archived);
     }
 
     function showToast(message) {
@@ -888,7 +893,13 @@
 
     function loadData() {
       try {
-        ideas = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        ideas = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]').map(idea => ({
+          completed: false,
+          completedAt: null,
+          archived: false,
+          archivedAt: null,
+          ...idea
+        }));
         sessions = JSON.parse(localStorage.getItem(SESSION_KEY) || '[]');
         stacks = JSON.parse(localStorage.getItem(STACKS_KEY) || '[]');
         classificationLog = JSON.parse(localStorage.getItem(CLASSIFICATION_LOG_KEY) || 'null');
@@ -927,24 +938,25 @@
     }
 
     function getCategories() {
-      return ['Todas', ...Array.from(new Set(ideas.map(item => item.category)))];
+      return ['Todas', ...Array.from(new Set(getActiveIdeas().map(item => item.category)))];
     }
 
     function buildStackSummaries() {
+      const activeIdeas = getActiveIdeas();
       return stacks.map(stack => {
-        const stackIdeas = ideas.filter(idea => idea.stackId === stack.id).slice(0, 3);
+        const stackIdeas = activeIdeas.filter(idea => idea.stackId === stack.id).slice(0, 3);
         return {
           id: stack.id,
           name: stack.name,
           summary: stack.summary || '',
-          noteCount: ideas.filter(idea => idea.stackId === stack.id).length,
+          noteCount: activeIdeas.filter(idea => idea.stackId === stack.id).length,
           recent_examples: stackIdeas.map(idea => idea.text)
         };
       });
     }
 
     function getFilteredIdeas() {
-      let result = [...ideas].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      let result = [...getActiveIdeas()].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
       if (state.search.trim()) {
         result = result.filter(item => normalize(item.text).includes(normalize(state.search)));
@@ -1028,6 +1040,36 @@
       renderAll();
     }
 
+    function archiveCompletedInStack(stackId) {
+      const completedInStack = ideas.filter(idea => idea.stackId === stackId && idea.completed && !idea.archived);
+      if (!completedInStack.length) {
+        showToast('Nenhuma nota concluída para arquivar.');
+        return;
+      }
+
+      askConfirmation({
+        title: 'Arquivar concluídas?',
+        description: `As ${completedInStack.length} notas concluídas desta pilha sairão da visualização principal.`,
+        actionLabel: 'Arquivar',
+        action: () => {
+          ideas = ideas.map(idea => {
+            if (idea.stackId !== stackId || !idea.completed || idea.archived) return idea;
+            return {
+              ...idea,
+              archived: true,
+              archivedAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString()
+            };
+          });
+
+          saveIdeas();
+          state.stackTodoFilter = 'open';
+          renderAll();
+          showToast('Concluídas arquivadas.');
+        }
+      });
+    }
+
     function ensureFallbackStackForCategory(category) {
       const existing = stacks.find(stack => stack.category === category && stack.name === category);
       if (existing) return existing;
@@ -1048,7 +1090,7 @@
     }
 
     function renderCaptureHome() {
-      const last = ideas[0];
+      const last = getActiveIdeas()[0];
       const preview = document.getElementById('last-note-preview');
       const sessionInline = document.getElementById('session-inline');
       const active = getActiveSession();
@@ -1134,6 +1176,7 @@
           <span class="badge badge-neutral">${escapeHtml(stack ? stack.name : idea.category)}</span>
           <span class="badge ${status.className}">${escapeHtml(status.label)}</span>
           ${idea.completedAt ? `<span class="badge badge-success">concluída</span>` : ''}
+          ${idea.archivedAt ? `<span class="badge badge-warning">arquivada</span>` : ''}
         </div>
         <div class="subcopy">${escapeHtml(formatDate(idea.createdAt))}</div>
         ${session ? `<div class="subcopy">Sessão: ${escapeHtml(session.name)}</div>` : ''}
@@ -1183,7 +1226,7 @@
       if (state.selectedStackId) {
         const stack = getStackById(state.selectedStackId);
 
-        const allRelated = ideas
+        const allRelated = getActiveIdeas()
           .filter(idea => idea.stackId === state.selectedStackId)
           .sort((a, b) => {
             if (Boolean(a.completed) !== Boolean(b.completed)) {
@@ -1217,7 +1260,8 @@
               <div class="micro" style="margin-bottom:4px;">Pilha</div>
               <h3>${escapeHtml(stack.name)}</h3>
             </div>
-            <div style="display:flex; gap:8px;">
+            <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
+              ${completedCount > 0 ? `<button id="archive-completed-btn" class="btn-warning" type="button" style="padding:10px 12px;">Arquivar concluídas</button>` : ''}
               <button id="redistribute-stack-btn" class="btn-soft" type="button" style="padding:10px 12px;">Reorganizar</button>
               <button id="back-to-stacks-btn" class="btn-soft" type="button" style="padding:10px 12px;">Voltar</button>
             </div>
@@ -1244,9 +1288,14 @@
 
         document.getElementById('back-to-stacks-btn').addEventListener('click', () => {
           state.selectedStackId = '';
-          state.stackTodoFilter = 'all';
+          state.stackTodoFilter = 'open';
           renderNotesScreen();
         });
+
+        const archiveBtn = document.getElementById('archive-completed-btn');
+        if (archiveBtn) {
+          archiveBtn.addEventListener('click', () => archiveCompletedInStack(stack.id));
+        }
 
         const redistributeBtn = document.getElementById('redistribute-stack-btn');
         if (redistributeBtn) {
@@ -1342,10 +1391,12 @@
       const list = document.createElement('div');
       list.className = 'list';
 
+      const activeIdeas = getActiveIdeas();
+
       stacks.forEach(stack => {
         const color = getCategoryColor(stack.category || 'Soltas');
-        const count = ideas.filter(idea => idea.stackId === stack.id).length;
-        const completedCount = ideas.filter(idea => idea.stackId === stack.id && idea.completed).length;
+        const count = activeIdeas.filter(idea => idea.stackId === stack.id).length;
+        const completedCount = activeIdeas.filter(idea => idea.stackId === stack.id && idea.completed).length;
 
         const item = document.createElement('button');
         item.type = 'button';
@@ -1366,7 +1417,7 @@
 
         item.addEventListener('click', () => {
           state.selectedStackId = stack.id;
-          state.stackTodoFilter = 'all';
+          state.stackTodoFilter = 'open';
           renderNotesScreen();
         });
 
@@ -1431,14 +1482,15 @@
     }
 
     function renderInsights() {
-      const recentWeek = ideas.filter(i => isWithinDays(i.createdAt, 7));
+      const activeIdeas = getActiveIdeas();
+      const recentWeek = activeIdeas.filter(i => isWithinDays(i.createdAt, 7));
       const groups = getGroupedIdeas();
       const title = document.getElementById('insight-title');
       const summary = document.getElementById('insight-summary');
       const active = getActiveSession();
       const insightActions = document.getElementById('insight-actions');
 
-      if (!ideas.length) {
+      if (!activeIdeas.length) {
         title.textContent = 'Sem atividade recente';
         summary.textContent = 'Conforme você registra notas, padrões aparecem aqui.';
       } else {
@@ -1799,7 +1851,7 @@
       const stack = getStackById(stackId);
       if (!stack) return;
 
-      const notesInStack = ideas.filter(idea => idea.stackId === stackId);
+      const notesInStack = getActiveIdeas().filter(idea => idea.stackId === stackId);
 
       if (notesInStack.length < 3) {
         showToast('Essa pilha precisa ter pelo menos 3 notas.');
@@ -1826,7 +1878,7 @@
         return;
       }
 
-      const notesInStack = ideas
+      const notesInStack = getActiveIdeas()
         .filter(idea => idea.stackId === stackId)
         .map(idea => ({
           id: idea.id,
@@ -1871,11 +1923,9 @@
         const action = String(item.action || '').toLowerCase().trim();
 
         const note = getIdeaById(noteId);
-        if (!note) continue;
+        if (!note || note.archived) continue;
 
-        if (action === 'keep') {
-          continue;
-        }
+        if (action === 'keep') continue;
 
         if (action === 'move') {
           let targetStack = null;
@@ -1918,11 +1968,6 @@
 
           attachIdeaToStack(noteId, targetStack.id);
           movedCount += 1;
-          continue;
-        }
-
-        if (action === 'unclassified') {
-          continue;
         }
       }
 
@@ -1960,6 +2005,8 @@
         stackId: null,
         completed: false,
         completedAt: null,
+        archived: false,
+        archivedAt: null,
         classification: {
           action: 'pending',
           reason: 'Aguardando classificação.',
@@ -2033,7 +2080,7 @@
           classificationLog = null;
           state.selectedStackId = '';
           state.selectedSessionFilterId = '';
-          state.stackTodoFilter = 'all';
+          state.stackTodoFilter = 'open';
           saveIdeas();
           saveStacks();
           saveClassificationLog();
@@ -2191,7 +2238,7 @@
     document.getElementById('view-recent-btn').addEventListener('click', () => {
       state.notesMode = 'recent';
       state.selectedStackId = '';
-      state.stackTodoFilter = 'all';
+      state.stackTodoFilter = 'open';
       renderNotesScreen();
     });
 
