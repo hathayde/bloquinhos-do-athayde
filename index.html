@@ -1,42 +1,57 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Pilha</title>
-  <meta name="description" content="Pilha" />
-  <link rel="icon" type="image/png" href="icon-pilha.png" />
-  <link rel="apple-touch-icon" href="icon-pilha.png" />
-  <meta name="theme-color" content="#111318" />
+  <meta charset="utf-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no"
+  />
+  <meta name="theme-color" content="#070b1c" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="apple-touch-icon" href="/icon-512.png" />
+  <title>Bloquinhos do Athayde</title>
   <style>
     :root {
-      --bg: #f6f5f2;
-      --bg-2: #efeeea;
-      --surface: rgba(255,255,255,0.82);
-      --surface-strong: rgba(255,255,255,0.94);
-      --surface-soft: rgba(255,255,255,0.66);
-      --line: rgba(17,24,39,0.065);
-      --line-strong: rgba(17,24,39,0.095);
-      --text: #111318;
-      --muted: #6b7280;
-      --muted-2: #4b5563;
-      --accent: #2563eb;
-      --accent-soft: rgba(37,99,235,0.08);
-      --success: #15803d;
-      --success-soft: rgba(21,128,61,0.08);
-      --warning: #b45309;
-      --warning-soft: rgba(180,83,9,0.08);
-      --danger: #be123c;
-      --danger-soft: rgba(190,18,60,0.08);
-      --shadow-1: 0 1px 2px rgba(17,24,39,0.018);
-      --shadow-2: 0 8px 24px rgba(17,24,39,0.04);
-      --radius-xl: 24px;
-      --radius-lg: 18px;
-      --radius-md: 14px;
-      --radius-sm: 10px;
-      --safe-top: max(18px, env(safe-area-inset-top));
-      --safe-bottom: max(18px, env(safe-area-inset-bottom));
-      --content-width: 430px;
+      --bg-1: #040714;
+      --bg-2: #070b1c;
+      --bg-3: #0c1331;
+
+      --panel-bg-top: rgba(17, 24, 54, 0.78);
+      --panel-bg-bottom: rgba(9, 14, 31, 0.88);
+      --panel-border: rgba(255, 255, 255, 0.07);
+
+      --board-top: #17265f;
+      --board-mid: #0f1b44;
+      --board-bottom: #091024;
+      --board-glow: rgba(60, 203, 255, 0.05);
+
+      --cell-empty-top: #1a2757;
+      --cell-empty-mid: #131d45;
+      --cell-empty-bottom: #0d1530;
+
+      --text: #f7f9ff;
+      --muted: #b5c0dc;
+      --muted-2: #7d8db8;
+
+      --accent-purple: #b93cff;
+      --accent-blue: #3ccbff;
+      --accent-yellow: #ffd400;
+      --accent-orange: #ff9800;
+
+      --shadow: 0 24px 70px rgba(0, 0, 0, 0.32);
+      --shadow-soft: 0 12px 28px rgba(0, 0, 0, 0.16);
+
+      --radius-lg: 26px;
+      --cell-gap: 3px;
+      --board-size: min(92vw, 440px);
+      --cell-size: calc((var(--board-size) - (7 * var(--cell-gap))) / 8);
+
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-right: env(safe-area-inset-right, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-left: env(safe-area-inset-left, 0px);
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -44,2290 +59,2725 @@
     html, body {
       margin: 0;
       min-height: 100%;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;
-      background:
-        radial-gradient(circle at top, rgba(255,255,255,0.72), transparent 24%),
-        linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
       color: var(--text);
-      -webkit-font-smoothing: antialiased;
-      text-rendering: optimizeLegibility;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      overscroll-behavior: none;
+      background:
+        radial-gradient(900px 520px at 50% -8%, rgba(185, 60, 255, 0.16), transparent 56%),
+        radial-gradient(760px 430px at 82% 14%, rgba(60, 203, 255, 0.10), transparent 54%),
+        radial-gradient(540px 320px at 18% 20%, rgba(255, 212, 0, 0.045), transparent 56%),
+        linear-gradient(180deg, var(--bg-1), var(--bg-2) 46%, #030610 100%);
     }
 
-    body { letter-spacing: -0.012em; }
+    body { min-height: 100dvh; }
+    button { font: inherit; color: inherit; }
+
+    .app {
+      min-height: 100dvh;
+      padding:
+        calc(var(--safe-top) + 8px)
+        calc(var(--safe-right) + 12px)
+        calc(var(--safe-bottom) + 16px)
+        calc(var(--safe-left) + 12px);
+      display: flex;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
 
     .shell {
-      max-width: var(--content-width);
-      min-height: 100vh;
-      margin: 0 auto;
-      position: relative;
-      padding: var(--safe-top) 16px calc(92px + var(--safe-bottom));
-    }
-
-    .screen { display: none; animation: fadeUp 180ms cubic-bezier(.2,.8,.2,1); }
-    .screen.active { display: block; }
-
-    .brand-lockup {
-      display: inline-flex;
-      align-items: center;
-      gap: 0;
-      margin-bottom: 0;
-    }
-
-    .brand-logo {
-      height: 56px;
-      width: auto;
-      display: block;
+      width: min(100%, 460px);
+      min-height: 100%;
+      display: grid;
+      grid-template-rows: auto auto 1fr auto auto;
+      gap: 8px;
+      align-items: start;
     }
 
     .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 12px;
-      margin-bottom: 10px;
+      display: grid;
+      grid-template-columns: 1fr auto auto auto;
+      align-items: center;
+      gap: 8px;
+      padding: 0 2px;
     }
 
-    .mark {
-      font-size: 11px;
-      font-weight: 650;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--muted);
-      margin-bottom: 8px;
+    .title {
+      margin: 0;
+      font-size: clamp(21px, 5vw, 28px);
+      line-height: 1;
+      letter-spacing: -0.04em;
+      font-weight: 900;
+      color: #f8f9ff;
+      text-shadow:
+        0 2px 10px rgba(0, 0, 0, 0.14),
+        0 0 18px rgba(185, 60, 255, 0.10);
     }
 
-    h1, h2, h3, p { margin: 0; }
-    h1 { font-size: 22px; line-height: 1.04; letter-spacing: -0.045em; font-weight: 650; max-width: 220px; }
-    h2 { font-size: 20px; line-height: 1.08; letter-spacing: -0.035em; font-weight: 640; }
-    h3 { font-size: 15px; line-height: 1.25; letter-spacing: -0.02em; font-weight: 620; }
+    .subtitle { display: none; }
 
-    .icon-plain {
-      width: 36px;
-      height: 36px;
-      padding: 0;
+    .button, .icon-button {
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)),
+        linear-gradient(180deg, rgba(14,20,44,.90), rgba(9,13,29,.94));
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        0 8px 18px rgba(0, 0, 0, 0.16);
+      cursor: pointer;
+      user-select: none;
+      transition: transform 120ms ease, filter 120ms ease, background 120ms ease, border-color 120ms ease;
+      backdrop-filter: blur(8px);
+    }
+
+    .button {
+      border-radius: 14px;
+      padding: 8px 12px;
+      min-height: 38px;
+      font-weight: 800;
+    }
+
+    .icon-button {
+      width: 38px;
+      height: 38px;
       border-radius: 12px;
-      border: 1px solid rgba(17,24,39,0.045);
-      background: rgba(255,255,255,0.68);
-      color: var(--muted-2);
       display: grid;
       place-items: center;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.34);
-      font-size: 14px;
-    }
-
-    .surface {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: var(--radius-xl);
-      box-shadow: var(--shadow-2);
-      backdrop-filter: blur(18px) saturate(1.04);
-      -webkit-backdrop-filter: blur(18px) saturate(1.04);
-    }
-
-    .section { padding: 14px; margin-bottom: 12px; }
-    .section-soft { padding: 0; margin-bottom: 12px; }
-
-    .capture { padding: 12px; }
-
-    .capture-shell {
-      border-radius: 20px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.84), rgba(255,255,255,0.78));
-      border: 1px solid rgba(17,24,39,0.04);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.56), 0 8px 20px rgba(17,24,39,0.03);
-      padding: 8px;
-      transition: border-color 140ms ease, box-shadow 140ms ease, background 140ms ease, transform 140ms ease;
-    }
-
-    .capture-shell:focus-within {
-      border-color: rgba(37,99,235,0.1);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.62), 0 0 0 4px rgba(37,99,235,0.045), 0 10px 24px rgba(17,24,39,0.035);
-      background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.8));
-      transform: translateY(-1px);
-    }
-
-    textarea, input, select, button { font: inherit; }
-
-    textarea, input, select {
-      width: 100%;
-      appearance: none;
-      border: 1px solid transparent;
-      background: transparent;
-      color: var(--text);
-      outline: none;
-      border-radius: 16px;
-      transition: box-shadow 140ms ease, background 140ms ease, border-color 140ms ease;
-    }
-
-    textarea {
-      min-height: 148px;
-      resize: none;
-      padding: 14px 14px 12px;
       font-size: 16px;
-      line-height: 1.56;
-      letter-spacing: -0.015em;
+      padding: 0;
     }
 
-    input, select {
-      padding: 13px 14px;
-      background: rgba(255,255,255,0.62);
-      border: 1px solid rgba(17,24,39,0.05);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.38);
+    .button:active, .icon-button:active { transform: scale(0.98); }
+    .button:hover, .icon-button:hover {
+      filter: brightness(1.04);
+      border-color: rgba(255,255,255,.10);
+    }
+    .icon-button.off { opacity: 0.65; }
+
+    .panel {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.025), rgba(255,255,255,.008)),
+        linear-gradient(180deg, var(--panel-bg-top), var(--panel-bg-bottom));
+      border: 1px solid var(--panel-border);
+      border-radius: var(--radius-lg);
+      box-shadow:
+        0 18px 42px rgba(0,0,0,.22),
+        inset 0 1px 0 rgba(255,255,255,.035);
+      backdrop-filter: blur(14px);
     }
 
-    input:focus, select:focus, textarea:focus {
-      border-color: rgba(37,99,235,0.16);
-      box-shadow: 0 0 0 4px rgba(37,99,235,0.05);
-      background: rgba(255,255,255,0.82);
+    .stats {
+      padding: 8px;
+      display: grid;
+      gap: 6px;
     }
 
-    ::placeholder { color: #9aa1ad; }
-
-    .capture-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 7px 6px 4px;
-      border-top: 1px solid rgba(17,24,39,0.04);
-      margin-top: 2px;
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
     }
 
-    .micro { font-size: 12px; color: var(--muted); line-height: 1.35; }
-
-    button {
-      border: 1px solid rgba(17,24,39,0.055);
-      background: rgba(255,255,255,0.82);
-      color: var(--text);
-      border-radius: 14px;
-      padding: 11px 14px;
-      cursor: pointer;
-      transition: transform 140ms ease, background 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.34);
+    .stat-card {
+      min-height: 54px;
+      border-radius: 18px;
+      padding: 7px 8px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.012)),
+        linear-gradient(180deg, rgba(18,26,58,.72), rgba(11,16,35,.76));
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      display: grid;
+      align-content: start;
+      gap: 2px;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.03),
+        0 6px 16px rgba(0,0,0,.07);
+      transition: transform 180ms ease, box-shadow 180ms ease;
     }
 
-    button:hover { transform: translateY(-1px); background: rgba(255,255,255,0.94); }
-    button:active { transform: scale(0.985); }
-
-    .btn-primary {
-      background: rgba(17,24,39,0.96);
-      color: #fff;
-      border-color: transparent;
-      box-shadow: 0 6px 16px rgba(17,24,39,0.11);
-      font-weight: 620;
-      min-width: 76px;
-      padding: 10px 14px;
+    .stat-card.best-hit {
+      transform: translateY(-1px) scale(1.03);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.04),
+        0 0 18px rgba(255, 212, 0, 0.16);
     }
 
-    .btn-primary:hover { background: rgba(17,24,39,1); }
-    .btn-soft { background: rgba(255,255,255,0.72); }
-    .btn-danger { background: var(--danger-soft); color: var(--danger); }
-    .btn-success { background: var(--success-soft); color: var(--success); }
-    .btn-warning { background: var(--warning-soft); color: var(--warning); }
-
-    .section-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 10px;
+    .stat-label {
+      font-size: 10px;
+      color: var(--muted-2);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-weight: 800;
     }
 
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .list { display: flex; flex-direction: column; gap: 10px; }
-
-    .segmented {
-      display: inline-grid;
-      grid-auto-flow: column;
-      gap: 4px;
-      padding: 4px;
-      border-radius: 14px;
-      background: rgba(255,255,255,0.58);
-      border: 1px solid rgba(17,24,39,0.045);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.34);
+    .stat-value {
+      font-size: clamp(20px, 4vw, 24px);
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      color: #f8f9ff;
     }
 
-    .segmented button {
-      padding: 9px 12px;
-      border-radius: 10px;
-      border: none;
-      background: transparent;
-      box-shadow: none;
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 600;
+    .message {
+      min-height: 14px;
+      font-size: 11px;
+      font-weight: 800;
+      color: #dce4ff;
+      letter-spacing: 0.01em;
+      text-align: center;
+      transition: transform 180ms ease, opacity 180ms ease;
     }
 
-    .segmented button.active { background: rgba(17,24,39,0.055); color: var(--text); }
+    .message.pop { transform: translateY(-1px) scale(1.02); }
+    .message.warn { color: #ffd0dc; }
 
-    .note-row, .stack-row, .subtle-card {
+    .board-wrap {
+      display: grid;
+      place-items: center;
+      min-height: 0;
       position: relative;
-      border-radius: 15px;
-      background: rgba(255,255,255,0.64);
-      border: 1px solid rgba(17,24,39,0.035);
-      padding: 11px 13px;
-      box-shadow: var(--shadow-1);
-      transition: background 140ms ease, border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
     }
 
-    .note-row:hover, .stack-row:hover, .subtle-card:hover {
-      background: rgba(255,255,255,0.82);
-      border-color: rgba(17,24,39,0.05);
-      box-shadow: 0 8px 20px rgba(17,24,39,0.03);
-      transform: translateY(-1px);
+    .board-shell {
+      width: var(--board-size);
+      display: grid;
+      justify-items: center;
+      gap: 8px;
+      position: relative;
     }
 
-    .note-row::before, .stack-row::before {
+    .board {
+      position: relative;
+      width: var(--board-size);
+      height: var(--board-size);
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: var(--cell-gap);
+      padding: 7px;
+      border-radius: 32px;
+      background:
+        radial-gradient(150% 110% at 0% 0%, rgba(185, 60, 255, 0.14), transparent 48%),
+        radial-gradient(115% 95% at 100% 0%, rgba(60, 203, 255, 0.11), transparent 44%),
+        linear-gradient(180deg, var(--board-top), var(--board-mid) 45%, var(--board-bottom));
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.08),
+        inset 0 0 24px var(--board-glow),
+        inset 0 -18px 32px rgba(0,0,0,.16),
+        0 22px 48px rgba(0, 0, 0, 0.24);
+      touch-action: none;
+      user-select: none;
+      overflow: hidden;
+      transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease, opacity 180ms ease;
+    }
+
+    .board.combo-glow {
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.08),
+        inset 0 0 28px rgba(60,203,255,.08),
+        inset 0 -18px 32px rgba(0,0,0,.16),
+        0 22px 48px rgba(0, 0, 0, 0.24),
+        0 0 22px rgba(185, 60, 255, 0.14);
+      filter: saturate(1.04);
+    }
+
+    .board.record-glow {
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.08),
+        inset 0 0 28px rgba(255,212,0,.08),
+        inset 0 -18px 32px rgba(0,0,0,.16),
+        0 22px 48px rgba(0, 0, 0, 0.24),
+        0 0 28px rgba(255, 212, 0, 0.15);
+      filter: saturate(1.06) brightness(1.015);
+    }
+
+    .board.gameover-soft {
+      opacity: .86;
+      filter: saturate(.9) brightness(.93);
+      transform: scale(.992);
+    }
+
+    .board::before {
       content: "";
       position: absolute;
-      left: 0;
-      top: 10px;
-      bottom: 10px;
-      width: 2px;
-      border-radius: 999px;
-      background: var(--accent-line, #cbd5e1);
-      opacity: 0.82;
+      inset: 0;
+      pointer-events: none;
+      border-radius: inherit;
+      background:
+        radial-gradient(90% 60% at 50% 0%, rgba(255,255,255,.06), transparent 60%);
+      mix-blend-mode: screen;
+      opacity: .7;
     }
 
-    .note-text { white-space: pre-wrap; word-break: break-word; line-height: 1.6; font-size: 15px; }
-    .body-copy, .subcopy { margin-top: 6px; color: var(--muted-2); font-size: 14px; line-height: 1.5; }
-    .chips, .status-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 10px; }
+    .board::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      border-radius: inherit;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.03), transparent 18%, transparent 78%, rgba(0,0,0,.10));
+    }
 
-    .badge {
-      padding: 5px 9px;
+    .cell {
+      appearance: none;
+      border: 0;
+      padding: 0;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: 13px;
+      background:
+        radial-gradient(140% 90% at 25% 18%, rgba(255,255,255,.030), transparent 45%),
+        linear-gradient(180deg, var(--cell-empty-top), var(--cell-empty-mid) 48%, var(--cell-empty-bottom));
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.025),
+        inset 0 -1px 0 rgba(0,0,0,.10);
+      transition: transform 140ms ease, filter 140ms ease, background 140ms ease, opacity 140ms ease, box-shadow 140ms ease;
+    }
+
+    .cell.filled {
+      box-shadow:
+        inset 0 2px 0 rgba(255,255,255,.22),
+        inset 0 -2px 0 rgba(0,0,0,.12),
+        0 7px 14px rgba(0,0,0,.14),
+        0 0 0 1px rgba(255,255,255,.03);
+    }
+
+    .cell.clearing { animation: clearPulse 260ms ease forwards; }
+
+    @keyframes clearPulse {
+      0% { transform: scale(1); filter: brightness(1); opacity: 1; }
+      50% { transform: scale(0.88); filter: brightness(1.35); opacity: 0.82; }
+      100% { transform: scale(0.4); filter: brightness(1.8); opacity: 0; }
+    }
+
+    .cell.preview-valid {
+      filter: brightness(1.10) saturate(1.05);
+      opacity: 0.86;
+      transform: scale(0.94);
+    }
+
+    .cell.preview-invalid {
+      background: linear-gradient(180deg, rgba(255, 108, 145, 0.40), rgba(205, 56, 96, 0.24));
+      transform: scale(0.94);
+    }
+
+    .cell.anchor {
+      outline: 1px solid rgba(255,255,255,.05);
+      outline-offset: -1px;
+    }
+
+    .combo-chip {
+      min-height: 24px;
+      padding: 0 12px;
       border-radius: 999px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.025)),
+        linear-gradient(180deg, rgba(12,18,40,.88), rgba(9,14,30,.94));
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      display: inline-grid;
+      place-items: center;
       font-size: 11px;
-      font-weight: 600;
-      border: 1px solid transparent;
-      white-space: nowrap;
+      font-weight: 900;
+      color: #eff3ff;
+      box-shadow: var(--shadow-soft);
+      transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease, opacity 160ms ease;
     }
 
-    .badge-neutral { color: var(--muted); background: rgba(17,24,39,0.04); border-color: rgba(17,24,39,0.05); }
-    .badge-primary { color: var(--accent); background: var(--accent-soft); border-color: rgba(37,99,235,0.08); }
-    .badge-success { color: var(--success); background: var(--success-soft); border-color: rgba(21,128,61,0.08); }
-    .badge-warning { color: var(--warning); background: var(--warning-soft); border-color: rgba(180,83,9,0.08); }
-    .badge-danger { color: var(--danger); background: var(--danger-soft); border-color: rgba(190,18,60,0.08); }
+    .combo-chip.hot {
+      transform: translateY(-1px) scale(1.03);
+      box-shadow:
+        var(--shadow-soft),
+        0 0 16px rgba(185, 60, 255, 0.12);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.025)),
+        linear-gradient(180deg, rgba(28,20,58,.92), rgba(10,14,30,.96));
+    }
 
-    .inline-context {
+    .combo-chip.fade-soft { opacity: .72; }
+
+    .tray {
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .tray-header {
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: space-between;
       gap: 12px;
-      padding: 8px 2px 10px;
-      border-bottom: 1px solid rgba(17,24,39,0.05);
-      margin-bottom: 12px;
+      min-height: 18px;
     }
 
-    .todo-row {
-      display: flex;
-      align-items: flex-start;
+    .tray-title {
+      font-size: 11px;
+      font-weight: 900;
+      color: var(--muted-2);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .pieces {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
       gap: 10px;
     }
 
-    .todo-check {
-      margin-top: 2px;
-      width: 18px;
-      height: 18px;
-      accent-color: #111318;
-      flex: 0 0 auto;
-    }
-
-    .note-row.is-completed,
-    .stack-note-row.is-completed {
-      opacity: 0.58;
-    }
-
-    .note-row.is-completed .note-text,
-    .stack-note-row.is-completed .note-text {
-      text-decoration: line-through;
-      text-decoration-thickness: 1.5px;
-    }
-
-    .empty {
-      border-radius: 16px;
-      border: 1px dashed rgba(17,24,39,0.08);
-      background: rgba(255,255,255,0.34);
-      color: var(--muted);
-      text-align: center;
-      padding: 20px 16px;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    .bottom-nav {
-      position: fixed;
-      left: 50%;
-      transform: translateX(-50%);
-      bottom: calc(10px + env(safe-area-inset-bottom));
-      width: min(388px, calc(100vw - 22px));
-      padding: 6px;
-      border-radius: 18px;
-      background: rgba(255,255,255,0.66);
-      border: 1px solid rgba(17,24,39,0.055);
-      backdrop-filter: blur(22px) saturate(1.08);
-      -webkit-backdrop-filter: blur(22px) saturate(1.08);
+    .piece-card {
+      position: relative;
+      min-height: 102px;
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.055);
+      background:
+        radial-gradient(120% 90% at 50% 0%, rgba(255,255,255,.06), transparent 55%),
+        linear-gradient(180deg, rgba(19,29,66,.82), rgba(10,15,34,.94));
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 4px;
-      box-shadow: 0 10px 24px rgba(17,24,39,0.05);
-      z-index: 30;
+      place-items: center;
+      padding: 10px 6px;
+      cursor: pointer;
+      user-select: none;
+      touch-action: none;
+      transition: transform 120ms ease, border-color 120ms ease, background 120ms ease, opacity 120ms ease, box-shadow 120ms ease;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.03),
+        inset 0 -12px 18px rgba(0,0,0,.10),
+        0 10px 22px rgba(0,0,0,.08);
     }
 
-    .tab-btn {
-      padding: 9px 6px;
-      border-radius: 13px;
+    .piece-card.active {
+      background:
+        radial-gradient(120% 100% at 50% 0%, rgba(185,60,255,.18), transparent 55%),
+        linear-gradient(180deg, rgba(24,34,72,.94), rgba(12,17,38,.98));
+      border-color: rgba(185, 60, 255, 0.22);
+      transform: translateY(-2px) scale(1.01);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.05),
+        inset 0 -12px 18px rgba(0,0,0,.10),
+        0 10px 22px rgba(185,60,255,.10);
+    }
+
+    .piece-card.placed { animation: piecePop 220ms ease; }
+
+    @keyframes piecePop {
+      0% { transform: scale(1); }
+      50% { transform: scale(0.92); }
+      100% { transform: scale(1); }
+    }
+
+    .piece-card.unplayable { opacity: 0.42; filter: grayscale(0.24); }
+    .piece-card.used { opacity: 0.14; pointer-events: none; }
+
+    .piece-grid {
+      display: inline-grid;
+      gap: 3px;
+      filter: drop-shadow(0 5px 10px rgba(0,0,0,.12));
+    }
+
+    .piece-mini {
+      width: 17px;
+      height: 17px;
+      border-radius: 6px;
       background: transparent;
-      border: none;
-      color: var(--muted);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      font-size: 10px;
-      letter-spacing: 0.01em;
-      font-weight: 560;
-      box-shadow: none;
+      opacity: 0;
+      transition: transform 120ms ease, filter 120ms ease;
     }
 
-    .tab-btn.active { color: var(--text); background: rgba(17,24,39,0.045); }
-    .tab-mark { display: none; }
+    .piece-mini.on {
+      opacity: 1;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.22),
+        inset 0 -1px 0 rgba(0,0,0,.08),
+        0 4px 10px rgba(0,0,0,.10),
+        0 0 0 1px rgba(255,255,255,.03);
+    }
 
-    .modal-backdrop {
+    .piece-card.active .piece-mini.on {
+      transform: translateY(-1px);
+      filter: brightness(1.03);
+    }
+
+    .piece-tag {
+      position: absolute;
+      left: 8px;
+      right: 8px;
+      bottom: 7px;
+      text-align: center;
+      font-size: 10px;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 10px;
+      color: rgba(180, 192, 233, 0.44);
+      padding-bottom: 2px;
+      letter-spacing: 0.04em;
+    }
+
+    .overlay {
       position: fixed;
       inset: 0;
-      background: rgba(15,23,42,0.16);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+      padding: 24px;
       display: none;
-      align-items: flex-end;
-      justify-content: center;
+      place-items: center;
+      background: rgba(3, 7, 18, 0.62);
+      backdrop-filter: blur(14px);
       z-index: 40;
-      padding: 16px;
     }
 
-    .modal-backdrop.open { display: flex; }
+    .overlay.show { display: grid; }
 
-    .sheet {
-      width: min(430px, 100%);
-      max-height: 88vh;
+    .overlay .button,
+    .overlay .icon-button {
+      touch-action: manipulation;
+    }
+
+    .dialog {
+      width: min(100%, 390px);
+      padding: 20px;
+      border-radius: 30px;
+      background:
+        radial-gradient(140% 120% at 50% 0%, rgba(185, 60, 255, 0.11), transparent 44%),
+        linear-gradient(180deg, rgba(15,22,48,.95), rgba(8,12,27,.98));
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      box-shadow:
+        0 24px 62px rgba(0,0,0,.30),
+        inset 0 1px 0 rgba(255,255,255,.03);
+      display: grid;
+      gap: 14px;
+      text-align: center;
+      animation: gameOverIn 240ms ease;
+      max-height: min(84dvh, 760px);
       overflow: auto;
-      border-radius: 24px;
-      background: rgba(255,255,255,0.94);
-      border: 1px solid rgba(17,24,39,0.055);
-      box-shadow: 0 20px 60px rgba(17,24,39,0.12);
-      padding: 16px;
     }
 
-    .sheet-handle {
-      width: 42px;
-      height: 4px;
-      border-radius: 999px;
-      background: rgba(17,24,39,0.12);
-      margin: 2px auto 14px;
+    @keyframes gameOverIn {
+      0% { transform: translateY(8px) scale(0.96); opacity: 0; }
+      100% { transform: translateY(0) scale(1); opacity: 1; }
     }
 
-    .toast-root {
+    .dialog h2 { margin: 0; font-size: 28px; letter-spacing: -0.04em; }
+    .dialog p { margin: 0; color: var(--muted); line-height: 1.45; }
+
+    .ghost {
       position: fixed;
-      left: 50%;
-      transform: translateX(-50%);
-      bottom: calc(82px + env(safe-area-inset-bottom));
-      width: min(380px, calc(100vw - 32px));
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      z-index: 60;
+      inset: auto auto 0 0;
       pointer-events: none;
+      z-index: 30;
+      display: none;
+      filter: drop-shadow(0 12px 26px rgba(0, 0, 0, 0.28));
+      transform: translate3d(0, 0, 0);
+    }
+
+    .ghost.show { display: block; }
+
+    .ghost-grid {
+      display: inline-grid;
+      gap: 3px;
+      padding: 10px;
+      border-radius: 20px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)),
+        rgba(8, 13, 30, 0.86);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+    }
+
+    .ghost-cell {
+      width: max(16px, min(42px, calc(var(--cell-size) * 0.7)));
+      height: max(16px, min(42px, calc(var(--cell-size) * 0.7)));
+      border-radius: 7px;
+      opacity: 0;
+    }
+
+    .ghost-cell.on {
+      opacity: 1;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.20),
+        0 4px 10px rgba(0,0,0,.10);
+    }
+
+    .floating-score {
+      position: absolute;
+      right: 12px;
+      top: 8px;
+      z-index: 8;
+      font-size: 18px;
+      font-weight: 900;
+      color: #ffe38a;
+      text-shadow: 0 4px 14px rgba(0,0,0,.25);
+      pointer-events: none;
+      animation: floatUp 900ms ease forwards;
+    }
+
+    @keyframes floatUp {
+      0% { transform: translateY(8px) scale(0.92); opacity: 0; }
+      15% { transform: translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateY(-28px) scale(1.04); opacity: 0; }
+    }
+
+    .particles {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 7;
+    }
+
+    .particle {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      opacity: 0;
+      animation: particleBurst 520ms ease forwards;
+      box-shadow: 0 0 12px currentColor;
+    }
+
+    @keyframes particleBurst {
+      0% { transform: translate(0, 0) scale(0.3); opacity: 1; }
+      100% { transform: translate(var(--dx), var(--dy)) scale(1); opacity: 0; }
+    }
+
+    .record-banner {
+      position: absolute;
+      left: 50%;
+      top: 22%;
+      transform: translateX(-50%);
+      z-index: 12;
+      padding: 12px 18px;
+      border-radius: 999px;
+      background:
+        radial-gradient(120% 120% at 50% 0%, rgba(255,255,255,.40), transparent 38%),
+        linear-gradient(180deg, rgba(255,220,72,.98), rgba(255,160,0,.96));
+      color: #5b3900;
+      font-size: 17px;
+      font-weight: 900;
+      letter-spacing: 0.03em;
+      box-shadow:
+        0 18px 34px rgba(0,0,0,.20),
+        0 0 36px rgba(255, 212, 0, 0.18);
+      animation: recordIn 1500ms cubic-bezier(.2,.8,.2,1) forwards;
+      pointer-events: none;
+      white-space: nowrap;
+      text-transform: uppercase;
+    }
+
+    @keyframes recordIn {
+      0% { opacity: 0; transform: translateX(-50%) translateY(18px) scale(0.72) rotate(-4deg); }
+      12% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1.10) rotate(2deg); }
+      24% { transform: translateX(-50%) translateY(-2px) scale(1) rotate(-1deg); }
+      72% { opacity: 1; transform: translateX(-50%) translateY(-8px) scale(1.02) rotate(0deg); }
+      100% { opacity: 0; transform: translateX(-50%) translateY(-28px) scale(0.96); }
+    }
+
+    .hero { display: grid; gap: 14px; text-align: left; }
+    .hero-title { margin: 0; font-size: 34px; line-height: .95; letter-spacing: -.05em; }
+    .hero-actions { display: grid; grid-template-columns: 1fr; gap: 10px; }
+
+    .primary-cta,
+    .gameover-primary {
+      min-height: 48px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.08);
+      background:
+        linear-gradient(180deg, rgba(255,245,162,.98), rgba(255,187,36,.96));
+      color: #4f3300;
+      font-weight: 900;
+      box-shadow: 0 10px 22px rgba(255,186,34,.18);
+    }
+
+    .secondary-cta,
+    .gameover-secondary {
+      min-height: 46px;
+      border-radius: 18px;
+      font-weight: 800;
+    }
+
+    .continue-cta {
+      min-height: 48px;
+      border-radius: 18px;
+      font-weight: 900;
+      border: 1px solid rgba(255,255,255,.08);
+    }
+
+    .overview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    .mini-panel {
+      padding: 12px;
+      border-radius: 20px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.012)),
+        linear-gradient(180deg, rgba(15,23,50,.74), rgba(9,14,31,.80));
+      border: 1px solid rgba(255,255,255,.05);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.025);
+      display: grid;
+      gap: 8px;
+      text-align: left;
+    }
+
+    .mini-title {
+      font-size: 11px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted-2);
+      font-weight: 900;
+    }
+
+    .mini-big {
+      font-size: 28px;
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: -.05em;
+    }
+
+    .mini-list { display: grid; gap: 8px; }
+
+    .history-item {
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.04);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .history-meta { display: grid; gap: 3px; }
+    .history-title { font-size: 13px; font-weight: 800; }
+    .history-sub { font-size: 11px; color: var(--muted); }
+    .history-score { font-size: 18px; font-weight: 900; letter-spacing: -.04em; }
+
+    .empty-state {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+      padding: 8px 0;
+    }
+
+    .stats-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+
+    .goal-card, .next-card, .end-summary-card {
+      padding: 12px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,.06);
+      display: grid;
+      gap: 8px;
+      text-align: left;
+    }
+
+    .goal-card {
+      background:
+        linear-gradient(180deg, rgba(255,212,0,.08), rgba(255,255,255,.015)),
+        linear-gradient(180deg, rgba(16,23,50,.72), rgba(9,14,30,.80));
+    }
+
+    .next-card {
+      background:
+        linear-gradient(180deg, rgba(185,60,255,.10), rgba(255,255,255,.015)),
+        linear-gradient(180deg, rgba(16,23,50,.72), rgba(9,14,30,.80));
+    }
+
+    .end-summary-card {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.012)),
+        linear-gradient(180deg, rgba(15,23,50,.74), rgba(9,14,30,.82));
+    }
+
+    .goal-head, .next-head, .end-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .goal-title, .next-title, .end-title {
+      font-size: 11px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-weight: 900;
+    }
+
+    .goal-title { color: #ffe27a; }
+    .next-title { color: #dec8ff; }
+    .end-title { color: #d8ddff; }
+
+    .goal-progress-text, .next-progress-text, .end-progress-text {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .goal-desc, .next-desc, .end-desc {
+      font-size: 14px;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .goal-sub, .next-sub, .end-sub {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.35;
+      min-height: 16px;
+    }
+
+    .goal-bar, .next-bar, .end-bar {
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.07);
+      overflow: hidden;
+    }
+
+    .goal-fill, .next-fill, .end-fill {
+      height: 100%;
+      border-radius: inherit;
+      transition: width 220ms ease;
+    }
+
+    .goal-fill,
+    .end-fill.goal {
+      background: linear-gradient(90deg, #ffd400, #ff9800);
+    }
+
+    .next-fill,
+    .end-fill.achievement {
+      background: linear-gradient(90deg, #b93cff, #3ccbff);
+    }
+
+    .achievement-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .achievement-card {
+      padding: 10px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.045);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.012)),
+        linear-gradient(180deg, rgba(15,23,50,.74), rgba(9,14,30,.82));
+      display: grid;
+      gap: 6px;
+      min-height: 84px;
+      align-content: start;
+    }
+
+    .achievement-card.locked {
+      opacity: .55;
+      filter: grayscale(.25);
+    }
+
+    .achievement-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .achievement-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      background: rgba(255,255,255,.07);
+      font-size: 15px;
+    }
+
+    .achievement-name {
+      font-size: 13px;
+      font-weight: 900;
+      line-height: 1.15;
+    }
+
+    .achievement-desc {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .achievement-meta {
+      font-size: 10px;
+      color: #ffe27a;
+      font-weight: 900;
+      letter-spacing: .04em;
+      text-transform: uppercase;
     }
 
     .toast {
-      pointer-events: auto;
-      border-radius: 16px;
-      background: rgba(17,24,39,0.92);
-      color: white;
-      padding: 12px 14px;
-      font-size: 13px;
-      line-height: 1.4;
-      box-shadow: 0 14px 34px rgba(17,24,39,0.18);
-      animation: fadeUp 160ms ease;
+      position: fixed;
+      left: 50%;
+      bottom: calc(var(--safe-bottom) + 20px);
+      transform: translateX(-50%) translateY(14px);
+      width: min(92vw, 360px);
+      padding: 14px 16px;
+      border-radius: 20px;
+      background:
+        radial-gradient(120% 120% at 50% 0%, rgba(255,212,0,.16), transparent 42%),
+        linear-gradient(180deg, rgba(15,23,50,.98), rgba(9,14,30,.98));
+      border: 1px solid rgba(255,255,255,.08);
+      box-shadow: 0 18px 34px rgba(0,0,0,.24);
+      display: grid;
+      gap: 6px;
+      z-index: 80;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 180ms ease, transform 180ms ease;
     }
 
-    .hidden { display: none !important; }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
 
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
+    .toast-title {
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #ffe27a;
+    }
+
+    .toast-main {
+      font-size: 15px;
+      font-weight: 900;
+      line-height: 1.25;
+    }
+
+    .toast-sub {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .gameover-hero {
+      display: grid;
+      gap: 6px;
+      text-align: center;
+    }
+
+    .gameover-line {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .gameover-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .gameover-actions {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    [hidden] { display: none !important; }
+
+    @media (max-width: 420px) {
+      .app {
+        padding-left: calc(var(--safe-left) + 10px);
+        padding-right: calc(var(--safe-right) + 10px);
+      }
+
+      .title { font-size: 20px; }
+      .button, .icon-button { min-height: 38px; }
+      .button { padding: 8px 11px; }
+      .stats { padding: 8px; }
+      .stat-value { font-size: 20px; }
+      .piece-mini { width: 15px; height: 15px; }
+      .piece-card { min-height: 96px; }
+      .record-banner { font-size: 14px; padding: 8px 14px; }
+      .hero-title { font-size: 28px; }
+      .overview-grid, .stats-grid-2, .achievement-grid, .gameover-grid { grid-template-columns: 1fr; }
+      .mini-big, .history-score { font-size: 20px; }
     }
   </style>
 </head>
 <body>
-  <div class="shell">
-    <section class="screen active" data-screen="capture">
-      <div class="topbar">
+  <div class="app">
+    <main class="shell">
+      <section class="topbar">
         <div>
-          <div class="brand-lockup">
-            <img class="brand-logo" src="logo-pilha.png" alt="Pilha" />
+          <h1 class="title">Bloquinhos</h1>
+          <p class="subtitle">Feito para funcionar direito no iPhone.</p>
+        </div>
+        <button class="icon-button" id="homeButton" type="button" aria-label="Tela inicial">🏠</button>
+        <button class="icon-button" id="soundButton" type="button" aria-label="Alternar som">🔊</button>
+        <button class="button" id="restartButton" type="button">Reiniciar</button>
+      </section>
+
+      <section class="panel stats" id="statsPanel">
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-label">Pontuação</div>
+            <div class="stat-value" id="scoreValue">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Combo</div>
+            <div class="stat-value" id="comboValue">0</div>
+          </div>
+          <div class="stat-card" id="bestCard">
+            <div class="stat-label">Recorde</div>
+            <div class="stat-value" id="bestValue">0</div>
           </div>
         </div>
-        <button id="open-settings-btn-top" class="icon-plain" type="button" aria-label="Abrir ajustes">⋯</button>
-      </div>
+        <div class="message" id="messageText"></div>
+      </section>
 
-      <div id="session-inline" class="hidden"></div>
-
-      <div class="surface section capture">
-        <div class="capture-shell">
-          <textarea id="idea-input" placeholder="Escreva uma nota"></textarea>
-          <div class="capture-footer">
-            <div class="micro" id="capture-hint">⌘/Ctrl + Enter</div>
-            <button id="add-idea-btn" class="btn-primary" type="button">Salvar</button>
-          </div>
+      <section class="board-wrap" id="boardWrap">
+        <div class="board-shell">
+          <div class="board" id="board" aria-label="Tabuleiro do jogo"></div>
+          <div class="particles" id="particles"></div>
+          <div class="combo-chip" id="comboChip">Sem combo</div>
         </div>
-      </div>
+      </section>
 
-      <div class="section-soft" style="margin-top:10px;">
-        <div class="micro" style="margin-bottom:6px;">Última nota</div>
-        <div id="last-note-preview"><div class="micro">Sua última nota aparece aqui.</div></div>
-      </div>
-    </section>
-
-    <section class="screen" data-screen="notes">
-      <div class="topbar">
-        <div>
-          <div class="brand-lockup">
-            <img class="brand-logo" src="logo-pilha.png" alt="Pilha" />
-          </div>
-          <h2>Biblioteca</h2>
+      <section class="panel tray" id="trayPanel">
+        <div class="tray-header">
+          <div class="tray-title">Peças disponíveis</div>
+          <div class="tray-title" id="movesText">Carregando…</div>
         </div>
-        <button id="open-settings-btn-notes" class="icon-plain" type="button" aria-label="Abrir ajustes">⋯</button>
-      </div>
+        <div class="pieces" id="pieces"></div>
+      </section>
 
-      <div style="margin-bottom:12px;">
-        <input id="search-input" type="text" placeholder="Buscar" />
-      </div>
-
-      <div class="section-head" style="margin-bottom:12px;">
-        <div class="segmented">
-          <button id="view-recent-btn" class="active" type="button">Recentes</button>
-          <button id="view-stacks-btn" type="button">Pilhas</button>
-        </div>
-        <button id="toggle-filters-btn" class="btn-soft" type="button" style="padding:10px 12px;">Filtros</button>
-      </div>
-
-      <div id="active-filters-inline" class="hidden" style="margin-bottom:12px;"></div>
-
-      <div id="notes-main"></div>
-    </section>
-
-    <section class="screen" data-screen="insights">
-      <div class="topbar">
-        <div>
-          <div class="brand-lockup">
-            <img class="brand-logo" src="logo-pilha.png" alt="Pilha" />
-          </div>
-          <h2>Sinais</h2>
-        </div>
-        <button id="open-settings-btn-insights" class="icon-plain" type="button" aria-label="Abrir ajustes">⋯</button>
-      </div>
-
-      <div class="section-soft" style="margin-bottom:16px;">
-        <div class="micro" style="margin-bottom:6px;">Síntese</div>
-        <h2 id="insight-title">Sem atividade recente</h2>
-        <div id="insight-summary" class="subcopy" style="max-width: 320px; margin-top: 8px;">Conforme você registra notas, padrões aparecem aqui.</div>
-      </div>
-
-      <div id="insight-actions" class="hidden" style="margin-bottom:12px;"></div>
-
-      <div class="section-soft" style="margin-bottom:14px;">
-        <div class="micro" style="margin-bottom:8px;">Padrões relevantes</div>
-        <div id="consolidation-root" class="list"></div>
-      </div>
-
-      <div class="section-soft">
-        <div class="section-head" style="margin-bottom:8px;">
-          <div class="micro">Sessões recentes</div>
-          <button id="new-session-btn" class="btn-soft" type="button" style="padding:10px 12px;">Nova</button>
-        </div>
-        <div id="insight-sessions" class="list"></div>
-      </div>
-    </section>
+      <div class="footer">Mobile first • sem canvas gigante</div>
+    </main>
   </div>
 
-  <nav class="bottom-nav">
-    <button class="tab-btn active" data-tab="capture" type="button"><span class="tab-mark"></span><span>Capturar</span></button>
-    <button class="tab-btn" data-tab="notes" type="button"><span class="tab-mark"></span><span>Notas</span></button>
-    <button class="tab-btn" data-tab="insights" type="button"><span class="tab-mark"></span><span>Insights</span></button>
-  </nav>
-
-  <div id="settings-modal" class="modal-backdrop">
-    <div class="sheet">
-      <div class="sheet-handle"></div>
-      <div class="section-head" style="margin-bottom:12px;">
-        <div>
-          <div class="mark" style="margin-bottom:6px;">Ajustes</div>
-          <h2>Configuração</h2>
-        </div>
-        <button id="close-settings-btn" class="icon-plain" type="button" aria-label="Fechar ajustes">−</button>
+  <div class="overlay" id="startOverlay">
+    <div class="dialog hero">
+      <div>
+        <h2 class="hero-title">Bloquinhos</h2>
       </div>
 
-      <div class="surface section">
-        <div class="micro" style="margin-bottom:6px;">Classificação</div>
-        <label style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
-          <div>
-            <h3 style="margin:0;">Classificar ao salvar</h3>
-            <div class="subcopy" style="margin-top:4px;">Organiza novas notas automaticamente.</div>
-          </div>
-          <input id="llm-auto-classify" type="checkbox" style="width:20px; height:20px; accent-color:#2563eb;" />
-        </label>
-        <div id="llm-status-card" style="margin-top:10px;"><div class="micro">Sem configuração.</div></div>
+      <div class="hero-actions">
+        <button class="button continue-cta" id="continuePlayButton" type="button" hidden>Continuar partida</button>
+        <button class="button primary-cta" id="startPlayButton" type="button">Jogar agora</button>
+        <button class="button secondary-cta" id="openStatsButton" type="button">Ver estatísticas</button>
       </div>
 
-      <div class="surface section">
-        <div class="micro" style="margin-bottom:6px;">Modelo</div>
-        <div class="list">
-          <select id="llm-provider">
-            <option value="openai" selected>OpenAI compatível</option>
-            <option value="openrouter">OpenRouter</option>
-            <option value="custom">Custom URL</option>
-          </select>
-          <div id="advanced-fields" class="list hidden">
-            <input id="llm-base-url" type="text" placeholder="Base URL" />
-          </div>
-          <input id="llm-model" type="text" placeholder="Modelo" value="gpt-4.1-nano" />
-          <input id="llm-api-key" type="password" placeholder="API key" />
-          <button id="toggle-advanced-btn" class="btn-soft" type="button">Avançado</button>
+      <div class="goal-card">
+        <div class="goal-head">
+          <div class="goal-title">Próxima meta</div>
+          <div class="goal-progress-text" id="goalProgressText">0%</div>
         </div>
-        <div style="height:10px"></div>
-        <div class="grid-2">
-          <button id="save-llm-settings-btn" type="button" class="btn-primary">Salvar</button>
-          <button id="test-llm-btn" type="button" class="btn-soft">Testar</button>
+        <div class="goal-desc" id="goalDescription">Faça 150 pontos em uma partida</div>
+        <div class="goal-sub" id="goalRemainingText">Faltam 150 pontos</div>
+        <div class="goal-bar"><div class="goal-fill" id="goalFill" style="width:0%"></div></div>
+      </div>
+
+      <div class="next-card">
+        <div class="next-head">
+          <div class="next-title">Próxima conquista</div>
+          <div class="next-progress-text" id="nextAchievementProgressText">0%</div>
+        </div>
+        <div class="next-desc" id="nextAchievementDescription">✨ Primeira linha</div>
+        <div class="next-sub" id="nextAchievementRemainingText">Limpe 1 linha</div>
+        <div class="next-bar"><div class="next-fill" id="nextAchievementFill" style="width:0%"></div></div>
+      </div>
+
+      <div class="overview-grid">
+        <div class="mini-panel">
+          <div class="mini-title">Melhor score</div>
+          <div class="mini-big" id="heroBest">0</div>
+          <div class="history-sub" id="heroMatches">0 partidas jogadas</div>
+        </div>
+
+        <div class="mini-panel">
+          <div class="mini-title">Última conquista</div>
+          <div class="mini-big" id="heroLastAchievement">—</div>
+          <div class="history-sub" id="heroLastAchievementMeta">Ainda sem conquistas</div>
         </div>
       </div>
 
-      <div class="surface section">
-        <div class="micro" style="margin-bottom:6px;">Dados</div>
-        <div class="grid-2">
-          <button id="export-json-btn" type="button" class="btn-success">Exportar</button>
-          <button id="clear-all-btn" type="button" class="btn-danger">Apagar</button>
-        </div>
-      </div>
-
-      <div class="surface section">
-        <div class="section-head" style="margin-bottom:8px;">
-          <div class="micro">Log recente</div>
-          <button id="toggle-log-btn" class="btn-soft" type="button" style="padding:10px 12px;">Mostrar</button>
-        </div>
-        <div id="classification-log" class="hidden"><div class="micro">Sem classificações.</div></div>
-      </div>
-
-      <div class="surface section">
-        <div class="section-head" style="margin-bottom:8px;">
-          <div class="micro">Debug da classificação</div>
-          <button id="toggle-debug-btn" class="btn-soft" type="button" style="padding:10px 12px;">Mostrar</button>
-        </div>
-        <div id="classification-debug" class="hidden">
-          <div class="micro">Sem execução recente.</div>
-        </div>
+      <div class="mini-panel">
+        <div class="mini-title">Últimas partidas</div>
+        <div class="mini-list" id="startHistoryList"></div>
       </div>
     </div>
   </div>
 
-  <div id="filters-modal" class="modal-backdrop">
-    <div class="sheet">
-      <div class="sheet-handle"></div>
-      <div class="section-head" style="margin-bottom:12px;">
-        <div>
-          <div class="mark" style="margin-bottom:6px;">Filtros</div>
-          <h2>Refinar notas</h2>
+  <div class="overlay" id="statsOverlay">
+    <div class="dialog">
+      <h2>Suas estatísticas</h2>
+      <p>Uma visão geral das partidas, metas e conquistas.</p>
+      <div class="stats-grid-2" id="globalStatsGrid"></div>
+
+      <div class="goal-card">
+        <div class="goal-head">
+          <div class="goal-title">Meta atual</div>
+          <div class="goal-progress-text" id="statsGoalProgressText">0%</div>
         </div>
-        <button id="close-filters-btn" class="icon-plain" type="button" aria-label="Fechar filtros">−</button>
+        <div class="goal-desc" id="statsGoalDescription">Faça 150 pontos em uma partida</div>
+        <div class="goal-sub" id="statsGoalRemainingText">Faltam 150 pontos</div>
+        <div class="goal-bar"><div class="goal-fill" id="statsGoalFill" style="width:0%"></div></div>
       </div>
-      <div class="list">
-        <select id="filter-category-sheet"></select>
-        <select id="filter-time-sheet">
-          <option value="all">Tudo</option>
-          <option value="today">Hoje</option>
-          <option value="7d">7 dias</option>
-          <option value="meeting">Reunião</option>
-        </select>
-        <select id="filter-session-sheet">
-          <option value="">Sessão</option>
-        </select>
+
+      <div class="next-card">
+        <div class="next-head">
+          <div class="next-title">Próxima conquista</div>
+          <div class="next-progress-text" id="statsNextAchievementProgressText">0%</div>
+        </div>
+        <div class="next-desc" id="statsNextAchievementDescription">✨ Primeira linha</div>
+        <div class="next-sub" id="statsNextAchievementRemainingText">Limpe 1 linha</div>
+        <div class="next-bar"><div class="next-fill" id="statsNextAchievementFill" style="width:0%"></div></div>
       </div>
-      <div style="height:12px"></div>
-      <div class="grid-2">
-        <button id="apply-filters-btn" class="btn-primary" type="button">Aplicar</button>
-        <button id="clear-filters-btn" class="btn-soft" type="button">Limpar</button>
+
+      <div class="mini-panel">
+        <div class="mini-title">Conquistas</div>
+        <div class="achievement-grid" id="achievementGrid"></div>
+      </div>
+
+      <div class="mini-panel">
+        <div class="mini-title">Histórico recente</div>
+        <div class="mini-list" id="fullHistoryList"></div>
+      </div>
+
+      <button class="button" id="closeStatsButton" type="button">Fechar</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="gameOverOverlay">
+    <div class="dialog">
+      <div class="gameover-hero">
+        <h2 id="gameOverTitle">Boa run</h2>
+        <div class="gameover-line" id="gameOverLine">Você foi longe. Bora tentar mais uma?</div>
+      </div>
+
+      <div class="gameover-grid">
+        <div class="stat-card">
+          <div class="stat-label">Pontuação final</div>
+          <div class="stat-value" id="finalScore">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Melhor resultado</div>
+          <div class="stat-value" id="finalBest">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Linhas limpas</div>
+          <div class="stat-value" id="finalLines">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Melhor combo</div>
+          <div class="stat-value" id="finalCombo">0</div>
+        </div>
+      </div>
+
+      <div class="end-summary-card">
+        <div class="end-head">
+          <div class="end-title">Quase lá na meta</div>
+          <div class="end-progress-text" id="endGoalProgressText">0%</div>
+        </div>
+        <div class="end-desc" id="endGoalDescription">Faça 150 pontos em uma partida</div>
+        <div class="end-sub" id="endGoalRemainingText">Faltam 150 pontos</div>
+        <div class="end-bar"><div class="end-fill goal" id="endGoalFill" style="width:0%"></div></div>
+      </div>
+
+      <div class="end-summary-card">
+        <div class="end-head">
+          <div class="end-title">Quase lá na conquista</div>
+          <div class="end-progress-text" id="endAchievementProgressText">0%</div>
+        </div>
+        <div class="end-desc" id="endAchievementDescription">✨ Primeira linha</div>
+        <div class="end-sub" id="endAchievementRemainingText">Limpe 1 linha</div>
+        <div class="end-bar"><div class="end-fill achievement" id="endAchievementFill" style="width:0%"></div></div>
+      </div>
+
+      <div class="gameover-actions">
+        <button class="button gameover-primary" id="restartOverlayButton" type="button">Jogar de novo</button>
+        <button class="button gameover-secondary" id="gameOverMenuButton" type="button">Voltar ao menu</button>
       </div>
     </div>
   </div>
 
-  <div id="note-modal" class="modal-backdrop">
-    <div class="sheet">
-      <div class="sheet-handle"></div>
-      <div class="section-head" style="margin-bottom:12px;">
-        <div>
-          <div class="mark" style="margin-bottom:6px;">Nota</div>
-          <h2>Detalhe</h2>
-        </div>
-        <button id="close-note-btn" class="icon-plain" type="button" aria-label="Fechar detalhe">−</button>
-      </div>
-      <div class="list">
-        <textarea id="note-editor" placeholder="Editar nota" style="min-height:180px; background:rgba(255,255,255,0.62); border:1px solid rgba(17,24,39,0.05); box-shadow: inset 0 1px 0 rgba(255,255,255,0.38);"></textarea>
-        <div id="note-meta" class="subtle-card"></div>
-      </div>
-      <div style="height:12px"></div>
-      <div class="grid-2">
-        <button id="save-note-btn" class="btn-primary" type="button">Salvar</button>
-        <button id="delete-note-btn" class="btn-danger" type="button">Apagar</button>
-      </div>
-    </div>
+  <div class="ghost" id="ghost">
+    <div class="ghost-grid" id="ghostGrid"></div>
   </div>
 
-  <div id="session-modal" class="modal-backdrop">
-    <div class="sheet">
-      <div class="sheet-handle"></div>
-      <div class="section-head" style="margin-bottom:12px;">
-        <div>
-          <div class="mark" style="margin-bottom:6px;">Sessão</div>
-          <h2>Nova sessão</h2>
-        </div>
-        <button id="close-session-btn" class="icon-plain" type="button" aria-label="Fechar criação de sessão">−</button>
-      </div>
-      <input id="session-name-input" type="text" placeholder="Nome da sessão" />
-      <div style="height:12px"></div>
-      <div class="grid-2">
-        <button id="create-session-btn" class="btn-primary" type="button">Iniciar</button>
-        <button id="cancel-session-btn" class="btn-soft" type="button">Cancelar</button>
-      </div>
-    </div>
+  <div class="toast" id="achievementToast">
+    <div class="toast-title">Conquista desbloqueada</div>
+    <div class="toast-main" id="achievementToastTitle">Nova conquista</div>
+    <div class="toast-sub" id="achievementToastDesc">Descrição</div>
   </div>
 
-  <div id="confirm-modal" class="modal-backdrop">
-    <div class="sheet">
-      <div class="sheet-handle"></div>
-      <div class="section-head" style="margin-bottom:12px;">
-        <div>
-          <div class="mark" style="margin-bottom:6px;">Confirmar</div>
-          <h2 id="confirm-title">Tem certeza?</h2>
-        </div>
-        <button id="close-confirm-btn" class="icon-plain" type="button" aria-label="Fechar confirmação">−</button>
-      </div>
-      <div id="confirm-description" class="subcopy">Essa ação não pode ser desfeita.</div>
-      <div style="height:12px"></div>
-      <div class="grid-2">
-        <button id="confirm-action-btn" class="btn-danger" type="button">Confirmar</button>
-        <button id="cancel-confirm-btn" class="btn-soft" type="button">Cancelar</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="toast-root" class="toast-root"></div>
-
-  <script src="llm.js"></script>
   <script>
-    const STORAGE_KEY = 'pilha:v12:ideas';
-    const SESSION_KEY = 'pilha:v12:sessions';
-    const STACKS_KEY = 'pilha:v12:stacks';
-    const LLM_SETTINGS_KEY = 'pilha:v12:llm-settings';
-    const CLASSIFICATION_LOG_KEY = 'pilha:v12:classification-log';
-
-    const CATEGORY_RULES = [
-      { category: 'Produto', keywords: ['produto', 'feature', 'funcionalidade', 'app', 'ux', 'ui', 'usuario', 'usuário', 'mvp'] },
-      { category: 'Negócio', keywords: ['negocio', 'negócio', 'venda', 'receita', 'preco', 'preço', 'cliente', 'mercado', 'oferta'] },
-      { category: 'Operação', keywords: ['processo', 'operacao', 'operação', 'fluxo', 'time', 'equipe', 'handoff', 'rotina'] },
-      { category: 'Conteúdo', keywords: ['conteudo', 'conteúdo', 'post', 'roteiro', 'texto', 'copy', 'mensagem', 'campanha'] },
-      { category: 'Pessoal', keywords: ['lembrete', 'vida', 'familia', 'família', 'saude', 'saúde', 'casa', 'filhos'] },
-      { category: 'Projeto', keywords: ['projeto', 'roadmap', 'entrega', 'sprint', 'tarefa', 'prioridade', 'escopo'] }
-    ];
-
-    const CATEGORY_COLORS = {
-      'Produto': { solid: '#38bdf8', soft: 'rgba(56,189,248,0.12)' },
-      'Negócio': { solid: '#f59e0b', soft: 'rgba(245,158,11,0.12)' },
-      'Operação': { solid: '#34d399', soft: 'rgba(52,211,153,0.12)' },
-      'Conteúdo': { solid: '#a78bfa', soft: 'rgba(167,139,250,0.12)' },
-      'Pessoal': { solid: '#fb7185', soft: 'rgba(251,113,133,0.12)' },
-      'Projeto': { solid: '#22c55e', soft: 'rgba(34,197,94,0.12)' },
-      'Soltas': { solid: '#94a3b8', soft: 'rgba(148,163,184,0.12)' }
-    };
-
-    let ideas = [];
-    let sessions = [];
-    let stacks = [];
-    let classificationLog = null;
-
-    let state = {
-      search: '',
-      selectedCategory: 'Todas',
-      timeFilter: 'all',
-      selectedSessionFilterId: '',
-      activeSessionId: '',
-      currentScreen: 'capture',
-      selectedStackId: '',
-      notesMode: 'recent',
-      noteDetailId: '',
-      confirmAction: null,
-      showAdvancedSettings: false,
-      showClassificationLog: false,
-      showClassificationDebug: false,
-      stackTodoFilter: 'open'
-    };
-
-    const screens = [...document.querySelectorAll('.screen')];
-    const tabs = [...document.querySelectorAll('.tab-btn')];
-    const ideaInput = document.getElementById('idea-input');
-    const searchInput = document.getElementById('search-input');
-    const notesMain = document.getElementById('notes-main');
-    const consolidationRoot = document.getElementById('consolidation-root');
-    const settingsModal = document.getElementById('settings-modal');
-    const filtersModal = document.getElementById('filters-modal');
-    const noteModal = document.getElementById('note-modal');
-    const sessionModal = document.getElementById('session-modal');
-    const confirmModal = document.getElementById('confirm-modal');
-    const toastRoot = document.getElementById('toast-root');
-
-    function normalize(text) {
-      return String(text || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    }
-
-    function safeId() {
-      if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
-      return 'id-' + Date.now() + '-' + Math.random().toString(16).slice(2);
-    }
-
-    function getActiveIdeas() {
-      return ideas.filter(idea => !idea.archived);
-    }
-
-    function showToast(message) {
-      const div = document.createElement('div');
-      div.className = 'toast';
-      div.textContent = message;
-      toastRoot.appendChild(div);
-      setTimeout(() => div.remove(), 2600);
-    }
-
-    function openModal(el) { el.classList.add('open'); }
-    function closeModal(el) { el.classList.remove('open'); }
-
-    function askConfirmation({ title, description, actionLabel = 'Confirmar', action }) {
-      state.confirmAction = action;
-      document.getElementById('confirm-title').textContent = title;
-      document.getElementById('confirm-description').textContent = description;
-      document.getElementById('confirm-action-btn').textContent = actionLabel;
-      openModal(confirmModal);
-    }
-
-    function inferCategory(text) {
-      const normalized = normalize(text);
-      let bestCategory = 'Soltas';
-      let bestScore = 0;
-
-      for (const rule of CATEGORY_RULES) {
-        let score = 0;
-        for (const keyword of rule.keywords) {
-          if (normalized.includes(normalize(keyword))) score += 1;
-        }
-        if (score > bestScore) {
-          bestScore = score;
-          bestCategory = rule.category;
-        }
-      }
-
-      if (bestScore >= 2) return { category: bestCategory, confidence: 'alta' };
-      if (bestScore === 1) return { category: bestCategory, confidence: 'media' };
-      return { category: 'Soltas', confidence: 'baixa' };
-    }
-
-    function getCategoryColor(category) { return CATEGORY_COLORS[category] || CATEGORY_COLORS['Soltas']; }
-    function getStackById(id) { return stacks.find(stack => stack.id === id) || null; }
-    function getIdeaById(id) { return ideas.find(idea => idea.id === id) || null; }
-    function getSessionById(id) { return sessions.find(session => session.id === id) || null; }
-
-    function formatDate(date) {
-      try {
-        return new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(date));
-      } catch {
-        return date;
-      }
-    }
-
-    function relativeTime(date) {
-      const diff = Date.now() - new Date(date).getTime();
-      const mins = Math.floor(diff / 60000);
-      if (mins < 1) return 'agora';
-      if (mins < 60) return `${mins} min`;
-      const hours = Math.floor(mins / 60);
-      if (hours < 24) return `${hours} h`;
-      const days = Math.floor(hours / 24);
-      return `${days} d`;
-    }
-
-    function isToday(date) {
-      const d = new Date(date);
-      const now = new Date();
-      return (
-        d.getFullYear() === now.getFullYear() &&
-        d.getMonth() === now.getMonth() &&
-        d.getDate() === now.getDate()
-      );
-    }
-
-    function isWithinDays(date, days) {
-      return (Date.now() - new Date(date).getTime()) <= days * 24 * 60 * 60 * 1000;
-    }
-
-    function getActiveSession() {
-      return sessions.find(session => session.id === state.activeSessionId) || null;
-    }
-
-    function isInsideSession(date, session) {
-      if (!session) return true;
-      const target = new Date(date).getTime();
-      const start = new Date(session.startAt).getTime();
-      const end = session.endAt ? new Date(session.endAt).getTime() : Date.now();
-      return target >= start && target <= end;
-    }
-
-    function saveIdeas() { localStorage.setItem(STORAGE_KEY, JSON.stringify(ideas)); }
-    function saveSessions() { localStorage.setItem(SESSION_KEY, JSON.stringify(sessions)); }
-    function saveStacks() { localStorage.setItem(STACKS_KEY, JSON.stringify(stacks)); }
-    function saveClassificationLog() { localStorage.setItem(CLASSIFICATION_LOG_KEY, JSON.stringify(classificationLog)); }
-
-    function loadData() {
-      try {
-        ideas = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]').map(idea => ({
-          completed: false,
-          completedAt: null,
-          archived: false,
-          archivedAt: null,
-          ...idea
-        }));
-        sessions = JSON.parse(localStorage.getItem(SESSION_KEY) || '[]');
-        stacks = JSON.parse(localStorage.getItem(STACKS_KEY) || '[]');
-        classificationLog = JSON.parse(localStorage.getItem(CLASSIFICATION_LOG_KEY) || 'null');
-      } catch (error) {
-        console.error('Erro ao carregar dados locais', error);
-        ideas = [];
-        sessions = [];
-        stacks = [];
-        classificationLog = null;
-      }
-    }
-
-    function getLLMSettings() {
-      try {
-        const saved = JSON.parse(localStorage.getItem(LLM_SETTINGS_KEY) || '{}');
-        return {
-          provider: saved.provider || 'openai',
-          baseUrl: saved.baseUrl || '',
-          model: saved.model || 'gpt-4.1-nano',
-          apiKey: saved.apiKey || '',
-          autoClassify: Boolean(saved.autoClassify)
-        };
-      } catch {
-        return {
-          provider: 'openai',
-          baseUrl: '',
-          model: 'gpt-4.1-nano',
-          apiKey: '',
-          autoClassify: false
-        };
-      }
-    }
-
-    function saveLLMSettings(settings) {
-      localStorage.setItem(LLM_SETTINGS_KEY, JSON.stringify(settings));
-    }
-
-    function getCategories() {
-      return ['Todas', ...Array.from(new Set(getActiveIdeas().map(item => item.category)))];
-    }
-
-    function buildStackSummaries() {
-      const activeIdeas = getActiveIdeas();
-      return stacks.map(stack => {
-        const stackIdeas = activeIdeas.filter(idea => idea.stackId === stack.id).slice(0, 3);
-        return {
-          id: stack.id,
-          name: stack.name,
-          summary: stack.summary || '',
-          noteCount: activeIdeas.filter(idea => idea.stackId === stack.id).length,
-          recent_examples: stackIdeas.map(idea => idea.text)
-        };
-      });
-    }
-
-    function getFilteredIdeas() {
-      let result = [...getActiveIdeas()].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-      if (state.search.trim()) {
-        result = result.filter(item => normalize(item.text).includes(normalize(state.search)));
-      }
-
-      if (state.selectedCategory !== 'Todas') {
-        result = result.filter(item => item.category === state.selectedCategory);
-      }
-
-      if (state.selectedStackId) {
-        result = result.filter(item => item.stackId === state.selectedStackId);
-      }
-
-      if (state.selectedSessionFilterId) {
-        result = result.filter(item => item.sessionId === state.selectedSessionFilterId);
-      }
-
-      if (state.timeFilter === 'today') {
-        result = result.filter(item => isToday(item.createdAt));
-      }
-
-      if (state.timeFilter === '7d') {
-        result = result.filter(item => isWithinDays(item.createdAt, 7));
-      }
-
-      if (state.timeFilter === 'meeting') {
-        const session = getSessionById(state.selectedSessionFilterId) || getActiveSession();
-        result = result.filter(item => isInsideSession(item.createdAt, session));
-      }
-
-      return result;
-    }
-
-    function getGroupedIdeas() {
-      const groups = new Map();
-      for (const idea of getFilteredIdeas()) {
-        const current = groups.get(idea.category) || [];
-        current.push(idea);
-        groups.set(idea.category, current);
-      }
-      return Array.from(groups.entries()).sort((a, b) => b[1].length - a[1].length);
-    }
-
-    function createStack(name, summary, category) {
-      const stack = {
-        id: safeId(),
-        name,
-        summary: summary || '',
-        category: category || 'Soltas',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-      stacks.unshift(stack);
-      saveStacks();
-      return stack;
-    }
-
-    function attachIdeaToStack(ideaId, stackId) {
-      ideas = ideas.map(idea =>
-        idea.id === ideaId
-          ? { ...idea, stackId, updatedAt: new Date().toISOString() }
-          : idea
-      );
-      saveIdeas();
-    }
-
-    function toggleIdeaCompleted(ideaId) {
-      ideas = ideas.map(idea => {
-        if (idea.id !== ideaId) return idea;
-
-        const nextCompleted = !idea.completed;
-        return {
-          ...idea,
-          completed: nextCompleted,
-          completedAt: nextCompleted ? new Date().toISOString() : null,
-          updatedAt: new Date().toISOString()
-        };
-      });
-
-      saveIdeas();
-      renderAll();
-    }
-
-    function archiveCompletedInStack(stackId) {
-      const completedInStack = ideas.filter(idea => idea.stackId === stackId && idea.completed && !idea.archived);
-      if (!completedInStack.length) {
-        showToast('Nenhuma nota concluída para arquivar.');
-        return;
-      }
-
-      askConfirmation({
-        title: 'Arquivar concluídas?',
-        description: `As ${completedInStack.length} notas concluídas desta pilha sairão da visualização principal.`,
-        actionLabel: 'Arquivar',
-        action: () => {
-          ideas = ideas.map(idea => {
-            if (idea.stackId !== stackId || !idea.completed || idea.archived) return idea;
-            return {
-              ...idea,
-              archived: true,
-              archivedAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString()
-            };
-          });
-
-          saveIdeas();
-          state.stackTodoFilter = 'open';
-          renderAll();
-          showToast('Concluídas arquivadas.');
-        }
-      });
-    }
-
-    function ensureFallbackStackForCategory(category) {
-      const existing = stacks.find(stack => stack.category === category && stack.name === category);
-      if (existing) return existing;
-      return createStack(category, 'Pilha criada por classificação local.', category);
-    }
-
-    function setScreen(name) {
-      state.currentScreen = name;
-      screens.forEach(screen => screen.classList.toggle('active', screen.dataset.screen === name));
-      tabs.forEach(tab => tab.classList.toggle('active', tab.dataset.tab === name));
-    }
-
-    function getIdeaStatusMeta(idea) {
-      if (idea.classification?.source === 'llm') return { label: 'IA', className: 'badge-success' };
-      if (idea.classification?.source === 'fallback') return { label: 'Local', className: 'badge-warning' };
-      if (idea.classification?.source === 'error') return { label: 'Erro', className: 'badge-danger' };
-      return { label: 'Pendente', className: 'badge-primary' };
-    }
-
-    function renderCaptureHome() {
-      const last = getActiveIdeas()[0];
-      const preview = document.getElementById('last-note-preview');
-      const sessionInline = document.getElementById('session-inline');
-      const active = getActiveSession();
-
-      if (active) {
-        sessionInline.classList.remove('hidden');
-        sessionInline.innerHTML = `
-          <div class="inline-context">
-            <div>
-              <div class="micro" style="margin-bottom:2px;">Sessão ativa</div>
-              <div style="font-size:14px; font-weight:600; line-height:1.3;">${escapeHtml(active.name)}</div>
-            </div>
-            <button id="inline-end-session-btn" class="btn-soft" type="button" style="padding:10px 12px;">Encerrar</button>
-          </div>
-        `;
-        document.getElementById('inline-end-session-btn').addEventListener('click', endSession);
-      } else {
-        sessionInline.classList.add('hidden');
-        sessionInline.innerHTML = '';
-      }
-
-      document.getElementById('capture-hint').style.opacity = document.activeElement === ideaInput ? '1' : '0.65';
-
-      if (!last) {
-        preview.innerHTML = '<div class="micro">Sua última nota aparece aqui.</div>';
-        return;
-      }
-
-      const stack = last.stackId ? getStackById(last.stackId) : null;
-      const label = stack ? stack.name : last.category;
-      const snippet = last.text.length > 140 ? last.text.slice(0, 140).trim() + '…' : last.text;
-
-      preview.innerHTML = `
-        <div style="font-size:14px; line-height:1.5; color:var(--text);">${escapeHtml(snippet)}</div>
-        <div class="chips" style="margin-top:8px;">
-          <span class="badge badge-neutral">${escapeHtml(label)}</span>
-          <span class="badge badge-neutral">${escapeHtml(relativeTime(last.createdAt))}</span>
-        </div>
-      `;
-    }
-
-    function renderFiltersSheet() {
-      const categories = getCategories();
-      const categoryEl = document.getElementById('filter-category-sheet');
-      const sessionEl = document.getElementById('filter-session-sheet');
-      const timeEl = document.getElementById('filter-time-sheet');
-
-      categoryEl.innerHTML = '';
-      sessionEl.innerHTML = '<option value="">Sessão</option>';
-
-      for (const category of categories) {
-        const option = document.createElement('option');
-        option.value = category;
-        option.textContent = category;
-        if (category === state.selectedCategory) option.selected = true;
-        categoryEl.appendChild(option);
-      }
-
-      for (const session of sessions) {
-        const option = document.createElement('option');
-        option.value = session.id;
-        option.textContent = session.name;
-        if (session.id === state.selectedSessionFilterId) option.selected = true;
-        sessionEl.appendChild(option);
-      }
-
-      timeEl.value = state.timeFilter;
-    }
-
-    function openNoteDetail(id) {
-      state.noteDetailId = id;
-      const idea = getIdeaById(id);
-      if (!idea) return;
-
-      const stack = idea.stackId ? getStackById(idea.stackId) : null;
-      const session = idea.sessionId ? getSessionById(idea.sessionId) : null;
-      const status = getIdeaStatusMeta(idea);
-
-      document.getElementById('note-editor').value = idea.text;
-      document.getElementById('note-meta').innerHTML = `
-        <div class="micro" style="margin-bottom:6px;">Contexto</div>
-        <div class="chips" style="margin-top:0;">
-          <span class="badge badge-neutral">${escapeHtml(stack ? stack.name : idea.category)}</span>
-          <span class="badge ${status.className}">${escapeHtml(status.label)}</span>
-          ${idea.completedAt ? `<span class="badge badge-success">concluída</span>` : ''}
-          ${idea.archivedAt ? `<span class="badge badge-warning">arquivada</span>` : ''}
-        </div>
-        <div class="subcopy">${escapeHtml(formatDate(idea.createdAt))}</div>
-        ${session ? `<div class="subcopy">Sessão: ${escapeHtml(session.name)}</div>` : ''}
-      `;
-      openModal(noteModal);
-    }
-
-    function renderRecentNotesList(container) {
-      const filtered = getFilteredIdeas();
-
-      if (!filtered.length) {
-        container.innerHTML = '<div class="empty">Nenhuma nota encontrada.</div>';
-        return;
-      }
-
-      const list = document.createElement('div');
-      list.className = 'list';
-
-      filtered.forEach(idea => {
-        const ideaColor = getCategoryColor(idea.category);
-        const stack = idea.stackId ? getStackById(idea.stackId) : null;
-
-        const item = document.createElement('button');
-        item.type = 'button';
-        item.className = 'note-row' + (idea.completed ? ' is-completed' : '');
-        item.style.setProperty('--accent-line', ideaColor.solid);
-        item.style.textAlign = 'left';
-        item.style.width = '100%';
-
-        item.innerHTML = `
-          <div class="note-text">${escapeHtml(idea.text)}</div>
-          <div class="chips">
-            <span class="badge badge-neutral">${escapeHtml(stack ? stack.name : idea.category)}</span>
-            <span class="badge badge-neutral">${escapeHtml(relativeTime(idea.createdAt))}</span>
-            ${idea.completedAt ? `<span class="badge badge-success">concluída</span>` : ''}
-          </div>
-        `;
-
-        item.addEventListener('click', () => openNoteDetail(idea.id));
-        list.appendChild(item);
-      });
-
-      container.appendChild(list);
-    }
-
-    function renderStacksMode(container) {
-      if (state.selectedStackId) {
-        const stack = getStackById(state.selectedStackId);
-
-        const allRelated = getActiveIdeas()
-          .filter(idea => idea.stackId === state.selectedStackId)
-          .sort((a, b) => {
-            if (Boolean(a.completed) !== Boolean(b.completed)) {
-              return a.completed ? 1 : -1;
-            }
-            return new Date(b.createdAt) - new Date(a.createdAt);
-          });
-
-        const openCount = allRelated.filter(item => !item.completed).length;
-        const completedCount = allRelated.filter(item => item.completed).length;
-
-        let related = allRelated;
-        if (state.stackTodoFilter === 'open') {
-          related = allRelated.filter(item => !item.completed);
-        }
-        if (state.stackTodoFilter === 'done') {
-          related = allRelated.filter(item => item.completed);
-        }
-
-        if (!stack) {
-          state.selectedStackId = '';
-          renderNotesScreen();
-          return;
-        }
-
-        const header = document.createElement('div');
-        header.className = 'section-soft';
-        header.innerHTML = `
-          <div class="section-head" style="margin-bottom:8px;">
-            <div>
-              <div class="micro" style="margin-bottom:4px;">Pilha</div>
-              <h3>${escapeHtml(stack.name)}</h3>
-            </div>
-            <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
-              ${completedCount > 0 ? `<button id="archive-completed-btn" class="btn-warning" type="button" style="padding:10px 12px;">Arquivar concluídas</button>` : ''}
-              <button id="redistribute-stack-btn" class="btn-soft" type="button" style="padding:10px 12px;">Reorganizar</button>
-              <button id="back-to-stacks-btn" class="btn-soft" type="button" style="padding:10px 12px;">Voltar</button>
-            </div>
-          </div>
-
-          <div class="subcopy">${escapeHtml(stack.summary || 'Sem resumo.')}</div>
-
-          <div class="chips">
-            <span class="badge badge-neutral">${allRelated.length} notas</span>
-            <span class="badge badge-primary">${openCount} abertas</span>
-            <span class="badge badge-success">${completedCount} concluídas</span>
-          </div>
-
-          <div style="margin-top:10px;">
-            <div class="segmented">
-              <button id="stack-filter-all-btn" class="${state.stackTodoFilter === 'all' ? 'active' : ''}" type="button">Todas</button>
-              <button id="stack-filter-open-btn" class="${state.stackTodoFilter === 'open' ? 'active' : ''}" type="button">Abertas</button>
-              <button id="stack-filter-done-btn" class="${state.stackTodoFilter === 'done' ? 'active' : ''}" type="button">Concluídas</button>
-            </div>
-          </div>
-        `;
-
-        container.appendChild(header);
-
-        document.getElementById('back-to-stacks-btn').addEventListener('click', () => {
-          state.selectedStackId = '';
-          state.stackTodoFilter = 'open';
-          renderNotesScreen();
-        });
-
-        const archiveBtn = document.getElementById('archive-completed-btn');
-        if (archiveBtn) {
-          archiveBtn.addEventListener('click', () => archiveCompletedInStack(stack.id));
-        }
-
-        const redistributeBtn = document.getElementById('redistribute-stack-btn');
-        if (redistributeBtn) {
-          redistributeBtn.addEventListener('click', () => openRedistributeStackConfirm(stack.id));
-        }
-
-        const stackFilterAllBtn = document.getElementById('stack-filter-all-btn');
-        const stackFilterOpenBtn = document.getElementById('stack-filter-open-btn');
-        const stackFilterDoneBtn = document.getElementById('stack-filter-done-btn');
-
-        if (stackFilterAllBtn) {
-          stackFilterAllBtn.addEventListener('click', () => {
-            state.stackTodoFilter = 'all';
-            renderNotesScreen();
-          });
-        }
-
-        if (stackFilterOpenBtn) {
-          stackFilterOpenBtn.addEventListener('click', () => {
-            state.stackTodoFilter = 'open';
-            renderNotesScreen();
-          });
-        }
-
-        if (stackFilterDoneBtn) {
-          stackFilterDoneBtn.addEventListener('click', () => {
-            state.stackTodoFilter = 'done';
-            renderNotesScreen();
-          });
-        }
-
-        if (!related.length) {
-          let emptyText = 'Nenhuma nota nesta pilha.';
-          if (state.stackTodoFilter === 'open') emptyText = 'Nenhuma nota aberta nesta pilha.';
-          if (state.stackTodoFilter === 'done') emptyText = 'Nenhuma nota concluída nesta pilha.';
-
-          container.insertAdjacentHTML('beforeend', `<div class="empty">${emptyText}</div>`);
-          return;
-        }
-
-        const list = document.createElement('div');
-        list.className = 'list';
-
-        related.forEach(idea => {
-          const ideaColor = getCategoryColor(idea.category);
-          const item = document.createElement('button');
-          item.type = 'button';
-          item.className = 'note-row stack-note-row' + (idea.completed ? ' is-completed' : '');
-          item.style.setProperty('--accent-line', ideaColor.solid);
-          item.style.textAlign = 'left';
-          item.style.width = '100%';
-
-          item.innerHTML = `
-            <div class="todo-row">
-              <input
-                class="todo-check"
-                type="checkbox"
-                ${idea.completed ? 'checked' : ''}
-                data-note-complete="${idea.id}"
-              />
-              <div style="flex:1; min-width:0;">
-                <div class="note-text">${escapeHtml(idea.text)}</div>
-                <div class="chips">
-                  <span class="badge badge-neutral">${escapeHtml(relativeTime(idea.createdAt))}</span>
-                  ${idea.completedAt ? `<span class="badge badge-success">concluída</span>` : ''}
-                </div>
-              </div>
-            </div>
-          `;
-
-          item.addEventListener('click', () => openNoteDetail(idea.id));
-
-          const checkbox = item.querySelector(`[data-note-complete="${idea.id}"]`);
-          if (checkbox) {
-            checkbox.addEventListener('click', (event) => {
-              event.stopPropagation();
-              toggleIdeaCompleted(idea.id);
-            });
+    (() => {
+      const GRID_SIZE = 8;
+      const BEST_KEY = "bloquinhos_best_score_v1";
+      const SOUND_KEY = "bloquinhos_sound_enabled_v1";
+      const META_KEY = "bloquinhos_meta_v1";
+      const SAVE_KEY = "bloquinhos_current_game_v1";
+      const PROGRESS_KEY = "bloquinhos_progress_v1";
+
+      const BOARD = document.getElementById("board");
+      const PIECES = document.getElementById("pieces");
+      const SCORE_VALUE = document.getElementById("scoreValue");
+      const COMBO_VALUE = document.getElementById("comboValue");
+      const BEST_VALUE = document.getElementById("bestValue");
+      const BEST_CARD = document.getElementById("bestCard");
+      const COMBO_CHIP = document.getElementById("comboChip");
+      const MESSAGE_TEXT = document.getElementById("messageText");
+      const MOVES_TEXT = document.getElementById("movesText");
+      const STATS_PANEL = document.getElementById("statsPanel");
+      const TRAY_PANEL = document.getElementById("trayPanel");
+      const SHELL = document.querySelector(".shell");
+      const GHOST = document.getElementById("ghost");
+      const GHOST_GRID = document.getElementById("ghostGrid");
+      const GAME_OVER_OVERLAY = document.getElementById("gameOverOverlay");
+      const START_OVERLAY = document.getElementById("startOverlay");
+      const STATS_OVERLAY = document.getElementById("statsOverlay");
+      const FINAL_SCORE = document.getElementById("finalScore");
+      const FINAL_BEST = document.getElementById("finalBest");
+      const FINAL_LINES = document.getElementById("finalLines");
+      const FINAL_COMBO = document.getElementById("finalCombo");
+      const GAME_OVER_TITLE = document.getElementById("gameOverTitle");
+      const GAME_OVER_LINE = document.getElementById("gameOverLine");
+      const END_GOAL_DESCRIPTION = document.getElementById("endGoalDescription");
+      const END_GOAL_PROGRESS_TEXT = document.getElementById("endGoalProgressText");
+      const END_GOAL_REMAINING_TEXT = document.getElementById("endGoalRemainingText");
+      const END_GOAL_FILL = document.getElementById("endGoalFill");
+      const END_ACHIEVEMENT_DESCRIPTION = document.getElementById("endAchievementDescription");
+      const END_ACHIEVEMENT_PROGRESS_TEXT = document.getElementById("endAchievementProgressText");
+      const END_ACHIEVEMENT_REMAINING_TEXT = document.getElementById("endAchievementRemainingText");
+      const END_ACHIEVEMENT_FILL = document.getElementById("endAchievementFill");
+      const RESTART_BUTTON = document.getElementById("restartButton");
+      const RESTART_OVERLAY_BUTTON = document.getElementById("restartOverlayButton");
+      const GAME_OVER_MENU_BUTTON = document.getElementById("gameOverMenuButton");
+      const SOUND_BUTTON = document.getElementById("soundButton");
+      const HOME_BUTTON = document.getElementById("homeButton");
+      const START_PLAY_BUTTON = document.getElementById("startPlayButton");
+      const CONTINUE_PLAY_BUTTON = document.getElementById("continuePlayButton");
+      const OPEN_STATS_BUTTON = document.getElementById("openStatsButton");
+      const CLOSE_STATS_BUTTON = document.getElementById("closeStatsButton");
+      const PARTICLES = document.getElementById("particles");
+      const BOARD_WRAP = document.querySelector(".board-shell");
+      const HERO_BEST = document.getElementById("heroBest");
+      const HERO_MATCHES = document.getElementById("heroMatches");
+      const HERO_LAST_ACHIEVEMENT = document.getElementById("heroLastAchievement");
+      const HERO_LAST_ACHIEVEMENT_META = document.getElementById("heroLastAchievementMeta");
+      const START_HISTORY_LIST = document.getElementById("startHistoryList");
+      const FULL_HISTORY_LIST = document.getElementById("fullHistoryList");
+      const GLOBAL_STATS_GRID = document.getElementById("globalStatsGrid");
+      const GOAL_DESCRIPTION = document.getElementById("goalDescription");
+      const GOAL_PROGRESS_TEXT = document.getElementById("goalProgressText");
+      const GOAL_REMAINING_TEXT = document.getElementById("goalRemainingText");
+      const GOAL_FILL = document.getElementById("goalFill");
+      const STATS_GOAL_DESCRIPTION = document.getElementById("statsGoalDescription");
+      const STATS_GOAL_PROGRESS_TEXT = document.getElementById("statsGoalProgressText");
+      const STATS_GOAL_REMAINING_TEXT = document.getElementById("statsGoalRemainingText");
+      const STATS_GOAL_FILL = document.getElementById("statsGoalFill");
+      const NEXT_ACHIEVEMENT_DESCRIPTION = document.getElementById("nextAchievementDescription");
+      const NEXT_ACHIEVEMENT_PROGRESS_TEXT = document.getElementById("nextAchievementProgressText");
+      const NEXT_ACHIEVEMENT_REMAINING_TEXT = document.getElementById("nextAchievementRemainingText");
+      const NEXT_ACHIEVEMENT_FILL = document.getElementById("nextAchievementFill");
+      const STATS_NEXT_ACHIEVEMENT_DESCRIPTION = document.getElementById("statsNextAchievementDescription");
+      const STATS_NEXT_ACHIEVEMENT_PROGRESS_TEXT = document.getElementById("statsNextAchievementProgressText");
+      const STATS_NEXT_ACHIEVEMENT_REMAINING_TEXT = document.getElementById("statsNextAchievementRemainingText");
+      const STATS_NEXT_ACHIEVEMENT_FILL = document.getElementById("statsNextAchievementFill");
+      const ACHIEVEMENT_GRID = document.getElementById("achievementGrid");
+      const ACHIEVEMENT_TOAST = document.getElementById("achievementToast");
+      const ACHIEVEMENT_TOAST_TITLE = document.getElementById("achievementToastTitle");
+      const ACHIEVEMENT_TOAST_DESC = document.getElementById("achievementToastDesc");
+
+      const COLORS = [
+        "linear-gradient(180deg, #d96dff, #8b1dff)",
+        "linear-gradient(180deg, #85ecff, #26bfff)",
+        "linear-gradient(180deg, #fff06c, #ffb200)",
+        "linear-gradient(180deg, #ffca7b, #ff8b00)",
+        "linear-gradient(180deg, #ff9ad1, #ff5ea5)",
+        "linear-gradient(180deg, #c7fff5, #57dbc6)",
+        "linear-gradient(180deg, #dce2ff, #91a4ff)"
+      ];
+
+      const FLAT_COLORS = ["#8b1dff", "#26bfff", "#ffb200", "#ff8b00", "#ff5ea5", "#57dbc6", "#91a4ff"];
+
+      const SHAPES = [
+        [[1]], [[1,1]], [[1],[1]], [[1,1,1]], [[1],[1],[1]], [[1,1],[1,1]],
+        [[1,0],[1,1]], [[0,1],[1,1]], [[1,1,1],[0,1,0]], [[1,1,0],[0,1,1]],
+        [[0,1,1],[1,1,0]], [[1,0,0],[1,1,1]], [[0,0,1],[1,1,1]], [[1,1,1,1]],
+        [[1],[1],[1],[1]], [[1,1,1],[1,0,0]], [[1,1,1],[0,0,1]], [[1,1,1],[1,1,1]]
+      ];
+
+      const ACHIEVEMENTS = [
+        {
+          id: "first_line",
+          icon: "✨",
+          name: "Primeira linha",
+          desc: "Limpe sua primeira linha.",
+          test: (run) => run.totalLinesRun >= 1,
+          progress: (run) => calcProgress(run.totalLinesRun, 1),
+          remaining: (run) => {
+            const left = Math.max(0, 1 - run.totalLinesRun);
+            return left === 0 ? "Conquista pronta para desbloquear." : `Falta ${left} linha`;
           }
-
-          list.appendChild(item);
-        });
-
-        container.appendChild(list);
-        return;
-      }
-
-      if (!stacks.length) {
-        container.innerHTML = '<div class="empty">Nenhuma pilha ainda.</div>';
-        return;
-      }
-
-      const list = document.createElement('div');
-      list.className = 'list';
-
-      const activeIdeas = getActiveIdeas();
-
-      stacks.forEach(stack => {
-        const color = getCategoryColor(stack.category || 'Soltas');
-        const count = activeIdeas.filter(idea => idea.stackId === stack.id).length;
-        const completedCount = activeIdeas.filter(idea => idea.stackId === stack.id && idea.completed).length;
-
-        const item = document.createElement('button');
-        item.type = 'button';
-        item.className = 'stack-row';
-        item.style.setProperty('--accent-line', color.solid);
-        item.style.textAlign = 'left';
-        item.style.width = '100%';
-
-        item.innerHTML = `
-          <h3>${escapeHtml(stack.name)}</h3>
-          <div class="body-copy">${escapeHtml(stack.summary || 'Sem resumo.')}</div>
-          <div class="chips">
-            <span class="badge badge-neutral">${count} notas</span>
-            <span class="badge badge-success">${completedCount} concluídas</span>
-            <span class="badge badge-neutral">${escapeHtml(stack.category || 'Soltas')}</span>
-          </div>
-        `;
-
-        item.addEventListener('click', () => {
-          state.selectedStackId = stack.id;
-          state.stackTodoFilter = 'open';
-          renderNotesScreen();
-        });
-
-        list.appendChild(item);
-      });
-
-      container.appendChild(list);
-    }
-
-    function renderActiveFiltersInline() {
-      const root = document.getElementById('active-filters-inline');
-      const parts = [];
-
-      if (state.selectedSessionFilterId) {
-        const session = getSessionById(state.selectedSessionFilterId);
-        if (session) parts.push(`Sessão: ${session.name}`);
-      }
-
-      if (state.timeFilter !== 'all') {
-        const labelMap = { today: 'Hoje', '7d': '7 dias', meeting: 'Reunião' };
-        parts.push(`Tempo: ${labelMap[state.timeFilter] || state.timeFilter}`);
-      }
-
-      if (state.selectedCategory !== 'Todas') {
-        parts.push(`Categoria: ${state.selectedCategory}`);
-      }
-
-      if (!parts.length) {
-        root.classList.add('hidden');
-        root.innerHTML = '';
-        return;
-      }
-
-      root.classList.remove('hidden');
-      root.innerHTML = `
-        <div class="subtle-card" style="display:flex; justify-content:space-between; align-items:center; gap:10px; padding:10px 12px;">
-          <div class="chips" style="margin-top:0;">${parts.map(part => `<span class="badge badge-neutral">${escapeHtml(part)}</span>`).join('')}</div>
-          <button id="clear-inline-filters-btn" class="btn-soft" type="button" style="padding:8px 10px;">Limpar</button>
-        </div>
-      `;
-
-      document.getElementById('clear-inline-filters-btn').addEventListener('click', () => {
-        state.selectedCategory = 'Todas';
-        state.timeFilter = 'all';
-        state.selectedSessionFilterId = '';
-        renderAll();
-      });
-    }
-
-    function renderNotesScreen() {
-      notesMain.innerHTML = '';
-      renderActiveFiltersInline();
-
-      if (state.notesMode === 'recent') {
-        renderRecentNotesList(notesMain);
-      } else {
-        renderStacksMode(notesMain);
-      }
-
-      document.getElementById('view-recent-btn').classList.toggle('active', state.notesMode === 'recent');
-      document.getElementById('view-stacks-btn').classList.toggle('active', state.notesMode === 'stacks');
-    }
-
-    function renderInsights() {
-      const activeIdeas = getActiveIdeas();
-      const recentWeek = activeIdeas.filter(i => isWithinDays(i.createdAt, 7));
-      const groups = getGroupedIdeas();
-      const title = document.getElementById('insight-title');
-      const summary = document.getElementById('insight-summary');
-      const active = getActiveSession();
-      const insightActions = document.getElementById('insight-actions');
-
-      if (!activeIdeas.length) {
-        title.textContent = 'Sem atividade recente';
-        summary.textContent = 'Conforme você registra notas, padrões aparecem aqui.';
-      } else {
-        const top = groups[0];
-        title.textContent = `${recentWeek.length} notas nos últimos 7 dias`;
-        summary.textContent = top
-          ? `${top[0]} aparece com mais frequência neste período.${active ? ` Sessão ativa: ${active.name}.` : ''}`
-          : 'Padrões aparecem conforme a base cresce.';
-      }
-
-      if (active) {
-        insightActions.classList.remove('hidden');
-        insightActions.innerHTML = `
-          <div class="subtle-card" style="display:flex; justify-content:space-between; align-items:center; gap:12px; padding:10px 12px;">
-            <div>
-              <div class="micro" style="margin-bottom:2px;">Sessão ativa</div>
-              <div style="font-size:14px; font-weight:600; line-height:1.3;">${escapeHtml(active.name)}</div>
-            </div>
-            <button id="filter-active-session-btn" class="btn-soft" type="button" style="padding:10px 12px;">Ver notas</button>
-          </div>
-        `;
-
-        document.getElementById('filter-active-session-btn').addEventListener('click', () => {
-          state.selectedSessionFilterId = active.id;
-          state.timeFilter = 'meeting';
-          setScreen('notes');
-          state.notesMode = 'recent';
-          renderAll();
-        });
-      } else {
-        insightActions.classList.add('hidden');
-        insightActions.innerHTML = '';
-      }
-
-      consolidationRoot.innerHTML = '';
-
-      if (!groups.length) {
-        consolidationRoot.innerHTML = '<div class="empty">Sem padrões ainda.</div>';
-      } else {
-        groups.slice(0, 4).forEach(([category, group]) => {
-          const color = getCategoryColor(category);
-          const div = document.createElement('div');
-          div.className = 'subtle-card';
-          div.style.borderColor = color.soft;
-          div.innerHTML = `
-            <div class="section-head" style="margin-bottom:6px;"><h3>${escapeHtml(category)}</h3><span class="badge badge-neutral" style="background:${color.soft}; color:${color.solid}; border-color:transparent;">${group.length}</span></div>
-            <div class="subcopy">${escapeHtml(group.slice(0, 2).map(item => item.text).join(' • '))}</div>
-          `;
-          consolidationRoot.appendChild(div);
-        });
-      }
-
-      const sessionsRoot = document.getElementById('insight-sessions');
-      sessionsRoot.innerHTML = '';
-
-      if (!sessions.length) {
-        sessionsRoot.innerHTML = '<div class="empty">Sem sessões recentes.</div>';
-      } else {
-        sessions.slice(0, 4).forEach(session => {
-          const div = document.createElement('button');
-          div.type = 'button';
-          div.className = 'subtle-card';
-          div.style.textAlign = 'left';
-          div.style.width = '100%';
-
-          div.innerHTML = `
-            <h3>${escapeHtml(session.name)}</h3>
-            <div class="subcopy">${escapeHtml(session.endAt ? 'Encerrada' : 'Ativa')} · ${escapeHtml(relativeTime(session.startAt))}</div>
-          `;
-
-          div.addEventListener('click', () => {
-            state.selectedSessionFilterId = session.id;
-            state.timeFilter = 'meeting';
-            setScreen('notes');
-            state.notesMode = 'recent';
-            renderAll();
-          });
-
-          sessionsRoot.appendChild(div);
-        });
-      }
-    }
-
-    function renderLLMSettings() {
-      const settings = getLLMSettings();
-
-      document.getElementById('llm-provider').value = settings.provider || 'openai';
-      document.getElementById('llm-base-url').value = settings.baseUrl || '';
-      document.getElementById('llm-model').value = settings.model || '';
-      document.getElementById('llm-api-key').value = settings.apiKey || '';
-      document.getElementById('llm-auto-classify').checked = Boolean(settings.autoClassify);
-
-      document.getElementById('advanced-fields').classList.toggle('hidden', !(state.showAdvancedSettings || settings.provider === 'custom'));
-      document.getElementById('classification-log').classList.toggle('hidden', !state.showClassificationLog);
-      document.getElementById('classification-debug').classList.toggle('hidden', !state.showClassificationDebug);
-
-      document.getElementById('toggle-log-btn').textContent = state.showClassificationLog ? 'Ocultar' : 'Mostrar';
-      document.getElementById('toggle-debug-btn').textContent = state.showClassificationDebug ? 'Ocultar' : 'Mostrar';
-
-      const statusCard = document.getElementById('llm-status-card');
-      if (!settings.apiKey || !settings.model) {
-        statusCard.innerHTML = '<div class="micro">Pronto para GPT-4.1 nano. Adicione sua chave para ativar.</div>';
-      } else {
-        statusCard.innerHTML = `<div class="subcopy">${escapeHtml(settings.provider || 'openai')} · ${escapeHtml(settings.model)} · ${settings.autoClassify ? 'automático' : 'manual'}</div>`;
-      }
-
-      const logCard = document.getElementById('classification-log');
-      if (!classificationLog) {
-        logCard.innerHTML = '<div class="micro">Sem classificações.</div>';
-      } else {
-        logCard.innerHTML = `<div class="subcopy">${escapeHtml(classificationLog.action)} · ${escapeHtml(classificationLog.target_stack_name || 'sem pilha')} · ${escapeHtml(String(classificationLog.confidence))}</div><div class="subcopy">${escapeHtml(classificationLog.reason || '-')}</div>`;
-      }
-
-      const debugCard = document.getElementById('classification-debug');
-      if (!classificationLog) {
-        debugCard.innerHTML = '<div class="micro">Sem execução recente.</div>';
-      } else {
-        const execution = classificationLog.source || 'desconhecido';
-        const action = classificationLog.action || 'sem ação';
-        const target = classificationLog.target_stack_name || 'sem pilha';
-        const confidence = classificationLog.confidence ?? '-';
-        const createdAt = classificationLog.createdAt ? formatDate(classificationLog.createdAt) : '-';
-
-        debugCard.innerHTML = `
-          <div class="chips" style="margin-top:0; margin-bottom:8px;">
-            <span class="badge badge-neutral">Execução: ${escapeHtml(execution)}</span>
-            <span class="badge badge-neutral">Ação: ${escapeHtml(action)}</span>
-          </div>
-          <div class="subcopy">Pilha alvo: ${escapeHtml(target)}</div>
-          <div class="subcopy">Confiança: ${escapeHtml(String(confidence))}</div>
-          <div class="subcopy">Horário: ${escapeHtml(createdAt)}</div>
-          <div class="subcopy">Motivo: ${escapeHtml(classificationLog.reason || '-')}</div>
-          <div class="micro" style="margin-top:10px; margin-bottom:6px;">JSON bruto</div>
-          <pre style="margin:0; white-space:pre-wrap; word-break:break-word; font: 12px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; color:#4b5563; background:rgba(17,24,39,0.03); border:1px solid rgba(17,24,39,0.05); border-radius:12px; padding:10px;">${escapeHtml(JSON.stringify(classificationLog, null, 2))}</pre>
-        `;
-      }
-    }
-
-    function renderAll() {
-      renderCaptureHome();
-      renderFiltersSheet();
-      renderNotesScreen();
-      renderInsights();
-      renderLLMSettings();
-    }
-
-    function applyFallbackClassification(idea) {
-      const fallbackResult = window.PilhaLLM.buildFallbackClassification({
-        idea,
-        existingStacks: stacks
-      });
-
-      let fallback = null;
-      const fallbackStackName = String(fallbackResult.target_stack_name || '').trim();
-      const fallbackCategory = fallbackResult.category || idea.category || 'Soltas';
-
-      if (fallbackStackName) {
-        fallback = stacks.find(stack => normalize(stack.name) === normalize(fallbackStackName)) || null;
-      }
-
-      if (!fallback && fallbackStackName) {
-        fallback = createStack(
-          fallbackStackName,
-          fallbackResult.stack_summary || fallbackResult.reason || '',
-          fallbackCategory
-        );
-      }
-
-      if (!fallback) {
-        fallback = ensureFallbackStackForCategory(fallbackCategory);
-      }
-
-      attachIdeaToStack(idea.id, fallback.id);
-
-      ideas = ideas.map(item =>
-        item.id === idea.id
-          ? {
-              ...item,
-              stackId: fallback.id,
-              classification: {
-                action: 'attach-fallback',
-                reason: fallbackResult.reason,
-                confidence: fallbackResult.confidence,
-                suggestedTags: fallbackResult.suggested_tags,
-                source: 'fallback'
-              },
-              updatedAt: new Date().toISOString()
-            }
-          : item
-      );
-
-      saveIdeas();
-
-      classificationLog = {
-        action: 'attach-fallback',
-        target_stack_id: fallback.id,
-        target_stack_name: fallback.name,
-        reason: fallbackResult.reason,
-        confidence: fallbackResult.confidence,
-        suggested_tags: fallbackResult.suggested_tags,
-        source: 'fallback',
-        createdAt: new Date().toISOString()
-      };
-
-      saveClassificationLog();
-    }
-
-    async function classifyIdeaWithLLM(idea) {
-      const settings = getLLMSettings();
-
-      if (!settings.apiKey || !settings.model || !settings.autoClassify) {
-        applyFallbackClassification(idea);
-        return;
-      }
-
-      try {
-        const result = await window.PilhaLLM.classifyIdea({
-          idea,
-          settings,
-          stackSummaries: buildStackSummaries()
-        });
-        await applyClassificationResult(idea.id, result);
-      } catch (error) {
-        console.error(error);
-
-        ideas = ideas.map(item =>
-          item.id === idea.id
-            ? {
-                ...item,
-                classification: {
-                  action: 'error',
-                  reason: String(error.message || error),
-                  confidence: 0,
-                  suggestedTags: [],
-                  source: 'error'
-                },
-                updatedAt: new Date().toISOString()
-              }
-            : item
-        );
-
-        saveIdeas();
-
-        classificationLog = {
-          action: 'error',
-          target_stack_id: null,
-          target_stack_name: null,
-          reason: String(error.message || error),
-          confidence: 0,
-          suggested_tags: [],
-          source: 'error',
-          createdAt: new Date().toISOString()
-        };
-
-        saveClassificationLog();
-        applyFallbackClassification(idea);
-        showToast('Falha na classificação. Aplicado fallback local.');
-      }
-    }
-
-    async function applyClassificationResult(ideaId, result) {
-      const rawAction = String(result?.action || 'unclassified').toLowerCase().trim();
-      const action = ['attach', 'create', 'unclassified'].includes(rawAction)
-        ? rawAction
-        : 'unclassified';
-
-      const category = result?.category || 'Soltas';
-      const normalizedTargetName = String(result?.target_stack_name || '').trim();
-
-      let stack = null;
-
-      if (action === 'attach') {
-        if (result?.target_stack_id) {
-          stack = getStackById(result.target_stack_id);
-        }
-
-        if (!stack && normalizedTargetName) {
-          stack = stacks.find(item => normalize(item.name) === normalize(normalizedTargetName)) || null;
-        }
-
-        if (!stack && normalizedTargetName) {
-          stack = createStack(
-            normalizedTargetName,
-            result?.stack_summary || result?.reason || '',
-            category
-          );
-        }
-      }
-
-      if (action === 'create') {
-        stack = stacks.find(item => normalize(item.name) === normalize(normalizedTargetName)) || null;
-
-        if (!stack) {
-          stack = createStack(
-            normalizedTargetName || category || 'Nova pilha',
-            result?.stack_summary || result?.reason || '',
-            category
-          );
-        }
-      }
-
-      const resolvedAction = stack ? (action === 'unclassified' ? 'attach' : action) : 'unclassified';
-      const resolvedStackId = stack ? stack.id : null;
-      const resolvedStackName = stack ? stack.name : null;
-
-      ideas = ideas.map(idea =>
-        idea.id === ideaId
-          ? {
-              ...idea,
-              stackId: resolvedStackId,
-              classification: {
-                action: resolvedAction,
-                reason: result?.reason || '',
-                confidence: result?.confidence ?? 0,
-                suggestedTags: result?.suggested_tags || [],
-                source: 'llm'
-              },
-              updatedAt: new Date().toISOString()
-            }
-          : idea
-      );
-
-      saveIdeas();
-      saveStacks();
-
-      if (resolvedStackId) {
-        attachIdeaToStack(ideaId, resolvedStackId);
-      }
-
-      classificationLog = {
-        action: resolvedAction,
-        target_stack_id: resolvedStackId,
-        target_stack_name: resolvedStackName,
-        reason: result?.reason || '',
-        confidence: result?.confidence ?? 0,
-        suggested_tags: result?.suggested_tags || [],
-        source: 'llm',
-        createdAt: new Date().toISOString()
-      };
-
-      saveClassificationLog();
-
-      console.log('[Pilha][applyClassificationResult]', {
-        ideaId,
-        action,
-        resolvedAction,
-        resolvedStackId,
-        resolvedStackName,
-        stacksCount: stacks.length,
-        result
-      });
-
-      showToast(resolvedStackId ? 'Nota adicionada.' : 'Classificação concluída.');
-      renderAll();
-    }
-
-    function openRedistributeStackConfirm(stackId) {
-      const stack = getStackById(stackId);
-      if (!stack) return;
-
-      const notesInStack = getActiveIdeas().filter(idea => idea.stackId === stackId);
-
-      if (notesInStack.length < 3) {
-        showToast('Essa pilha precisa ter pelo menos 3 notas.');
-        return;
-      }
-
-      askConfirmation({
-        title: 'Reorganizar pilha?',
-        description: 'A IA vai revisar as notas desta pilha e redistribuí-las entre pilhas existentes ou novas.',
-        actionLabel: 'Reorganizar',
-        action: async () => {
-          await redistributeStackWithLLM(stackId);
-        }
-      });
-    }
-
-    async function redistributeStackWithLLM(stackId) {
-      const stack = getStackById(stackId);
-      if (!stack) return;
-
-      const settings = getLLMSettings();
-      if (!settings.apiKey || !settings.model) {
-        showToast('Configure a LLM antes de reorganizar.');
-        return;
-      }
-
-      const notesInStack = getActiveIdeas()
-        .filter(idea => idea.stackId === stackId)
-        .map(idea => ({
-          id: idea.id,
-          text: idea.text,
-          category: idea.category,
-          createdAt: idea.createdAt
-        }));
-
-      const existingStacks = buildStackSummaries().filter(item => item.id !== stackId);
-
-      try {
-        const result = await window.PilhaLLM.redistributeStack({
-          sourceStack: {
-            id: stack.id,
-            name: stack.name,
-            summary: stack.summary || ''
-          },
-          notes: notesInStack,
-          existingStacks,
-          settings
-        });
-
-        applyStackRedistribution(result, stackId);
-      } catch (error) {
-        console.error(error);
-        showToast('Falha ao reorganizar pilha.');
-      }
-    }
-
-    function applyStackRedistribution(result, sourceStackId) {
-      if (!result || !Array.isArray(result.actions)) {
-        showToast('Redistribuição inválida.');
-        return;
-      }
-
-      let movedCount = 0;
-      let createdCount = 0;
-      const createdMap = new Map();
-
-      for (const item of result.actions) {
-        const noteId = item.note_id;
-        const action = String(item.action || '').toLowerCase().trim();
-
-        const note = getIdeaById(noteId);
-        if (!note || note.archived) continue;
-
-        if (action === 'keep') continue;
-
-        if (action === 'move') {
-          let targetStack = null;
-
-          if (item.target_stack_id) {
-            targetStack = getStackById(item.target_stack_id);
-          }
-
-          if (!targetStack && item.target_stack_name) {
-            targetStack = stacks.find(s => normalize(s.name) === normalize(item.target_stack_name)) || null;
-          }
-
-          if (targetStack) {
-            attachIdeaToStack(noteId, targetStack.id);
-            movedCount += 1;
-          }
-
-          continue;
-        }
-
-        if (action === 'create_and_move') {
-          const stackName = String(item.target_stack_name || '').trim();
-          if (!stackName) continue;
-
-          let targetStack = createdMap.get(normalize(stackName)) || null;
-
-          if (!targetStack) {
-            targetStack = stacks.find(s => normalize(s.name) === normalize(stackName)) || null;
-          }
-
-          if (!targetStack) {
-            targetStack = createStack(
-              stackName,
-              item.target_stack_summary || item.reason || '',
-              note.category || 'Soltas'
-            );
-            createdMap.set(normalize(stackName), targetStack);
-            createdCount += 1;
-          }
-
-          attachIdeaToStack(noteId, targetStack.id);
-          movedCount += 1;
-        }
-      }
-
-      classificationLog = {
-        action: 'redistribute',
-        target_stack_id: sourceStackId,
-        target_stack_name: getStackById(sourceStackId)?.name || 'pilha',
-        reason: result.summary || 'Redistribuição aplicada.',
-        confidence: '-',
-        suggested_tags: [],
-        source: 'llm',
-        createdAt: new Date().toISOString(),
-        raw_result: result
-      };
-
-      saveClassificationLog();
-      renderAll();
-      showToast(`Pilha reorganizada · ${movedCount} notas movidas · ${createdCount} novas pilhas`);
-    }
-
-    async function addIdea() {
-      const text = ideaInput.value.trim();
-      if (!text) return;
-
-      const inference = inferCategory(text);
-
-      const idea = {
-        id: safeId(),
-        text,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        category: inference.category,
-        confidence: inference.confidence,
-        source: 'manual',
-        stackId: null,
-        completed: false,
-        completedAt: null,
-        archived: false,
-        archivedAt: null,
-        classification: {
-          action: 'pending',
-          reason: 'Aguardando classificação.',
-          confidence: 0,
-          suggestedTags: [],
-          source: 'pending'
         },
-        sessionId: state.activeSessionId || null
+        {
+          id: "combo_2",
+          icon: "⚡",
+          name: "Combo duplo",
+          desc: "Alcance combo x2.",
+          test: (run) => run.maxComboRun >= 2,
+          progress: (run) => calcProgress(run.maxComboRun, 2),
+          remaining: (run) => {
+            const left = Math.max(0, 2 - run.maxComboRun);
+            return left === 0 ? "Conquista pronta para desbloquear." : "Falta alcançar combo x2";
+          }
+        },
+        {
+          id: "score_500",
+          icon: "🏅",
+          name: "500 pontos",
+          desc: "Chegue a 500 pontos.",
+          test: (run) => run.score >= 500,
+          progress: (run) => calcProgress(run.score, 500),
+          remaining: (run) => {
+            const left = Math.max(0, 500 - run.score);
+            return left === 0 ? "Conquista pronta para desbloquear." : `Faltam ${left} pontos`;
+          }
+        },
+        {
+          id: "score_1000",
+          icon: "👑",
+          name: "1000 pontos",
+          desc: "Chegue a 1000 pontos.",
+          test: (run) => run.score >= 1000,
+          progress: (run) => calcProgress(run.score, 1000),
+          remaining: (run) => {
+            const left = Math.max(0, 1000 - run.score);
+            return left === 0 ? "Conquista pronta para desbloquear." : `Faltam ${left} pontos`;
+          }
+        },
+        {
+          id: "survivor",
+          icon: "🛡️",
+          name: "Sobrevivente",
+          desc: "Jogue 20 turnos em uma partida.",
+          test: (run) => run.turns >= 20,
+          progress: (run) => calcProgress(run.turns, 20),
+          remaining: (run) => {
+            const left = Math.max(0, 20 - run.turns);
+            return left === 0 ? "Conquista pronta para desbloquear." : `Faltam ${left} jogadas`;
+          }
+        },
+        {
+          id: "line_master",
+          icon: "🧱",
+          name: "Mestre dos blocos",
+          desc: "Limpe 10 linhas em uma partida.",
+          test: (run) => run.totalLinesRun >= 10,
+          progress: (run) => calcProgress(run.totalLinesRun, 10),
+          remaining: (run) => {
+            const left = Math.max(0, 10 - run.totalLinesRun);
+            return left === 0 ? "Conquista pronta para desbloquear." : `Faltam ${left} linhas`;
+          }
+        },
+      ];
+
+      const GOALS = [
+        {
+          id: "g150",
+          label: "Faça 150 pontos em uma partida",
+          progress: (run) => calcProgress(run.score, 150),
+          remaining: (run) => {
+            const left = Math.max(0, 150 - run.score);
+            return left === 0 ? "Meta concluída." : `Faltam ${left} pontos`;
+          }
+        },
+        {
+          id: "g_lines_3",
+          label: "Limpe 3 linhas em uma partida",
+          progress: (run) => calcProgress(run.totalLinesRun, 3),
+          remaining: (run) => {
+            const left = Math.max(0, 3 - run.totalLinesRun);
+            return left === 0 ? "Meta concluída." : `Faltam ${left} linhas`;
+          }
+        },
+        {
+          id: "g_combo_2",
+          label: "Faça combo x2 em uma partida",
+          progress: (run) => calcProgress(run.maxComboRun, 2),
+          remaining: (run) => {
+            const left = Math.max(0, 2 - run.maxComboRun);
+            return left === 0 ? "Meta concluída." : "Falta alcançar combo x2";
+          }
+        },
+        {
+          id: "g_turns_15",
+          label: "Sobreviva por 15 jogadas",
+          progress: (run) => calcProgress(run.turns, 15),
+          remaining: (run) => {
+            const left = Math.max(0, 15 - run.turns);
+            return left === 0 ? "Meta concluída." : `Faltam ${left} jogadas`;
+          }
+        },
+        {
+          id: "g500",
+          label: "Faça 500 pontos em uma partida",
+          progress: (run) => calcProgress(run.score, 500),
+          remaining: (run) => {
+            const left = Math.max(0, 500 - run.score);
+            return left === 0 ? "Meta concluída." : `Faltam ${left} pontos`;
+          }
+        },
+      ];
+
+      const state = {
+        board: makeEmptyBoard(),
+        pieces: [],
+        score: 0,
+        combo: 0,
+        best: loadBest(),
+        selectedPieceId: null,
+        gameOver: false,
+        preview: null,
+        previewValid: false,
+        dragging: null,
+        messageTimer: null,
+        messagePopTimer: null,
+        clearingCells: new Set(),
+        placedPieceId: null,
+        placedPieceTimer: null,
+        comboFxTimer: null,
+        soundEnabled: loadSoundPref(),
+        audioCtx: null,
+        celebratedRecordThisRun: false,
+        turns: 0,
+        maxComboRun: 0,
+        totalLinesRun: 0,
+        meta: loadMeta(),
+        progress: loadProgress(),
+        toastTimer: null,
+        pendingGameOverTimer: null,
       };
 
-      ideas.unshift(idea);
-      saveIdeas();
-      ideaInput.value = '';
-      renderAll();
-      setScreen('capture');
-      showToast('Nota salva.');
-      await classifyIdeaWithLLM(idea);
-      renderAll();
-    }
-
-    function saveNoteDetail() {
-      const idea = getIdeaById(state.noteDetailId);
-      if (!idea) return;
-
-      const nextText = document.getElementById('note-editor').value.trim();
-      if (!nextText) return;
-
-      const inference = inferCategory(nextText);
-
-      ideas = ideas.map(item =>
-        item.id === state.noteDetailId
-          ? {
-              ...item,
-              text: nextText,
-              updatedAt: new Date().toISOString(),
-              category: inference.category,
-              confidence: inference.confidence
-            }
-          : item
-      );
-
-      saveIdeas();
-      closeModal(noteModal);
-      showToast('Nota atualizada.');
-      renderAll();
-    }
-
-    function deleteIdea(id) {
-      askConfirmation({
-        title: 'Apagar nota?',
-        description: 'Essa nota será removida definitivamente.',
-        actionLabel: 'Apagar',
-        action: () => {
-          ideas = ideas.filter(item => item.id !== id);
-          saveIdeas();
-          closeModal(noteModal);
-          showToast('Nota apagada.');
-          renderAll();
-        }
-      });
-    }
-
-    function clearAllIdeas() {
-      askConfirmation({
-        title: 'Apagar tudo?',
-        description: 'Notas, pilhas e histórico serão removidos.',
-        actionLabel: 'Apagar tudo',
-        action: () => {
-          ideas = [];
-          stacks = [];
-          classificationLog = null;
-          state.selectedStackId = '';
-          state.selectedSessionFilterId = '';
-          state.stackTodoFilter = 'open';
-          saveIdeas();
-          saveStacks();
-          saveClassificationLog();
-          closeModal(settingsModal);
-          showToast('Dados apagados.');
-          renderAll();
-        }
-      });
-    }
-
-    function openSessionSheet() {
-      document.getElementById('session-name-input').value = '';
-      openModal(sessionModal);
-    }
-
-    function createSession() {
-      const rawName = document.getElementById('session-name-input').value.trim();
-      const session = {
-        id: safeId(),
-        name: rawName || ('Sessão ' + formatDate(new Date().toISOString())),
-        startAt: new Date().toISOString()
-      };
-
-      sessions.unshift(session);
-      state.activeSessionId = session.id;
-      saveSessions();
-      closeModal(sessionModal);
-      showToast('Sessão iniciada.');
-      renderAll();
-    }
-
-    function endSession() {
-      if (!state.activeSessionId) return;
-
-      sessions = sessions.map(session =>
-        session.id === state.activeSessionId
-          ? { ...session, endAt: new Date().toISOString() }
-          : session
-      );
-
-      saveSessions();
-      state.activeSessionId = '';
-      renderAll();
-      showToast('Sessão encerrada.');
-    }
-
-    function exportJson() {
-      const payload = {
-        exportedAt: new Date().toISOString(),
-        ideas,
-        sessions,
-        stacks,
-        llmSettings: { ...getLLMSettings(), apiKey: getLLMSettings().apiKey ? '[redacted]' : '' },
-        classificationLog
-      };
-
-      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'pilha-export.json';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-      showToast('Exportado.');
-    }
-
-    function saveLLMForm() {
-      const settings = {
-        provider: document.getElementById('llm-provider').value,
-        baseUrl: document.getElementById('llm-base-url').value.trim(),
-        model: document.getElementById('llm-model').value.trim(),
-        apiKey: document.getElementById('llm-api-key').value.trim(),
-        autoClassify: document.getElementById('llm-auto-classify').checked
-      };
-
-      saveLLMSettings(settings);
-      renderLLMSettings();
-      showToast('Ajustes salvos.');
-    }
-
-    async function testLLMConnection() {
-      const settings = getLLMSettings();
-
-      if (!settings.apiKey || !settings.model) {
-        showToast('Preencha API key e modelo.');
-        return;
+      function bindPress(element, handler) {
+        let fired = false;
+        const run = (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          if (fired) return;
+          fired = true;
+          handler(event);
+          requestAnimationFrame(() => { fired = false; });
+        };
+        element.addEventListener("pointerup", run);
+        element.addEventListener("click", run);
       }
 
-      const testIdea = {
-        id: safeId(),
-        text: 'Criar uma home mais simples para capturar ideias no iPhone',
-        category: 'Produto',
-        confidence: 'media'
-      };
+      function calcProgress(value, target) {
+        const safe = Math.max(0, value);
+        const pct = Math.max(0, Math.min(1, safe / target));
+        return { value: safe, target, pct };
+      }
 
-      const previousLog = classificationLog;
-      classificationLog = {
-        action: 'testing',
-        target_stack_name: null,
-        reason: 'Testando conexão...',
-        confidence: 0,
-        suggested_tags: []
-      };
+      function loadBest() {
+        try { return Number(localStorage.getItem(BEST_KEY) || 0); }
+        catch { return 0; }
+      }
 
-      renderLLMSettings();
+      function saveBest() {
+        try { localStorage.setItem(BEST_KEY, String(state.best)); }
+        catch {}
+      }
 
-      try {
-        const result = await window.PilhaLLM.classifyIdea({
-          idea: testIdea,
-          settings,
-          stackSummaries: buildStackSummaries()
-        });
+      function loadSoundPref() {
+        try {
+          const saved = localStorage.getItem(SOUND_KEY);
+          return saved === null ? true : saved === "true";
+        } catch {
+          return true;
+        }
+      }
 
-        classificationLog = {
-          action: result.action || 'testing',
-          target_stack_name: result.target_stack_name || null,
-          reason: result.reason || 'Teste concluído.',
-          confidence: result.confidence ?? 0,
-          suggested_tags: result.suggested_tags || []
+      function saveSoundPref() {
+        try { localStorage.setItem(SOUND_KEY, String(state.soundEnabled)); }
+        catch {}
+      }
+
+      function loadMeta() {
+        try {
+          const raw = JSON.parse(localStorage.getItem(META_KEY) || "{}");
+          return {
+            totalMatches: raw.totalMatches || 0,
+            totalScore: raw.totalScore || 0,
+            totalLines: raw.totalLines || 0,
+            bestComboEver: raw.bestComboEver || 0,
+            history: Array.isArray(raw.history) ? raw.history.slice(0, 8) : [],
+          };
+        } catch {
+          return {
+            totalMatches: 0,
+            totalScore: 0,
+            totalLines: 0,
+            bestComboEver: 0,
+            history: [],
+          };
+        }
+      }
+
+      function saveMeta() {
+        try { localStorage.setItem(META_KEY, JSON.stringify(state.meta)); }
+        catch {}
+      }
+
+      function loadProgress() {
+        try {
+          const raw = JSON.parse(localStorage.getItem(PROGRESS_KEY) || "{}");
+          return {
+            unlocked: Array.isArray(raw.unlocked) ? raw.unlocked : [],
+            lastAchievementId: raw.lastAchievementId || null,
+            currentGoalIndex: Number.isInteger(raw.currentGoalIndex) ? raw.currentGoalIndex : 0,
+          };
+        } catch {
+          return { unlocked: [], lastAchievementId: null, currentGoalIndex: 0 };
+        }
+      }
+
+      function saveProgress() {
+        try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(state.progress)); }
+        catch {}
+      }
+
+      function persistMatch() {
+        const entry = {
+          score: state.score,
+          maxCombo: state.maxComboRun,
+          lines: state.totalLinesRun,
+          turns: state.turns,
+          at: new Date().toISOString(),
         };
 
-        saveClassificationLog();
-        renderLLMSettings();
-        showToast('Teste concluído.');
-      } catch {
-        classificationLog = previousLog;
-        renderLLMSettings();
+        state.meta.totalMatches += 1;
+        state.meta.totalScore += state.score;
+        state.meta.totalLines += state.totalLinesRun;
+        state.meta.bestComboEver = Math.max(state.meta.bestComboEver, state.maxComboRun);
+        state.meta.history.unshift(entry);
+        state.meta.history = state.meta.history.slice(0, 8);
+        saveMeta();
       }
-    }
 
-    function openSettings() { openModal(settingsModal); }
-    function closeSettings() { closeModal(settingsModal); }
-    function openFilters() { renderFiltersSheet(); openModal(filtersModal); }
-    function closeFilters() { closeModal(filtersModal); }
+      function loadSavedGame() {
+        try {
+          const raw = JSON.parse(localStorage.getItem(SAVE_KEY) || "null");
+          if (!raw || typeof raw !== "object") return null;
+          if (!Array.isArray(raw.board) || raw.board.length !== GRID_SIZE) return null;
+          if (!Array.isArray(raw.pieces) || raw.pieces.length !== 3) return null;
+          return raw;
+        } catch {
+          return null;
+        }
+      }
 
-    function escapeHtml(value) {
-      return String(value)
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#039;');
-    }
+      function clearSavedGame() {
+        try { localStorage.removeItem(SAVE_KEY); }
+        catch {}
+      }
 
-    tabs.forEach(tab => tab.addEventListener('click', () => setScreen(tab.dataset.tab)));
+      function saveCurrentGame() {
+        if (state.gameOver) {
+          clearSavedGame();
+          return;
+        }
 
-    document.getElementById('add-idea-btn').addEventListener('click', addIdea);
-    document.getElementById('save-llm-settings-btn').addEventListener('click', saveLLMForm);
-    document.getElementById('test-llm-btn').addEventListener('click', testLLMConnection);
-    document.getElementById('export-json-btn').addEventListener('click', exportJson);
-    document.getElementById('clear-all-btn').addEventListener('click', clearAllIdeas);
+        const payload = {
+          board: state.board,
+          pieces: state.pieces,
+          score: state.score,
+          combo: state.combo,
+          best: state.best,
+          turns: state.turns,
+          maxComboRun: state.maxComboRun,
+          totalLinesRun: state.totalLinesRun,
+          celebratedRecordThisRun: state.celebratedRecordThisRun,
+        };
 
-    document.getElementById('view-recent-btn').addEventListener('click', () => {
-      state.notesMode = 'recent';
-      state.selectedStackId = '';
-      state.stackTodoFilter = 'open';
-      renderNotesScreen();
-    });
+        try {
+          localStorage.setItem(SAVE_KEY, JSON.stringify(payload));
+        } catch {}
+      }
 
-    document.getElementById('view-stacks-btn').addEventListener('click', () => {
-      state.notesMode = 'stacks';
-      renderNotesScreen();
-    });
+      function applySavedGame(save) {
+        state.board = Array.isArray(save.board) ? save.board : makeEmptyBoard();
+        state.pieces = Array.isArray(save.pieces) ? save.pieces : buildPieceSet(state.board);
+        state.score = Number(save.score || 0);
+        state.combo = Number(save.combo || 0);
+        state.best = Math.max(state.best, Number(save.best || 0));
+        state.turns = Number(save.turns || 0);
+        state.maxComboRun = Number(save.maxComboRun || 0);
+        state.totalLinesRun = Number(save.totalLinesRun || 0);
+        state.celebratedRecordThisRun = Boolean(save.celebratedRecordThisRun);
+        state.gameOver = false;
 
-    document.getElementById('toggle-filters-btn').addEventListener('click', openFilters);
-    document.getElementById('new-session-btn').addEventListener('click', openSessionSheet);
+        if (state.best > loadBest()) saveBest();
+      }
 
-    ['open-settings-btn-top', 'open-settings-btn-notes', 'open-settings-btn-insights'].forEach(id => {
-      document.getElementById(id).addEventListener('click', openSettings);
-    });
+      function restoreSavedGame() {
+        const save = loadSavedGame();
+        if (!save) {
+          resetGame();
+          return;
+        }
 
-    document.getElementById('close-settings-btn').addEventListener('click', closeSettings);
-    document.getElementById('close-filters-btn').addEventListener('click', closeFilters);
-    document.getElementById('close-note-btn').addEventListener('click', () => closeModal(noteModal));
-    document.getElementById('close-session-btn').addEventListener('click', () => closeModal(sessionModal));
-    document.getElementById('cancel-session-btn').addEventListener('click', () => closeModal(sessionModal));
-    document.getElementById('create-session-btn').addEventListener('click', createSession);
-    document.getElementById('close-confirm-btn').addEventListener('click', () => closeModal(confirmModal));
-    document.getElementById('cancel-confirm-btn').addEventListener('click', () => closeModal(confirmModal));
+        clearUiTimers();
+        closeAllOverlays();
+        clearTransientState();
+        applySavedGame(save);
 
-    document.getElementById('confirm-action-btn').addEventListener('click', () => {
-      if (typeof state.confirmAction === 'function') state.confirmAction();
-      state.confirmAction = null;
-      closeModal(confirmModal);
-    });
+        BOARD.classList.remove("combo-glow", "record-glow", "gameover-soft");
+        COMBO_CHIP.classList.remove("hot", "fade-soft");
+        BEST_CARD.classList.remove("best-hit");
+        PARTICLES.innerHTML = "";
+        MESSAGE_TEXT.textContent = "";
+        MESSAGE_TEXT.className = "message";
 
-    document.getElementById('toggle-advanced-btn').addEventListener('click', () => {
-      state.showAdvancedSettings = !state.showAdvancedSettings;
-      renderLLMSettings();
-    });
+        render();
+      }
 
-    document.getElementById('toggle-log-btn').addEventListener('click', () => {
-      state.showClassificationLog = !state.showClassificationLog;
-      renderLLMSettings();
-    });
+      function formatRelativeDate(iso) {
+        const date = new Date(iso);
+        if (Number.isNaN(date.getTime())) return "agora";
+        return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+      }
 
-    document.getElementById('toggle-debug-btn').addEventListener('click', () => {
-      state.showClassificationDebug = !state.showClassificationDebug;
-      renderLLMSettings();
-    });
+      function renderHistoryList(target, items) {
+        target.innerHTML = "";
 
-    document.getElementById('apply-filters-btn').addEventListener('click', () => {
-      state.selectedCategory = document.getElementById('filter-category-sheet').value;
-      state.timeFilter = document.getElementById('filter-time-sheet').value;
-      state.selectedSessionFilterId = document.getElementById('filter-session-sheet').value;
-      closeFilters();
-      renderAll();
-    });
+        if (!items.length) {
+          const empty = document.createElement("div");
+          empty.className = "empty-state";
+          empty.textContent = "Ainda não existem partidas salvas. Jogue uma rodada e o histórico aparece aqui.";
+          target.appendChild(empty);
+          return;
+        }
 
-    document.getElementById('clear-filters-btn').addEventListener('click', () => {
-      state.selectedCategory = 'Todas';
-      state.timeFilter = 'all';
-      state.selectedSessionFilterId = '';
-      closeFilters();
-      renderAll();
-    });
+        items.forEach((item, index) => {
+          const row = document.createElement("div");
+          row.className = "history-item";
+          row.innerHTML = `
+            <div class="history-meta">
+              <div class="history-title">${index === 0 ? "Última partida" : `Partida ${items.length - index}`}</div>
+              <div class="history-sub">${item.lines} linhas • combo ${item.maxCombo || 0} • ${formatRelativeDate(item.at)}</div>
+            </div>
+            <div class="history-score">${item.score}</div>
+          `;
+          target.appendChild(row);
+        });
+      }
 
-    document.getElementById('save-note-btn').addEventListener('click', saveNoteDetail);
-    document.getElementById('delete-note-btn').addEventListener('click', () => {
-      if (state.noteDetailId) deleteIdea(state.noteDetailId);
-    });
+      function renderGlobalStats() {
+        const avgScore = state.meta.totalMatches ? Math.round(state.meta.totalScore / state.meta.totalMatches) : 0;
+        const cards = [
+          ["Partidas", state.meta.totalMatches],
+          ["Score total", state.meta.totalScore],
+          ["Linhas limpas", state.meta.totalLines],
+          ["Melhor combo", state.meta.bestComboEver],
+          ["Média por partida", avgScore],
+          ["Melhor score", state.best],
+        ];
 
-    [settingsModal, filtersModal, noteModal, sessionModal, confirmModal].forEach(modal => {
-      modal.addEventListener('click', e => {
-        if (e.target === modal) closeModal(modal);
+        GLOBAL_STATS_GRID.innerHTML = "";
+        cards.forEach(([label, value]) => {
+          const card = document.createElement("div");
+          card.className = "stat-card";
+          card.innerHTML = `<div class="stat-label">${label}</div><div class="stat-value">${value}</div>`;
+          GLOBAL_STATS_GRID.appendChild(card);
+        });
+      }
+
+      function getCurrentRunSnapshot() {
+        return {
+          score: state.score,
+          totalLinesRun: state.totalLinesRun,
+          maxComboRun: state.maxComboRun,
+          turns: state.turns,
+        };
+      }
+
+      function getCurrentGoal() {
+        const index = Math.max(0, Math.min(GOALS.length - 1, state.progress.currentGoalIndex || 0));
+        return { goal: GOALS[index], index };
+      }
+
+      function maybeAdvanceGoal() {
+        const { goal, index } = getCurrentGoal();
+        const p = goal.progress(getCurrentRunSnapshot());
+        if (p.pct >= 1 && index < GOALS.length - 1) {
+          state.progress.currentGoalIndex = index + 1;
+          saveProgress();
+        }
+      }
+
+      function renderGoal(targetDesc, targetText, targetRemaining, targetFill) {
+        const { goal } = getCurrentGoal();
+        const p = goal.progress(getCurrentRunSnapshot());
+        targetDesc.textContent = goal.label;
+        targetText.textContent = `${Math.round(p.pct * 100)}%`;
+        targetRemaining.textContent = goal.remaining(getCurrentRunSnapshot());
+        targetFill.style.width = `${Math.round(p.pct * 100)}%`;
+      }
+
+      function getAchievementById(id) {
+        return ACHIEVEMENTS.find((item) => item.id === id) || null;
+      }
+
+      function getNextLockedAchievement() {
+        return ACHIEVEMENTS.find((item) => !state.progress.unlocked.includes(item.id)) || null;
+      }
+
+      function renderNextAchievement(targetDesc, targetText, targetRemaining, targetFill) {
+        const next = getNextLockedAchievement();
+        if (!next) {
+          targetDesc.textContent = "🏆 Tudo concluído";
+          targetText.textContent = "100%";
+          targetRemaining.textContent = "Você desbloqueou todas as conquistas.";
+          targetFill.style.width = "100%";
+          return;
+        }
+
+        const p = next.progress(getCurrentRunSnapshot());
+        targetDesc.textContent = `${next.icon} ${next.name}`;
+        targetText.textContent = `${Math.round(p.pct * 100)}%`;
+        targetRemaining.textContent = next.remaining(getCurrentRunSnapshot());
+        targetFill.style.width = `${Math.round(p.pct * 100)}%`;
+      }
+
+      function renderAchievements() {
+        ACHIEVEMENT_GRID.innerHTML = "";
+        ACHIEVEMENTS.forEach((item) => {
+          const unlocked = state.progress.unlocked.includes(item.id);
+          const card = document.createElement("div");
+          card.className = `achievement-card ${unlocked ? "" : "locked"}`.trim();
+          card.innerHTML = `
+            <div class="achievement-top">
+              <div class="achievement-icon">${item.icon}</div>
+              <div class="achievement-name">${item.name}</div>
+            </div>
+            <div class="achievement-desc">${item.desc}</div>
+            <div class="achievement-meta">${unlocked ? "Desbloqueada" : "Bloqueada"}</div>
+          `;
+          ACHIEVEMENT_GRID.appendChild(card);
+        });
+      }
+
+      function showAchievementToast(achievement) {
+        clearTimeout(state.toastTimer);
+        ACHIEVEMENT_TOAST_TITLE.textContent = `${achievement.icon} ${achievement.name}`;
+        ACHIEVEMENT_TOAST_DESC.textContent = achievement.desc;
+        ACHIEVEMENT_TOAST.classList.add("show");
+        playSound("achievement");
+        haptic("achievement");
+        state.toastTimer = setTimeout(() => {
+          ACHIEVEMENT_TOAST.classList.remove("show");
+        }, 2200);
+      }
+
+      function maybeUnlockAchievements() {
+        const run = getCurrentRunSnapshot();
+        const newOnes = ACHIEVEMENTS.filter(
+          (item) => !state.progress.unlocked.includes(item.id) && item.test(run)
+        );
+
+        if (!newOnes.length) return;
+
+        newOnes.forEach((item, idx) => {
+          state.progress.unlocked.push(item.id);
+          state.progress.lastAchievementId = item.id;
+          setTimeout(() => showAchievementToast(item), idx * 260);
+        });
+
+        saveProgress();
+        renderStartScreen();
+      }
+
+      function getGameOverCopy() {
+        const run = getCurrentRunSnapshot();
+
+        if (state.score >= state.best && state.score > 0) {
+          return {
+            title: "Novo topo",
+            line: "Você bateu seu melhor resultado. Bora repetir essa run?"
+          };
+        }
+
+        if (run.maxComboRun >= 3) {
+          return {
+            title: "Quase encaixou tudo",
+            line: `Seu combo chegou a x${run.maxComboRun}. Faltou pouco para embalar ainda mais.`
+          };
+        }
+
+        if (run.totalLinesRun >= 8) {
+          return {
+            title: "Run forte",
+            line: `Você limpou ${run.totalLinesRun} linhas. Dá para transformar isso em recorde na próxima.`
+          };
+        }
+
+        if (run.turns >= 18) {
+          return {
+            title: "Você foi longe",
+            line: `Foram ${run.turns} jogadas de sobrevivência. Mais uma boa sequência e o score sobe rápido.`
+          };
+        }
+
+        if (run.score >= 250) {
+          return {
+            title: "Boa tentativa",
+            line: "A base da partida foi boa. Mais uma run e você provavelmente passa dessa marca."
+          };
+        }
+
+        return {
+          title: "Mais uma?",
+          line: "O começo já aquece a mão. Bora encaixar melhor na próxima rodada."
+        };
+      }
+
+      function prepareGameOverOverlay() {
+        const copy = getGameOverCopy();
+        GAME_OVER_TITLE.textContent = copy.title;
+        GAME_OVER_LINE.textContent = copy.line;
+        FINAL_SCORE.textContent = String(state.score);
+        FINAL_BEST.textContent = String(state.best);
+        FINAL_LINES.textContent = String(state.totalLinesRun);
+        FINAL_COMBO.textContent = String(state.maxComboRun);
+
+        renderGoal(END_GOAL_DESCRIPTION, END_GOAL_PROGRESS_TEXT, END_GOAL_REMAINING_TEXT, END_GOAL_FILL);
+        renderNextAchievement(
+          END_ACHIEVEMENT_DESCRIPTION,
+          END_ACHIEVEMENT_PROGRESS_TEXT,
+          END_ACHIEVEMENT_REMAINING_TEXT,
+          END_ACHIEVEMENT_FILL
+        );
+      }
+
+      function renderStartScreen() {
+        HERO_BEST.textContent = state.best;
+        HERO_MATCHES.textContent = `${state.meta.totalMatches} ${state.meta.totalMatches === 1 ? "partida jogada" : "partidas jogadas"}`;
+
+        const lastAchievement = getAchievementById(state.progress.lastAchievementId);
+        HERO_LAST_ACHIEVEMENT.textContent = lastAchievement ? `${lastAchievement.icon} ${lastAchievement.name}` : "—";
+        HERO_LAST_ACHIEVEMENT_META.textContent = lastAchievement ? lastAchievement.desc : "Ainda sem conquistas";
+
+        renderHistoryList(START_HISTORY_LIST, state.meta.history.slice(0, 3));
+        renderHistoryList(FULL_HISTORY_LIST, state.meta.history);
+        renderGlobalStats();
+        renderGoal(GOAL_DESCRIPTION, GOAL_PROGRESS_TEXT, GOAL_REMAINING_TEXT, GOAL_FILL);
+        renderGoal(STATS_GOAL_DESCRIPTION, STATS_GOAL_PROGRESS_TEXT, STATS_GOAL_REMAINING_TEXT, STATS_GOAL_FILL);
+        renderNextAchievement(NEXT_ACHIEVEMENT_DESCRIPTION, NEXT_ACHIEVEMENT_PROGRESS_TEXT, NEXT_ACHIEVEMENT_REMAINING_TEXT, NEXT_ACHIEVEMENT_FILL);
+        renderNextAchievement(STATS_NEXT_ACHIEVEMENT_DESCRIPTION, STATS_NEXT_ACHIEVEMENT_PROGRESS_TEXT, STATS_NEXT_ACHIEVEMENT_REMAINING_TEXT, STATS_NEXT_ACHIEVEMENT_FILL);
+        renderAchievements();
+        prepareGameOverOverlay();
+
+        CONTINUE_PLAY_BUTTON.hidden = !loadSavedGame();
+      }
+
+      function closeAllOverlays() {
+        START_OVERLAY.classList.remove("show");
+        STATS_OVERLAY.classList.remove("show");
+        GAME_OVER_OVERLAY.classList.remove("show");
+      }
+
+      function isOverlayOpen() {
+        return (
+          START_OVERLAY.classList.contains("show") ||
+          STATS_OVERLAY.classList.contains("show") ||
+          GAME_OVER_OVERLAY.classList.contains("show")
+        );
+      }
+
+      function clearTransientState() {
+        state.selectedPieceId = null;
+        state.preview = null;
+        state.previewValid = false;
+        state.dragging = null;
+        state.clearingCells = new Set();
+        state.placedPieceId = null;
+      }
+
+      function clearUiTimers() {
+        clearTimeout(state.messageTimer);
+        clearTimeout(state.messagePopTimer);
+        clearTimeout(state.placedPieceTimer);
+        clearTimeout(state.comboFxTimer);
+        clearTimeout(state.pendingGameOverTimer);
+
+        state.messageTimer = null;
+        state.messagePopTimer = null;
+        state.placedPieceTimer = null;
+        state.comboFxTimer = null;
+        state.pendingGameOverTimer = null;
+      }
+
+      function showStartScreen() {
+        clearUiTimers();
+        clearTransientState();
+        renderStartScreen();
+        closeAllOverlays();
+        START_OVERLAY.classList.add("show");
+        render();
+      }
+
+      function hideStartScreen() {
+        START_OVERLAY.classList.remove("show");
+      }
+
+      function showStatsScreen() {
+        clearUiTimers();
+        clearTransientState();
+        renderStartScreen();
+        closeAllOverlays();
+        STATS_OVERLAY.classList.add("show");
+        render();
+      }
+
+      function hideStatsScreen() {
+        STATS_OVERLAY.classList.remove("show");
+      }
+
+      function beginSoftGameOver() {
+        prepareGameOverOverlay();
+        BOARD.classList.add("gameover-soft");
+        COMBO_CHIP.classList.add("fade-soft");
+        playSound("gameover");
+        haptic("light");
+        state.pendingGameOverTimer = setTimeout(() => {
+          render();
+        }, 260);
+      }
+
+      function makeEmptyBoard() {
+        return Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(null));
+      }
+
+      function cloneBoard(board) {
+        return board.map((row) => [...row]);
+      }
+
+      function randomIndex(max) {
+        return Math.floor(Math.random() * max);
+      }
+
+      function updateSoundButton() {
+        SOUND_BUTTON.textContent = state.soundEnabled ? "🔊" : "🔇";
+        SOUND_BUTTON.classList.toggle("off", !state.soundEnabled);
+      }
+
+      function ensureAudio() {
+        if (!state.soundEnabled) return null;
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return null;
+        if (!state.audioCtx) state.audioCtx = new AudioCtx();
+        if (state.audioCtx.state === "suspended") state.audioCtx.resume();
+        return state.audioCtx;
+      }
+
+      function playTone({ freq = 440, duration = 0.08, type = "sine", gain = 0.03, slideTo = null, when = 0 }) {
+        const ctx = ensureAudio();
+        if (!ctx) return;
+        const osc = ctx.createOscillator();
+        const amp = ctx.createGain();
+        const now = ctx.currentTime + when;
+
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, now);
+        if (slideTo) osc.frequency.exponentialRampToValueAtTime(slideTo, now + duration);
+
+        amp.gain.setValueAtTime(0.0001, now);
+        amp.gain.exponentialRampToValueAtTime(gain, now + 0.01);
+        amp.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+        osc.connect(amp).connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + duration + 0.02);
+      }
+
+      function playSound(kind) {
+        if (!state.soundEnabled) return;
+
+        if (kind === "place") {
+          playTone({ freq: 460, duration: 0.06, type: "triangle", gain: 0.03, slideTo: 360 });
+        } else if (kind === "clear") {
+          playTone({ freq: 620, duration: 0.08, type: "triangle", gain: 0.04, slideTo: 820 });
+          playTone({ freq: 930, duration: 0.1, type: "sine", gain: 0.02, when: 0.03, slideTo: 760 });
+        } else if (kind === "combo") {
+          playTone({ freq: 520, duration: 0.07, type: "triangle", gain: 0.035, slideTo: 760 });
+          playTone({ freq: 760, duration: 0.08, type: "triangle", gain: 0.03, when: 0.05, slideTo: 980 });
+        } else if (kind === "record") {
+          playTone({ freq: 660, duration: 0.08, type: "triangle", gain: 0.04, slideTo: 880 });
+          playTone({ freq: 880, duration: 0.09, type: "triangle", gain: 0.04, when: 0.07, slideTo: 1100 });
+          playTone({ freq: 1100, duration: 0.11, type: "triangle", gain: 0.04, when: 0.14, slideTo: 1320 });
+        } else if (kind === "gameover") {
+          playTone({ freq: 320, duration: 0.09, type: "triangle", gain: 0.018, slideTo: 270 });
+          playTone({ freq: 270, duration: 0.11, type: "sine", gain: 0.016, when: 0.05, slideTo: 230 });
+        } else if (kind === "warn") {
+          playTone({ freq: 240, duration: 0.06, type: "square", gain: 0.02, slideTo: 180 });
+        } else if (kind === "achievement") {
+          playTone({ freq: 740, duration: 0.07, type: "triangle", gain: 0.04, slideTo: 980 });
+          playTone({ freq: 980, duration: 0.1, type: "triangle", gain: 0.035, when: 0.06, slideTo: 1220 });
+        }
+      }
+
+      function haptic(pattern = "light") {
+        if (!navigator.vibrate) return;
+        if (pattern === "success") navigator.vibrate([10, 18, 12]);
+        else if (pattern === "warn") navigator.vibrate(18);
+        else if (pattern === "achievement") navigator.vibrate([10, 20, 10, 20, 12]);
+        else navigator.vibrate(10);
+      }
+
+      function createPiece(shape) {
+        const colorIndex = randomIndex(COLORS.length);
+        return {
+          id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+          cells: shape,
+          color: COLORS[colorIndex],
+          flatColor: FLAT_COLORS[colorIndex],
+          used: false
+        };
+      }
+
+      function randomShape(pool) {
+        return pool[randomIndex(pool.length)];
+      }
+
+      function countShapeCells(shape) {
+        return shape.flat().filter(Boolean).length;
+      }
+
+      function getShapePool(board) {
+        const filled = board.flat().filter(Boolean).length;
+        const turn = state.turns;
+
+        if (turn < 4 || filled < 8) {
+          return SHAPES.filter((shape) => countShapeCells(shape) <= 4);
+        }
+
+        if (turn < 9 || filled < 22) {
+          return SHAPES.filter((shape) => countShapeCells(shape) <= 6);
+        }
+
+        return SHAPES;
+      }
+
+      function buildPieceSet(board) {
+        const pool = getShapePool(board);
+
+        for (let attempt = 0; attempt < 120; attempt += 1) {
+          const candidate = Array.from({ length: 3 }, () => createPiece(randomShape(pool)));
+          const playableCount = candidate.filter((piece) => hasAnyMove(board, [piece])).length;
+          const heavyCount = candidate.filter((piece) => countPieceCells(piece) >= 6).length;
+
+          if (!hasAnyMove(board, candidate)) continue;
+          if (state.turns < 6 && heavyCount > 1) continue;
+          if (playableCount < 2 && attempt < 80) continue;
+
+          return candidate;
+        }
+
+        return [createPiece([[1]]), createPiece([[1,1]]), createPiece([[1],[1]])];
+      }
+
+      function getPieceSize(piece) {
+        return { rows: piece.cells.length, cols: piece.cells[0].length };
+      }
+
+      function canPlace(board, piece, startRow, startCol) {
+        for (let row = 0; row < piece.cells.length; row += 1) {
+          for (let col = 0; col < piece.cells[row].length; col += 1) {
+            if (!piece.cells[row][col]) continue;
+            const boardRow = startRow + row;
+            const boardCol = startCol + col;
+            if (boardRow < 0 || boardCol < 0 || boardRow >= GRID_SIZE || boardCol >= GRID_SIZE) return false;
+            if (board[boardRow][boardCol]) return false;
+          }
+        }
+        return true;
+      }
+
+      function placePiece(board, piece, startRow, startCol) {
+        const next = cloneBoard(board);
+        for (let row = 0; row < piece.cells.length; row += 1) {
+          for (let col = 0; col < piece.cells[row].length; col += 1) {
+            if (!piece.cells[row][col]) continue;
+            next[startRow + row][startCol + col] = { color: piece.color, flatColor: piece.flatColor };
+          }
+        }
+        return next;
+      }
+
+      function clearFullLines(board) {
+        const rowsToClear = [];
+        const colsToClear = [];
+
+        for (let row = 0; row < GRID_SIZE; row += 1) {
+          if (board[row].every(Boolean)) rowsToClear.push(row);
+        }
+
+        for (let col = 0; col < GRID_SIZE; col += 1) {
+          let full = true;
+          for (let row = 0; row < GRID_SIZE; row += 1) {
+            if (!board[row][col]) {
+              full = false;
+              break;
+            }
+          }
+          if (full) colsToClear.push(col);
+        }
+
+        const cells = new Set();
+        rowsToClear.forEach((row) => {
+          for (let col = 0; col < GRID_SIZE; col += 1) cells.add(`${row}-${col}`);
+        });
+        colsToClear.forEach((col) => {
+          for (let row = 0; row < GRID_SIZE; row += 1) cells.add(`${row}-${col}`);
+        });
+
+        const next = cloneBoard(board);
+        rowsToClear.forEach((row) => {
+          for (let col = 0; col < GRID_SIZE; col += 1) next[row][col] = null;
+        });
+        colsToClear.forEach((col) => {
+          for (let row = 0; row < GRID_SIZE; row += 1) next[row][col] = null;
+        });
+
+        return { board: next, lineCount: rowsToClear.length + colsToClear.length, cells };
+      }
+
+      function hasAnyMove(board, pieces) {
+        return pieces.some((piece) => {
+          if (piece.used) return false;
+          for (let row = 0; row < GRID_SIZE; row += 1) {
+            for (let col = 0; col < GRID_SIZE; col += 1) {
+              if (canPlace(board, piece, row, col)) return true;
+            }
+          }
+          return false;
+        });
+      }
+
+      function getPlayableAnchors(board, piece) {
+        const anchors = new Set();
+        for (let row = 0; row < GRID_SIZE; row += 1) {
+          for (let col = 0; col < GRID_SIZE; col += 1) {
+            if (canPlace(board, piece, row, col)) anchors.add(`${row}-${col}`);
+          }
+        }
+        return anchors;
+      }
+
+      function countPieceCells(piece) {
+        return piece.cells.flat().filter(Boolean).length;
+      }
+
+      function getSelectedPiece() {
+        return state.pieces.find((piece) => piece.id === state.selectedPieceId && !piece.used) || null;
+      }
+
+      function getActivePiece() {
+        return state.dragging
+          ? state.pieces.find((piece) => piece.id === state.dragging.pieceId) || null
+          : getSelectedPiece();
+      }
+
+      function setMessage(text, kind = "info") {
+        clearTimeout(state.messageTimer);
+        clearTimeout(state.messagePopTimer);
+        MESSAGE_TEXT.textContent = text;
+        MESSAGE_TEXT.className = `message pop ${kind === "warn" ? "warn" : ""}`.trim();
+
+        state.messagePopTimer = setTimeout(() => {
+          MESSAGE_TEXT.className = `message ${kind === "warn" ? "warn" : ""}`.trim();
+        }, 180);
+
+        state.messageTimer = setTimeout(() => {
+          MESSAGE_TEXT.textContent = "";
+          MESSAGE_TEXT.className = "message";
+        }, 1200);
+      }
+
+      function spawnFloatingScore(value) {
+        const node = document.createElement("div");
+        node.className = "floating-score";
+        node.textContent = `+${value}`;
+        BOARD_WRAP.appendChild(node);
+        setTimeout(() => node.remove(), 900);
+      }
+
+      function spawnParticles(color = "#ffffff", intense = false) {
+        PARTICLES.innerHTML = "";
+        const count = intense ? 28 : 10;
+
+        for (let i = 0; i < count; i += 1) {
+          const p = document.createElement("div");
+          p.className = "particle";
+          p.style.left = `${46 + (Math.random() * 10 - 5)}%`;
+          p.style.top = `${42 + (Math.random() * 12 - 6)}%`;
+          p.style.color = color;
+          p.style.background = i % 5 === 0 ? "#fff3b0" : color;
+
+          const spread = intense ? 210 : 100;
+          const lift = intense ? 180 : 100;
+          p.style.width = intense && i % 4 === 0 ? "10px" : "8px";
+          p.style.height = p.style.width;
+          p.style.setProperty("--dx", `${(Math.random() * spread - spread / 2)}px`);
+          p.style.setProperty("--dy", `${(Math.random() * lift - lift * 0.75)}px`);
+          PARTICLES.appendChild(p);
+        }
+
+        setTimeout(() => { PARTICLES.innerHTML = ""; }, intense ? 900 : 620);
+      }
+
+      function triggerComboFx(hot = false) {
+        clearTimeout(state.comboFxTimer);
+        BOARD.classList.add("combo-glow");
+        COMBO_CHIP.classList.add("hot");
+
+        state.comboFxTimer = setTimeout(() => {
+          if (!hot) BOARD.classList.remove("combo-glow");
+          COMBO_CHIP.classList.remove("hot");
+        }, 320);
+      }
+
+      function celebrateNewRecord() {
+        const banner = document.createElement("div");
+        banner.className = "record-banner";
+        banner.textContent = "🏆 Novo recorde!";
+        BOARD_WRAP.appendChild(banner);
+
+        BEST_CARD.classList.add("best-hit");
+        BOARD.classList.add("record-glow");
+        COMBO_CHIP.classList.add("hot");
+
+        spawnParticles("#ffd36a", true);
+        setTimeout(() => spawnParticles("#fff3b0", true), 180);
+        setTimeout(() => spawnParticles("#ff9ec4", true), 320);
+
+        playSound("record");
+        haptic("success");
+
+        setTimeout(() => banner.remove(), 1500);
+        setTimeout(() => {
+          BEST_CARD.classList.remove("best-hit");
+          BOARD.classList.remove("record-glow");
+          COMBO_CHIP.classList.remove("hot");
+        }, 1500);
+      }
+
+      function updateLayout() {
+        const vv = window.visualViewport;
+        const viewportHeight = vv ? vv.height : window.innerHeight;
+        const shellStyles = getComputedStyle(SHELL);
+        const gap = parseFloat(shellStyles.rowGap || shellStyles.gap || 8);
+        const safeTop = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--safe-top")) || 0;
+        const safeBottom = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--safe-bottom")) || 0;
+        const shellWidth = Math.min(window.innerWidth - 24, 460);
+        const headerHeight = document.querySelector(".topbar").offsetHeight;
+        const statsHeight = STATS_PANEL.offsetHeight;
+        const trayHeight = TRAY_PANEL.offsetHeight;
+        const footerHeight = document.querySelector(".footer").offsetHeight;
+        const chromeAllowance = 6;
+        const totalFixed = headerHeight + statsHeight + trayHeight + footerHeight + gap * 4 + chromeAllowance + safeTop + safeBottom;
+        const maxByHeight = viewportHeight - totalFixed;
+        const maxByWidth = shellWidth - 2;
+        const nextBoardSize = Math.max(312, Math.min(maxByWidth, maxByHeight));
+        document.documentElement.style.setProperty("--board-size", `${Math.floor(nextBoardSize)}px`);
+      }
+
+      function renderBoard() {
+        const activePiece = getActivePiece();
+        const preview = state.preview;
+        const activeAnchors = activePiece ? getPlayableAnchors(state.board, activePiece) : new Set();
+
+        BOARD.innerHTML = "";
+
+        for (let row = 0; row < GRID_SIZE; row += 1) {
+          for (let col = 0; col < GRID_SIZE; col += 1) {
+            const cell = document.createElement("button");
+            cell.type = "button";
+            cell.className = "cell";
+            const value = state.board[row][col];
+            const key = `${row}-${col}`;
+
+            if (value) {
+              cell.classList.add("filled");
+              cell.style.background = value.color;
+            }
+
+            if (state.clearingCells.has(key)) cell.classList.add("clearing");
+            if (activePiece && activeAnchors.has(key) && !value) cell.classList.add("anchor");
+
+            if (preview && preview.cells.has(key)) {
+              cell.classList.add(preview.valid ? "preview-valid" : "preview-invalid");
+              if (preview.valid) cell.style.background = activePiece?.color || value?.color;
+            }
+
+            cell.addEventListener("click", () => handleBoardTap(row, col));
+            BOARD.appendChild(cell);
+          }
+        }
+      }
+
+      function buildMiniGrid(container, piece, className) {
+        const rows = piece.cells.length;
+        const cols = piece.cells[0].length;
+        container.style.gridTemplateColumns = `repeat(${cols}, auto)`;
+
+        for (let row = 0; row < rows; row += 1) {
+          for (let col = 0; col < cols; col += 1) {
+            const cell = document.createElement("div");
+            cell.className = className;
+            if (piece.cells[row][col]) {
+              cell.classList.add("on");
+              cell.style.background = piece.color;
+            }
+            container.appendChild(cell);
+          }
+        }
+      }
+
+      function renderPieces() {
+        const playableCount = state.pieces.filter((piece) => !piece.used && hasAnyMove(state.board, [piece])).length;
+        MOVES_TEXT.textContent = playableCount > 0
+          ? `${playableCount} peça${playableCount > 1 ? "s" : ""} • jogada ${state.turns}`
+          : "Sem espaço";
+
+        PIECES.innerHTML = "";
+
+        state.pieces.forEach((piece) => {
+          const card = document.createElement("button");
+          card.type = "button";
+          card.className = "piece-card";
+
+          if (piece.id === state.selectedPieceId) card.classList.add("active");
+          if (piece.used) card.classList.add("used");
+          if (piece.id === state.placedPieceId) card.classList.add("placed");
+
+          const playable = !piece.used && hasAnyMove(state.board, [piece]);
+          if (!playable && !piece.used) card.classList.add("unplayable");
+
+          const grid = document.createElement("div");
+          grid.className = "piece-grid";
+          buildMiniGrid(grid, piece, "piece-mini");
+          card.appendChild(grid);
+
+          const tag = document.createElement("div");
+          tag.className = "piece-tag";
+          tag.textContent = piece.used ? "usada" : playable ? "toque ou arraste" : "sem espaço";
+          card.appendChild(tag);
+
+          card.addEventListener("click", () => handlePieceTap(piece.id));
+          card.addEventListener("pointerdown", (event) => beginDrag(event, piece.id));
+          PIECES.appendChild(card);
+        });
+      }
+
+      function renderGhost() {
+        const piece = getActivePiece();
+
+        if (!state.dragging || !piece) {
+          GHOST.classList.remove("show");
+          GHOST_GRID.innerHTML = "";
+          return;
+        }
+
+        GHOST_GRID.innerHTML = "";
+        buildMiniGrid(GHOST_GRID, piece, "ghost-cell");
+        GHOST.classList.add("show");
+        GHOST.style.left = `${state.dragging.ghostLeft}px`;
+        GHOST.style.top = `${state.dragging.ghostTop}px`;
+        GHOST.style.opacity = state.previewValid ? "0.96" : "0.72";
+      }
+
+      function renderStats() {
+        SCORE_VALUE.textContent = String(state.score);
+        COMBO_VALUE.textContent = String(state.combo);
+        BEST_VALUE.textContent = String(state.best);
+        COMBO_CHIP.textContent = state.combo > 1 ? `Combo x${state.combo}` : state.combo === 1 ? "Combo iniciado" : "Sem combo";
+        if (state.combo <= 1) BOARD.classList.remove("combo-glow");
+        updateSoundButton();
+      }
+
+      function renderGameOver() {
+        if (!state.gameOver) {
+          GAME_OVER_OVERLAY.classList.remove("show");
+          return;
+        }
+
+        if (START_OVERLAY.classList.contains("show") || STATS_OVERLAY.classList.contains("show")) {
+          GAME_OVER_OVERLAY.classList.remove("show");
+          return;
+        }
+
+        FINAL_SCORE.textContent = String(state.score);
+        FINAL_BEST.textContent = String(state.best);
+        FINAL_LINES.textContent = String(state.totalLinesRun);
+        FINAL_COMBO.textContent = String(state.maxComboRun);
+        GAME_OVER_OVERLAY.classList.add("show");
+      }
+
+      function render() {
+        updateLayout();
+        renderStats();
+        renderBoard();
+        renderPieces();
+        renderGhost();
+        renderGameOver();
+      }
+
+      function evaluateRunProgress() {
+        maybeUnlockAchievements();
+        maybeAdvanceGoal();
+        renderStartScreen();
+      }
+
+      function handlePieceTap(pieceId) {
+        ensureAudio();
+
+        if (isOverlayOpen()) return;
+        if (state.gameOver) return;
+
+        const piece = state.pieces.find((item) => item.id === pieceId);
+        if (!piece || piece.used) return;
+
+        if (!hasAnyMove(state.board, [piece])) {
+          setMessage("Essa peça não cabe agora.", "warn");
+          haptic("warn");
+          playSound("warn");
+          return;
+        }
+
+        state.selectedPieceId = state.selectedPieceId === pieceId ? null : pieceId;
+        state.preview = null;
+        state.previewValid = false;
+        render();
+      }
+
+      function handleBoardTap(row, col) {
+        ensureAudio();
+
+        if (isOverlayOpen()) return;
+        if (state.gameOver) return;
+
+        const piece = getSelectedPiece();
+        if (!piece) return;
+
+        if (!canPlace(state.board, piece, row, col)) {
+          setMessage("Esse encaixe não cabe aqui.", "warn");
+          haptic("warn");
+          playSound("warn");
+          return;
+        }
+
+        commitPlacement(piece, row, col);
+      }
+
+      function commitPlacement(piece, row, col) {
+        state.board = placePiece(state.board, piece, row, col);
+        state.turns += 1;
+        state.placedPieceId = piece.id;
+
+        clearTimeout(state.placedPieceTimer);
+        state.placedPieceTimer = setTimeout(() => {
+          state.placedPieceId = null;
+          render();
+        }, 220);
+
+        piece.used = true;
+
+        const cleared = clearFullLines(state.board);
+        state.board = cleared.board;
+        state.clearingCells = cleared.cells;
+        state.totalLinesRun += cleared.lineCount;
+
+        const oldBest = state.best;
+        const pieceCells = countPieceCells(piece);
+        const basePoints = pieceCells * 6;
+        const comboNow = cleared.lineCount > 0 ? state.combo + 1 : 0;
+        const lineBonus = cleared.lineCount * 100;
+        const comboBonus = comboNow > 1 ? comboNow * 35 : 0;
+        const survivalBonus = state.turns > 10 ? Math.min(20, Math.floor(state.turns / 3)) : 0;
+        const gained = basePoints + lineBonus + comboBonus + survivalBonus;
+
+        state.score += gained;
+        state.combo = comboNow;
+        state.maxComboRun = Math.max(state.maxComboRun, comboNow);
+        state.selectedPieceId = null;
+        state.preview = null;
+        state.previewValid = false;
+
+        const beatRecord = state.score > oldBest;
+        const shouldCelebrateRecord = beatRecord && !state.celebratedRecordThisRun;
+
+        if (beatRecord) {
+          state.best = state.score;
+          saveBest();
+        }
+
+        spawnFloatingScore(gained);
+
+        if (cleared.lineCount > 0) {
+          playSound(comboNow > 1 ? "combo" : "clear");
+          haptic("success");
+          triggerComboFx(comboNow > 1);
+          spawnParticles(piece.flatColor);
+        } else {
+          playSound("place");
+          haptic("light");
+        }
+
+        if (shouldCelebrateRecord) {
+          state.celebratedRecordThisRun = true;
+          celebrateNewRecord();
+        }
+
+        if (cleared.lineCount > 0) {
+          setMessage(comboNow > 1 ? `Boa! Combo x${comboNow}` : "Linha limpa.");
+        } else if (survivalBonus > 0) {
+          setMessage(`+${gained} pontos • sobrevivência`);
+        } else {
+          setMessage(`+${gained} pontos`);
+        }
+
+        if (state.pieces.every((currentPiece) => currentPiece.used)) {
+          state.pieces = buildPieceSet(state.board);
+        }
+
+        evaluateRunProgress();
+
+        if (!hasAnyMove(state.board, state.pieces.filter((currentPiece) => !currentPiece.used))) {
+          state.gameOver = true;
+          clearTransientState();
+          clearSavedGame();
+          beginSoftGameOver();
+        } else {
+          saveCurrentGame();
+        }
+
+        render();
+
+        if (state.clearingCells.size) {
+          setTimeout(() => {
+            state.clearingCells = new Set();
+            render();
+          }, 260);
+        }
+      }
+
+      function getBoardMetrics() {
+        const rect = BOARD.getBoundingClientRect();
+        const cell = rect.width / GRID_SIZE;
+        return { rect, cell };
+      }
+
+      function updatePreviewFromPointer(pointerX, pointerY) {
+        const piece = getActivePiece();
+        if (!piece) {
+          state.preview = null;
+          state.previewValid = false;
+          return;
+        }
+
+        const { rect, cell } = getBoardMetrics();
+        const pieceSize = getPieceSize(piece);
+        const anchorCol = Math.round((pointerX - rect.left - (pieceSize.cols * cell) / 2) / cell);
+        const anchorRow = Math.round((pointerY - rect.top - (pieceSize.rows * cell) / 2) / cell);
+        const cells = new Set();
+
+        for (let row = 0; row < piece.cells.length; row += 1) {
+          for (let col = 0; col < piece.cells[row].length; col += 1) {
+            if (!piece.cells[row][col]) continue;
+            cells.add(`${anchorRow + row}-${anchorCol + col}`);
+          }
+        }
+
+        state.preview = { row: anchorRow, col: anchorCol, cells };
+        state.previewValid = canPlace(state.board, piece, anchorRow, anchorCol);
+      }
+
+      function beginDrag(event, pieceId) {
+        ensureAudio();
+
+        if (isOverlayOpen()) return;
+        if (state.gameOver) return;
+
+        const piece = state.pieces.find((item) => item.id === pieceId);
+        if (!piece || piece.used) return;
+
+        if (!hasAnyMove(state.board, [piece])) {
+          setMessage("Essa peça não cabe agora.", "warn");
+          haptic("warn");
+          playSound("warn");
+          return;
+        }
+
+        event.preventDefault();
+        state.selectedPieceId = pieceId;
+        state.dragging = {
+          pieceId,
+          pointerId: event.pointerId,
+          ghostLeft: event.clientX,
+          ghostTop: event.clientY,
+          startX: event.clientX,
+          startY: event.clientY,
+          moved: false
+        };
+        updatePreviewFromPointer(event.clientX, event.clientY);
+        render();
+      }
+
+      function handlePointerMove(event) {
+        if (isOverlayOpen()) return;
+        if (!state.dragging || event.pointerId !== state.dragging.pointerId) return;
+
+        const piece = getActivePiece();
+        if (!piece) return;
+
+        const dx = event.clientX - state.dragging.startX;
+        const dy = event.clientY - state.dragging.startY;
+        if (Math.hypot(dx, dy) > 8) {
+          state.dragging.moved = true;
+        }
+
+        const { cell } = getBoardMetrics();
+        const pieceSize = getPieceSize(piece);
+        state.dragging.ghostLeft = event.clientX - Math.min(30, (pieceSize.cols * cell) / 2);
+        state.dragging.ghostTop = event.clientY - Math.min(30, (pieceSize.rows * cell) / 2);
+        updatePreviewFromPointer(event.clientX, event.clientY);
+        render();
+      }
+
+      function handlePointerUp(event) {
+        if (isOverlayOpen()) {
+          clearTransientState();
+          render();
+          return;
+        }
+
+        if (!state.dragging || event.pointerId !== state.dragging.pointerId) return;
+
+        const piece = getActivePiece();
+        const moved = state.dragging.moved;
+
+        if (piece && state.preview && state.previewValid) {
+          commitPlacement(piece, state.preview.row, state.preview.col);
+        } else {
+          state.preview = null;
+          state.previewValid = false;
+          state.dragging = null;
+
+          if (moved) {
+            setMessage("Solte em uma posição válida.", "warn");
+            haptic("warn");
+            playSound("warn");
+          }
+
+          render();
+        }
+
+        state.dragging = null;
+        renderGhost();
+      }
+
+      function toggleSound() {
+        ensureAudio();
+        state.soundEnabled = !state.soundEnabled;
+        saveSoundPref();
+        updateSoundButton();
+        if (state.soundEnabled) playSound("place");
+      }
+
+      function resetGame() {
+        clearUiTimers();
+        closeAllOverlays();
+        clearSavedGame();
+
+        state.board = makeEmptyBoard();
+        state.pieces = buildPieceSet(state.board);
+        state.score = 0;
+        state.combo = 0;
+        state.gameOver = false;
+        state.celebratedRecordThisRun = false;
+        state.turns = 0;
+        state.maxComboRun = 0;
+        state.totalLinesRun = 0;
+
+        clearTransientState();
+
+        BOARD.classList.remove("combo-glow", "record-glow", "gameover-soft");
+        COMBO_CHIP.classList.remove("hot", "fade-soft");
+        BEST_CARD.classList.remove("best-hit");
+        PARTICLES.innerHTML = "";
+        MESSAGE_TEXT.textContent = "";
+        MESSAGE_TEXT.className = "message";
+
+        render();
+        renderStartScreen();
+      }
+
+      bindPress(HOME_BUTTON, () => {
+        ensureAudio();
+        showStartScreen();
       });
-    });
 
-    ideaInput.addEventListener('keydown', event => {
-      if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') addIdea();
-    });
+      RESTART_BUTTON.addEventListener("click", () => {
+        ensureAudio();
+        resetGame();
+      });
 
-    ideaInput.addEventListener('focus', () => renderCaptureHome());
-    ideaInput.addEventListener('blur', () => renderCaptureHome());
+      bindPress(RESTART_OVERLAY_BUTTON, () => {
+        ensureAudio();
+        resetGame();
+      });
 
-    searchInput.addEventListener('input', event => {
-      state.search = event.target.value;
-      renderNotesScreen();
-      renderInsights();
-    });
+      bindPress(GAME_OVER_MENU_BUTTON, () => {
+        ensureAudio();
+        showStartScreen();
+      });
 
-    document.getElementById('llm-provider').addEventListener('change', () => renderLLMSettings());
+      SOUND_BUTTON.addEventListener("click", toggleSound);
 
-    loadData();
-    renderAll();
+      bindPress(START_PLAY_BUTTON, () => {
+        ensureAudio();
+        resetGame();
+      });
+
+      bindPress(CONTINUE_PLAY_BUTTON, () => {
+        ensureAudio();
+        restoreSavedGame();
+      });
+
+      bindPress(OPEN_STATS_BUTTON, () => {
+        ensureAudio();
+        showStatsScreen();
+      });
+
+      bindPress(CLOSE_STATS_BUTTON, () => {
+        hideStatsScreen();
+        showStartScreen();
+      });
+
+      window.addEventListener("pointermove", handlePointerMove, { passive: true });
+      window.addEventListener("pointerup", handlePointerUp, { passive: true });
+      window.addEventListener("pointercancel", handlePointerUp, { passive: true });
+      window.addEventListener("resize", render, { passive: true });
+
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener("resize", render, { passive: true });
+        window.visualViewport.addEventListener("scroll", render, { passive: true });
+      }
+
+      updateSoundButton();
+      resetGame();
+      renderStartScreen();
+      showStartScreen();
+    })();
   </script>
 </body>
 </html>
